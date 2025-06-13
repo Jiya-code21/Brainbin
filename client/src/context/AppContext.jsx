@@ -17,29 +17,29 @@ axios.defaults.withCredentials=true
     try {
       axios.defaults.withCredentials = true; // ✅ include credentials
       const { data } = await axios.get(backendUrl + '/api/auth/is-auth');
+        data.success?setUserData(data.userData):toast.error(data.message)
       if (data.success) {
         setIsLoggedin(true);
         getUserData(); // ✅ call after login state
       }
     } catch (error) {
-      toast.error(error.message);
+      toast.error(data.message);
     }
   };
+const getUserData = async () => {
+  try {
+    const { data } = await axios.get(backendUrl + '/api/user/data');
+    if (data.success) {
+      setUserData(data.userData);
+      return data.userData;  // ✅ return updated data
+    } else {
+      toast.error(data.message);
+    }
+  } catch (error) {
+    toast.error(error.message);
+  }
+};
 
-  const getUserData = async () => {
-    try {
-      axios.defaults.withCredentials = true;
-      const { data } = await axios.get(backendUrl + '/api/user/data');
-      console.log("Fetched userData:", data.userData); // ✅ for debug
-      if (data.success) {
-        setUserData(data.userData);
-      } else {
-        toast.error(data.message);
-      }
-    } catch (error) {
-      toast.error(error.message);
-    }
-  };
 
   useEffect(() => {
     getAuthState(); // ✅ auto fetch on load
