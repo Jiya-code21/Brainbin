@@ -1,9 +1,11 @@
 import React, { useContext, useEffect } from 'react';
+import { useNavigate } from "react-router-dom"; // ✅ navigation ke liye
 import { assets } from "../assets/assets";
 import { AppContent } from "../context/AppContext";
 
 function Header() {
   const { userData } = useContext(AppContent);
+  const navigate = useNavigate(); // ✅ navigation setup
 
   useEffect(() => {
     const style = document.createElement('style');
@@ -46,13 +48,12 @@ function Header() {
       }
 
       .typing-text {
-  overflow: hidden;
-  white-space: nowrap;
-  width: 0;
-  animation: typing 3s steps(30, end) forwards;
-  color: #1f2937;
-}
-
+        overflow: hidden;
+        white-space: nowrap;
+        width: 0;
+        animation: typing 3s steps(30, end) forwards;
+        color: #1f2937;
+      }
 
       @keyframes fadeUp {
         from { opacity: 0; transform: translateY(20px); }
@@ -66,7 +67,7 @@ function Header() {
         border-radius: 16px;
         box-shadow: 0 6px 18px rgba(0,0,0,0.1);
         font-style: italic;
-        color: #374151; /* Tailwind gray-700 */
+        color: #374151;
         max-width: 420px;
         font-size: 15px;
       }
@@ -76,15 +77,12 @@ function Header() {
 
   return (
     <div className='flex flex-col items-center mt-20 px-4 text-center text-gray-800'>
-
-      {/* ✅ Spinning profile image */}
       <img
         src={assets.header_img}
         alt="profile"
         className='w-36 h-36 rounded-full mb-6 animate-spin-slow'
       />
 
-      {/* ✅ Animated wave */}
       <h1 className='flex items-center gap-2 text-xl sm:text-3xl font-medium mb-2 text-gray-800'>
         Hey {userData ? userData.name : 'Developer'}
         <img
@@ -94,7 +92,6 @@ function Header() {
         />
       </h1>
 
-      {/* ✅ Typing welcome text */}
       <h2 className='text-3xl sm:text-5xl font-semibold mb-4 typing-text'>
         Welcome to Brain bin
       </h2>
@@ -103,10 +100,12 @@ function Header() {
         Let's start with a quick product tour and we will have you up and running in no time!
       </p>
 
-      {/* ✨ Animated quote card */}
-      <div className="card-quote">
-        “Small steps every day lead to big results. Let’s organize your digital brain.”
-      </div>
+      <button
+        onClick={() => navigate("/notes")}
+        className="bg-gradient-to-r from-teal-400 via-sky-500 to-violet-600 hover:from-teal-500 hover:via-sky-600 hover:to-violet-700 text-white font-semibold px-6 py-3 rounded-full shadow-lg hover:shadow-violet-400/60 transition-all duration-500 ease-in-out transform hover:scale-105 flex items-center gap-2"
+      >
+        Organize Now ➕🗂️
+      </button>
     </div>
   );
 }
