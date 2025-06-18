@@ -1,7 +1,41 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import Select from "react-select";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
-import { FaEdit, FaTrash, FaBook, FaLink, FaTags, FaLightbulb } from "react-icons/fa";
+import {
+  FaBook,
+  FaPlus,
+  FaEdit,
+  FaTrash,
+  FaLightbulb,
+  FaLink,
+} from "react-icons/fa";
+
+// Status options with emoji + color
+const statusOptions = [
+  { value: "Concepts", label: "📝 To Do", color: "#06b6d4" },
+  { value: "In Progress", label: "⏳ In Progress", color: "#facc15" },
+  { value: "Done", label: "✅ Done", color: "#22c55e" },
+];
+
+// React Select styles
+const customStyles = {
+  option: (provided, state) => ({
+    ...provided,
+    backgroundColor: state.isSelected
+      ? state.data.color
+      : state.isFocused
+      ? "#f3f4f6"
+      : "#fff",
+    color: "#000",
+    fontWeight: "bold",
+  }),
+  singleValue: (provided, state) => ({
+    ...provided,
+    color: state.data.color,
+    fontWeight: "bold",
+  }),
+};
 
 const statusColors = {
   Concepts: "border-cyan-500",
@@ -19,6 +53,8 @@ const Notes = () => {
   const [status, setStatus] = useState("Concepts");
   const [editId, setEditId] = useState(null);
   const [activeTab, setActiveTab] = useState("Concepts");
+  const [showModal, setShowModal] = useState(false);
+  const [bookOpen, setBookOpen] = useState(false);
 
   const fetchNotes = async () => {
     try {
@@ -34,9 +70,18 @@ const Notes = () => {
     }
   };
 
-  useEffect(() => {
-    fetchNotes();
-  }, []);
+  useEffect(fetchNotes, []);
+
+  const resetForm = () => {
+    setTitle("");
+    setContent("");
+    setSubject("");
+    setTags("");
+    setResourceUrl("");
+    setStatus("Concepts");
+    setEditId(null);
+    setShowModal(false);
+  };
 
   const handleAddOrUpdateNote = async () => {
     if (!title.trim() || !content.trim()) {
@@ -55,10 +100,11 @@ const Notes = () => {
 
     try {
       if (editId) {
-        await axios.put(`http://localhost:4000/api/notes/update/${editId}`, noteData, {
-          withCredentials: true,
-        });
-        setEditId(null);
+        await axios.put(
+          `http://localhost:4000/api/notes/update/${editId}`,
+          noteData,
+          { withCredentials: true }
+        );
       } else {
         await axios.post("http://localhost:4000/api/notes/create", noteData, {
           withCredentials: true,
@@ -71,15 +117,6 @@ const Notes = () => {
     }
   };
 
-  const resetForm = () => {
-    setTitle("");
-    setContent("");
-    setSubject("");
-    setTags("");
-    setResourceUrl("");
-    setStatus("Concepts");
-  };
-
   const handleEdit = (note) => {
     setEditId(note._id);
     setTitle(note.title);
@@ -88,6 +125,7 @@ const Notes = () => {
     setTags(note.tags.join(", "));
     setResourceUrl(note.resourceUrl);
     setStatus(note.status);
+    setShowModal(true);
   };
 
   const handleDelete = async (id) => {
@@ -104,10 +142,8 @@ const Notes = () => {
   const handleDragEnd = async (result) => {
     const { source, destination, draggableId } = result;
     if (!destination || source.index === destination.index) return;
-
-    const movedNote = notes.find((note) => note._id === draggableId);
+    const movedNote = notes.find((n) => n._id === draggableId);
     if (!movedNote) return;
-
     try {
       await axios.put(
         `http://localhost:4000/api/notes/update/${draggableId}`,
@@ -116,166 +152,208 @@ const Notes = () => {
       );
       fetchNotes();
     } catch (err) {
-      console.error("Error updating note on drag:", err);
+      console.error("Drag update error:", err);
     }
   };
 
-  const filteredNotes = notes.filter((note) => note.status === activeTab);
+  const filteredNotes = notes.filter((n) => n.status === activeTab);
+
+  const getSubjectCounts = () => {
+    return notes.reduce((acc, note) => {
+      if (note.subject) acc[note.subject] = (acc[note.subject] || 0) + 1;
+      return acc;
+    }, {});
+  };
 
   return (
-    <div className="bg-[#f7f9fb] min-h-screen px-6 py-8 text-gray-800">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold text-black-700 flex items-center gap-2">
-          <FaBook className="text-black-500" /> Notes Dashboard
-        </h1>
-      </div>
-
-      {/* Tabs */}
-      <div className="flex gap-4 mb-6">
-        {["Concepts", "In Progress", "Done"].map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`px-5 py-2 rounded-full font-semibold shadow-sm ${
-              activeTab === tab
-                ? "bg-indigo-600 text-white"
-                : "bg-white border border-gray-300 text-gray-700"
+    <div className="flex min-h-screen">
+      {/* Sidebar */}
+      <div className="w-80 bg-gradient-to-br from-indigo-800 to-purple-900 text-white p-6 shadow-2xl">
+        <h1
+          className="text-2xl font-bold flex items-center gap-2 cursor-pointer group"
+          onClick={() => setBookOpen(!bookOpen)}
+        >
+          <FaBook
+            className={`transition-transform duration-500 group-hover:scale-110 ${
+              bookOpen ? "rotate-[20deg] text-yellow-300" : "rotate-0 text-white"
             }`}
-          >
-            {tab}
-          </button>
-        ))}
-      </div>
+          />
+          Notes Dashboard
+        </h1>
 
-      {/* Note Form */}
-      <div className="bg-white shadow rounded-lg p-6 mb-8 grid grid-cols-1 md:grid-cols-2 gap-4">
-        <input
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="Title"
-          className="p-2 border rounded"
-        />
-        <input
-          value={subject}
-          onChange={(e) => setSubject(e.target.value)}
-          placeholder="Subject"
-          className="p-2 border rounded"
-        />
-        <textarea
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          placeholder="Content"
-          className="col-span-2 p-2 border rounded h-24"
-        />
-        <input
-          value={tags}
-          onChange={(e) => setTags(e.target.value)}
-          placeholder="Tags (comma separated)"
-          className="p-2 border rounded"
-        />
-        <input
-          value={resourceUrl}
-          onChange={(e) => setResourceUrl(e.target.value)}
-          placeholder="Resource URL"
-          className="p-2 border rounded"
-        />
-        <select
-          value={status}
-          onChange={(e) => setStatus(e.target.value)}
-          className="p-2 border rounded"
-        >
-          <option>Concepts</option>
-          <option>In Progress</option>
-          <option>Done</option>
-        </select>
         <button
-          onClick={handleAddOrUpdateNote}
-          className={`col-span-2 py-2 font-bold text-white rounded ${
-            editId ? "bg-emerald-600 hover:bg-emerald-700" : "bg-indigo-600 hover:bg-indigo-700"
-          }`}
+          className="mt-6 bg-white text-indigo-700 px-4 py-2 rounded shadow flex items-center gap-2 hover:bg-indigo-100"
+          onClick={() => setShowModal(true)}
         >
-          {editId ? "✏️ Update Note" : "➕ Add Note"}
+          <FaPlus /> Add Note
         </button>
+
+        <div className="space-y-2 mt-6">
+          {statusOptions.map((o) => (
+            <button
+              key={o.value}
+              onClick={() => setActiveTab(o.value)}
+              className={`w-full text-left px-3 py-2 rounded ${
+                activeTab === o.value
+                  ? "bg-indigo-300 text-indigo-900 font-bold"
+                  : "hover:bg-indigo-600"
+              }`}
+            >
+              {o.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="mt-6">
+          <h2 className="text-lg font-semibold mb-2">📘 Subjects</h2>
+          <ul className="space-y-1 text-sm">
+            {Object.entries(getSubjectCounts()).map(([sub, count]) => (
+              <li key={sub} className="flex justify-between">
+                <span>{sub}</span>
+                <span className="bg-white text-indigo-700 px-2 rounded-full">
+                  {count}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
 
-      {/* Notes Cards Grid (4 Cards Per Row) */}
-      <DragDropContext onDragEnd={handleDragEnd}>
-        <Droppable droppableId="notes">
-          {(provided) => (
-            <div
-              {...provided.droppableProps}
-              ref={provided.innerRef}
-              className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-            >
-              {filteredNotes.map((note, index) => (
-                <Draggable key={note._id} draggableId={note._id} index={index}>
-                  {(provided) => (
-                    <div
-                      ref={provided.innerRef}
-                      {...provided.draggableProps}
-                      {...provided.dragHandleProps}
-                      className={`border-l-4 ${statusColors[note.status] || "border-gray-300"} p-4 rounded-lg shadow bg-white w-full max-w-sm`}
-                    >
-                      <h2 className="text-lg font-bold text-indigo-700 flex items-center gap-2">
-                        <FaLightbulb /> {note.title}
-                      </h2>
-                      <p className="text-sm mt-1">{note.content}</p>
-
-                      {note.subject && (
-                        <p className="mt-2 text-sm font-medium text-gray-700">
-                          📚 Subject: {note.subject}
-                        </p>
-                      )}
-
-                      {note.tags?.length > 0 && (
-                        <p className="mt-1 text-sm flex flex-wrap gap-1 items-center text-gray-700">
-                          <FaTags className="text-sm" />{" "}
-                          {note.tags.map((tag, i) => (
+      {/* Main Content */}
+      <div className="flex-1 bg-[#f8fafc] p-6">
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <Droppable droppableId="notes">
+            {(prov) => (
+              <div
+                ref={prov.innerRef}
+                {...prov.droppableProps}
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+              >
+                {filteredNotes.map((n, i) => (
+                  <Draggable key={n._id} draggableId={n._id} index={i}>
+                    {(p) => (
+                      <div
+                        ref={p.innerRef}
+                        {...p.draggableProps}
+                        {...p.dragHandleProps}
+                        className={`bg-white p-4 rounded shadow border-l-4 ${
+                          statusColors[n.status] || "border-gray-300"
+                        }`}
+                      >
+                        <h2 className="font-bold text-lg flex items-center gap-2">
+                          <FaLightbulb /> {n.title}
+                        </h2>
+                        <p className="text-sm my-2">{n.content}</p>
+                        {n.subject && (
+                          <p className="text-sm text-gray-600">
+                            📚 {n.subject}
+                          </p>
+                        )}
+                        <div className="flex flex-wrap gap-1 text-xs py-2">
+                          {n.tags?.map((t, idx) => (
                             <span
-                              key={i}
-                              className="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded text-xs"
+                              key={idx}
+                              className="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full"
                             >
-                              {tag}
+                              {t}
                             </span>
                           ))}
-                        </p>
-                      )}
-
-                      {note.resourceUrl && (
-                        <a
-                          href={note.resourceUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="mt-2 inline-block text-blue-500 underline text-sm flex items-center gap-1"
-                        >
-                          <FaLink /> Resource Link
-                        </a>
-                      )}
-
-                      <div className="flex gap-2 mt-4">
-                        <button
-                          onClick={() => handleEdit(note)}
-                          className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-sm flex items-center gap-1"
-                        >
-                          <FaEdit /> Edit
-                        </button>
-                        <button
-                          onClick={() => handleDelete(note._id)}
-                          className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm flex items-center gap-1"
-                        >
-                          <FaTrash /> Delete
-                        </button>
+                        </div>
+                        {n.resourceUrl && (
+                          <a
+                            href={n.resourceUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-blue-600 underline flex items-center gap-1"
+                          >
+                            <FaLink /> Visit
+                          </a>
+                        )}
+                        <div className="flex gap-2 mt-4">
+                          <button
+                            onClick={() => handleEdit(n)}
+                            className="text-yellow-600 hover:text-yellow-800"
+                          >
+                            <FaEdit />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(n._id)}
+                            className="text-red-600 hover:text-red-800"
+                          >
+                            <FaTrash />
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  )}
-                </Draggable>
-              ))}
-              {provided.placeholder}
+                    )}
+                  </Draggable>
+                ))}
+                {prov.placeholder}
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
+      </div>
+
+      {/* Modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded shadow-md w-[90%] md:w-[600px] space-y-3">
+            <h2 className="text-xl font-bold mb-3">
+              {editId ? "✏️ Update Note" : "➕ Add Note"}
+            </h2>
+            <input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Title"
+              className="border p-2 rounded w-full"
+            />
+            <input
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
+              placeholder="Subject"
+              className="border p-2 rounded w-full"
+            />
+            <textarea
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder="Content"
+              className="border p-2 rounded w-full h-24"
+            />
+            <input
+              value={tags}
+              onChange={(e) => setTags(e.target.value)}
+              placeholder="Tags (comma separated)"
+              className="border p-2 rounded w-full"
+            />
+            <input
+              value={resourceUrl}
+              onChange={(e) => setResourceUrl(e.target.value)}
+              placeholder="Resource URL"
+              className="border p-2 rounded w-full"
+            />
+            <Select
+              value={statusOptions.find((o) => o.value === status)}
+              onChange={(opt) => setStatus(opt.value)}
+              options={statusOptions}
+              styles={customStyles}
+            />
+            <div className="flex justify-between mt-4">
+              <button
+                onClick={handleAddOrUpdateNote}
+                className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded"
+              >
+                {editId ? "Update Note" : "Add Note"}
+              </button>
+              <button
+                onClick={resetForm}
+                className="bg-gray-300 hover:bg-gray-400 px-4 py-2 rounded"
+              >
+                Cancel
+              </button>
             </div>
-          )}
-        </Droppable>
-      </DragDropContext>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
