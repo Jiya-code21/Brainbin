@@ -1,11 +1,13 @@
-import React, { useContext, useEffect } from 'react';
-import { useNavigate } from "react-router-dom"; // ✅ navigation ke liye
+import React, { useContext, useEffect, useState } from 'react';
+import { useNavigate } from "react-router-dom";
 import { assets } from "../assets/assets";
 import { AppContent } from "../context/AppContext";
 
 function Header() {
   const { userData } = useContext(AppContent);
-  const navigate = useNavigate(); // ✅ navigation setup
+  const navigate = useNavigate();
+
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const style = document.createElement('style');
@@ -14,7 +16,6 @@ function Header() {
         0% { transform: rotateY(0deg); }
         100% { transform: rotateY(360deg); }
       }
-
       .animate-spin-slow {
         animation: spin-slow 10s linear infinite;
         transform-style: preserve-3d;
@@ -31,7 +32,6 @@ function Header() {
         60% { transform: rotate(0deg); }
         100% { transform: rotate(0deg); }
       }
-
       .animate-wave {
         display: inline-block;
         transform-origin: bottom right;
@@ -42,11 +42,6 @@ function Header() {
         from { width: 0 }
         to { width: 100% }
       }
-
-      @keyframes blink {
-        50% { border-color: transparent }
-      }
-
       .typing-text {
         overflow: hidden;
         white-space: nowrap;
@@ -55,25 +50,36 @@ function Header() {
         color: #1f2937;
       }
 
-      @keyframes fadeUp {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
+      @keyframes spinnerRotate {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
       }
-
-      .card-quote {
-        animation: fadeUp 1.5s ease-out;
-        background: linear-gradient(135deg, #e0f7fa, #fefefe);
-        padding: 16px 24px;
-        border-radius: 16px;
-        box-shadow: 0 6px 18px rgba(0,0,0,0.1);
-        font-style: italic;
-        color: #374151;
-        max-width: 420px;
-        font-size: 15px;
+      .multi-color-spinner {
+        width: 64px;
+        height: 64px;
+        border: 6px solid transparent;
+        border-top-color: #06b6d4;   /* cyan */
+        border-right-color: #3b82f6; /* blue */
+        border-bottom-color: #8b5cf6; /* violet */
+        border-left-color: #facc15;  /* yellow */
+        border-radius: 50%;
+        animation: spinnerRotate 1s linear infinite;
       }
     `;
     document.head.appendChild(style);
+
+    // Fake loading delay removed: simulate real load
+    const timer = setTimeout(() => setLoading(false), 800); // faster
+    return () => clearTimeout(timer);
   }, []);
+
+  if (loading) {
+    return (
+      <div className="w-full h-screen flex justify-center items-center bg-white">
+        <div className="multi-color-spinner"></div>
+      </div>
+    );
+  }
 
   return (
     <div className='flex flex-col items-center mt-20 px-4 text-center text-gray-800'>
