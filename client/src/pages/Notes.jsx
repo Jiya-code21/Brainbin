@@ -11,14 +11,18 @@ import {
   FaLink,
 } from "react-icons/fa";
 
-// Status options with emoji + color
+const Spinner = () => (
+  <div className="w-full h-screen flex items-center justify-center bg-white">
+    <div className="multi-color-spinner"></div>
+  </div>
+);
+
 const statusOptions = [
   { value: "Concepts", label: "📝 To Do", color: "#06b6d4" },
   { value: "In Progress", label: "⏳ In Progress", color: "#facc15" },
   { value: "Done", label: "✅ Done", color: "#22c55e" },
 ];
 
-// React Select styles
 const customStyles = {
   option: (provided, state) => ({
     ...provided,
@@ -43,8 +47,11 @@ const statusColors = {
   Done: "border-green-500",
 };
 
+const NOTES_PER_PAGE = 6;
+
 const Notes = () => {
   const [notes, setNotes] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [subject, setSubject] = useState("");
@@ -55,9 +62,37 @@ const Notes = () => {
   const [activeTab, setActiveTab] = useState("Concepts");
   const [showModal, setShowModal] = useState(false);
   const [bookOpen, setBookOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  useEffect(() => {
+    fetchNotes();
+  }, []);
+
+  useEffect(() => {
+    const style = document.createElement("style");
+    style.innerHTML = `
+      @keyframes spinnerRotate {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      .multi-color-spinner {
+        width: 64px;
+        height: 64px;
+        border: 6px solid transparent;
+        border-top-color: #06b6d4;
+        border-right-color: #3b82f6;
+        border-bottom-color: #8b5cf6;
+        border-left-color: #facc15;
+        border-radius: 50%;
+        animation: spinnerRotate 1s linear infinite;
+      }
+    `;
+    document.head.appendChild(style);
+  }, []);
 
   const fetchNotes = async () => {
     try {
+      setLoading(true);
       const res = await axios.get("http://localhost:4000/api/notes/my-notes", {
         withCredentials: true,
       });
@@ -67,10 +102,10 @@ const Notes = () => {
       setNotes(sorted || []);
     } catch (err) {
       console.error("Error fetching notes:", err);
+    } finally {
+      setTimeout(() => setLoading(false), 500);
     }
   };
-
-  useEffect(fetchNotes, []);
 
   const resetForm = () => {
     setTitle("");
@@ -156,7 +191,13 @@ const Notes = () => {
     }
   };
 
-  const filteredNotes = notes.filter((n) => n.status === activeTab);
+  const filteredNotesAll = notes.filter((n) => n.status === activeTab);
+  const totalPages = Math.ceil(filteredNotesAll.length / NOTES_PER_PAGE);
+
+  const paginatedNotes = filteredNotesAll.slice(
+    (currentPage - 1) * NOTES_PER_PAGE,
+    currentPage * NOTES_PER_PAGE
+  );
 
   const getSubjectCounts = () => {
     return notes.reduce((acc, note) => {
@@ -192,7 +233,10 @@ const Notes = () => {
           {statusOptions.map((o) => (
             <button
               key={o.value}
-              onClick={() => setActiveTab(o.value)}
+              onClick={() => {
+                setActiveTab(o.value);
+                setCurrentPage(1); // Reset page on tab switch
+              }}
               className={`w-full text-left px-3 py-2 rounded ${
                 activeTab === o.value
                   ? "bg-indigo-300 text-indigo-900 font-bold"
@@ -221,80 +265,158 @@ const Notes = () => {
 
       {/* Main Content */}
       <div className="flex-1 bg-[#f8fafc] p-6">
-        <DragDropContext onDragEnd={handleDragEnd}>
-          <Droppable droppableId="notes">
-            {(prov) => (
-              <div
-                ref={prov.innerRef}
-                {...prov.droppableProps}
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-              >
-                {filteredNotes.map((n, i) => (
-                  <Draggable key={n._id} draggableId={n._id} index={i}>
-                    {(p) => (
-                      <div
-                        ref={p.innerRef}
-                        {...p.draggableProps}
-                        {...p.dragHandleProps}
-                        className={`bg-white p-4 rounded shadow border-l-4 ${
-                          statusColors[n.status] || "border-gray-300"
-                        }`}
-                      >
-                        <h2 className="font-bold text-lg flex items-center gap-2">
-                          <FaLightbulb /> {n.title}
-                        </h2>
-                        <p className="text-sm my-2">{n.content}</p>
-                        {n.subject && (
-                          <p className="text-sm text-gray-600">
-                            📚 {n.subject}
-                          </p>
+        {loading ? (
+          <Spinner />
+        ) : (
+          <DragDropContext onDragEnd={handleDragEnd}>
+            <Droppable droppableId="notes">
+              {(prov) => (
+                <>
+                  <div
+                    ref={prov.innerRef}
+                    {...prov.droppableProps}
+                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+                  >
+                    {paginatedNotes.map((n, i) => (
+                      <Draggable key={n._id} draggableId={n._id} index={i}>
+                        {(p) => (
+                          <div
+                            ref={p.innerRef}
+                            {...p.draggableProps}
+                            {...p.dragHandleProps}
+                            className={`bg-white p-4 rounded shadow border-l-4 ${
+                              statusColors[n.status] || "border-gray-300"
+                            }`}
+                          >
+                            <h2 className="font-bold text-lg flex items-center gap-2">
+                              <FaLightbulb /> {n.title}
+                            </h2>
+                            <p className="text-sm my-2">{n.content}</p>
+                            {n.subject && (
+                              <p className="text-sm text-gray-600">
+                                📚 {n.subject}
+                              </p>
+                            )}
+                            <div className="flex flex-wrap gap-1 text-xs py-2">
+                              {n.tags?.map((t, idx) => (
+                                <span
+                                  key={idx}
+                                  className="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full"
+                                >
+                                  {t}
+                                </span>
+                              ))}
+                            </div>
+                            {n.resourceUrl && (
+                              <a
+                                href={n.resourceUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-blue-600 underline flex items-center gap-1"
+                              >
+                                <FaLink /> Visit
+                              </a>
+                            )}
+                            <div className="flex gap-2 mt-4">
+                              <button
+                                onClick={() => handleEdit(n)}
+                                className="text-yellow-600 hover:text-yellow-800"
+                              >
+                                <FaEdit />
+                              </button>
+                              <button
+                                onClick={() => handleDelete(n._id)}
+                                className="text-red-600 hover:text-red-800"
+                              >
+                                <FaTrash />
+                              </button>
+                            </div>
+                          </div>
                         )}
-                        <div className="flex flex-wrap gap-1 text-xs py-2">
-                          {n.tags?.map((t, idx) => (
-                            <span
-                              key={idx}
-                              className="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full"
-                            >
-                              {t}
-                            </span>
+                      </Draggable>
+                    ))}
+                    {prov.placeholder}
+                  </div>
+
+                  {/* Pagination Footer */}
+                  {totalPages > 1 && (
+                    <div className="col-span-full flex justify-center mt-6">
+                      <ul className="flex gap-2 items-center text-sm">
+                        <li>
+                          <button
+                            className="w-8 h-8 rounded-full border text-gray-600 hover:bg-gray-100"
+                            onClick={() => setCurrentPage(1)}
+                            disabled={currentPage === 1}
+                          >
+                            «
+                          </button>
+                        </li>
+                        <li>
+                          <button
+                            className="w-8 h-8 rounded-full border text-gray-600 hover:bg-gray-100"
+                            onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                            disabled={currentPage === 1}
+                          >
+                            ‹
+                          </button>
+                        </li>
+                        {Array.from({ length: totalPages }, (_, i) => i + 1)
+                          .filter((pageNum) => {
+                            if (pageNum === 1 || pageNum === totalPages) return true;
+                            if (Math.abs(currentPage - pageNum) <= 1) return true;
+                            return false;
+                          })
+                          .map((pageNum, idx, arr) => (
+                            <React.Fragment key={pageNum}>
+                              {idx > 0 &&
+                                pageNum - arr[idx - 1] > 1 && (
+                                  <span className="px-1">...</span>
+                                )}
+                              <li>
+                                <button
+                                  className={`w-8 h-8 rounded-full border ${
+                                    currentPage === pageNum
+                                      ? "bg-blue-500 text-white font-bold"
+                                      : "text-gray-600 hover:bg-gray-100"
+                                  }`}
+                                  onClick={() => setCurrentPage(pageNum)}
+                                >
+                                  {pageNum}
+                                </button>
+                              </li>
+                            </React.Fragment>
                           ))}
-                        </div>
-                        {n.resourceUrl && (
-                          <a
-                            href={n.resourceUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="text-blue-600 underline flex items-center gap-1"
-                          >
-                            <FaLink /> Visit
-                          </a>
-                        )}
-                        <div className="flex gap-2 mt-4">
+                        <li>
                           <button
-                            onClick={() => handleEdit(n)}
-                            className="text-yellow-600 hover:text-yellow-800"
+                            className="w-8 h-8 rounded-full border text-gray-600 hover:bg-gray-100"
+                            onClick={() =>
+                              setCurrentPage((p) => Math.min(p + 1, totalPages))
+                            }
+                            disabled={currentPage === totalPages}
                           >
-                            <FaEdit />
+                            ›
                           </button>
+                        </li>
+                        <li>
                           <button
-                            onClick={() => handleDelete(n._id)}
-                            className="text-red-600 hover:text-red-800"
+                            className="w-8 h-8 rounded-full border text-gray-600 hover:bg-gray-100"
+                            onClick={() => setCurrentPage(totalPages)}
+                            disabled={currentPage === totalPages}
                           >
-                            <FaTrash />
+                            »
                           </button>
-                        </div>
-                      </div>
-                    )}
-                  </Draggable>
-                ))}
-                {prov.placeholder}
-              </div>
-            )}
-          </Droppable>
-        </DragDropContext>
+                        </li>
+                      </ul>
+                    </div>
+                  )}
+                </>
+              )}
+            </Droppable>
+          </DragDropContext>
+        )}
       </div>
 
-      {/* Modal */}
+      {/* Modal (unchanged) */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
           <div className="bg-white p-6 rounded shadow-md w-[90%] md:w-[600px] space-y-3">
