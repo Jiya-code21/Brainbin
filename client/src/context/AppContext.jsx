@@ -5,44 +5,43 @@ import axios from 'axios';
 export const AppContent = createContext();
 
 export const AppContextProvider = (props) => {
-
-axios.defaults.withCredentials=true
-
+  axios.defaults.withCredentials = true;
 
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const [isLoggedin, setIsLoggedin] = useState(false);
-  const [userData, setUserData] = useState(null); // ✅ fixed from `false`
+  const [userData, setUserData] = useState(null);
+
+  const getUserData = async () => {
+    try {
+      const { data } = await axios.get(backendUrl + '/api/user/data');
+      if (data.success) {
+        setUserData(data.userData);
+        setIsLoggedin(true); // ✅ Set logged-in status
+        return data.userData;
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || error.message);
+    }
+  };
 
   const getAuthState = async () => {
     try {
-      axios.defaults.withCredentials = true; // ✅ include credentials
       const { data } = await axios.get(backendUrl + '/api/auth/is-auth');
-        data.success?setUserData(data.userData):toast.error(data.message)
       if (data.success) {
+        setUserData(data.userData);
         setIsLoggedin(true);
-        getUserData(); // ✅ call after login state
+      } else {
+        toast.error(data.message);
       }
     } catch (error) {
-      toast.error(data.message);
+      toast.error(error.response?.data?.message || error.message);
     }
   };
-const getUserData = async () => {
-  try {
-    const { data } = await axios.get(backendUrl + '/api/user/data');
-    if (data.success) {
-      setUserData(data.userData);
-      return data.userData;  // ✅ return updated data
-    } else {
-      toast.error(data.message);
-    }
-  } catch (error) {
-    toast.error(error.message);
-  }
-};
-
 
   useEffect(() => {
-    getAuthState(); // ✅ auto fetch on load
+    getAuthState();
   }, []);
 
   const value = {
@@ -51,7 +50,7 @@ const getUserData = async () => {
     setIsLoggedin,
     userData,
     setUserData,
-    getUserData
+    getUserData,
   };
 
   return (
