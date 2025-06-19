@@ -10,7 +10,7 @@ import {
   FaLightbulb,
   FaLink,
 } from "react-icons/fa";
-
+ 
 const Spinner = () => (
   <div className="w-full h-screen flex items-center justify-center bg-white">
     <div className="multi-color-spinner"></div>
