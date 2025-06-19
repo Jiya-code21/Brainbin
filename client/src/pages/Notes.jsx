@@ -93,7 +93,7 @@ const Notes = () => {
   const fetchNotes = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("http://localhost:4000/api/notes/my-notes", {
+          const res = await axios.get(`${backendUrl}/api/notes/my-notes`, {
         withCredentials: true,
       });
       const sorted = res.data.notes?.sort(
@@ -135,13 +135,13 @@ const Notes = () => {
 
     try {
       if (editId) {
-        await axios.put(
-          `http://localhost:4000/api/notes/update/${editId}`,
+  await axios.put(
+          `${backendUrl}/api/notes/update/${editId}`,
           noteData,
           { withCredentials: true }
         );
       } else {
-        await axios.post("http://localhost:4000/api/notes/create", noteData, {
+ await axios.post(`${backendUrl}/api/notes/create`, noteData, {
           withCredentials: true,
         });
       }
@@ -165,7 +165,7 @@ const Notes = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:4000/api/notes/delete/${id}`, {
+       await axios.delete(`${backendUrl}/api/notes/delete/${id}`, {
         withCredentials: true,
       });
       fetchNotes();
@@ -180,8 +180,8 @@ const Notes = () => {
     const movedNote = notes.find((n) => n._id === draggableId);
     if (!movedNote) return;
     try {
-      await axios.put(
-        `http://localhost:4000/api/notes/update/${draggableId}`,
+    await axios.put(
+        `${backendUrl}/api/notes/update/${draggableId}`,
         { ...movedNote, status: activeTab },
         { withCredentials: true }
       );
