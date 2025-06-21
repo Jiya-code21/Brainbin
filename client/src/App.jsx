@@ -7,12 +7,12 @@ import ResetPassword from "./pages/ResetPassword";
 import Notes from "./pages/Notes";
 import Error from "./pages/error";
 import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css'; // 👈 must import for styling
+import 'react-toastify/dist/ReactToastify.css'; 
 
 function App() {
   return (
     <div>
-      {/* ✅ Toast container with bottom-center position */}
+    
       <ToastContainer
         position="bottom-center"
         autoClose={1500}
@@ -23,10 +23,10 @@ function App() {
         pauseOnFocusLoss
         draggable
         pauseOnHover
-        theme="light" // or "light" if you prefer
+        theme="light"
       />
 
-      {/* App Routes */}
+
       <Routes>
         <Route path='/' element={<Home />} />
         <Route path='/login' element={<Login />} />
@@ -34,7 +34,7 @@ function App() {
         <Route path='/reset-password' element={<ResetPassword />} />
         <Route path="/notes" element={<Notes />} />
 
-        {/* 404 Fallback */}
+        {/* 404 error page route */}
         <Route path='*' element={<Error />} />
       </Routes>
     </div>
