@@ -27,8 +27,8 @@ function Login() {
         });
 
         if (data.success) {
-          await getUserData();     // ✅ wait for user data
-          navigate('/');           // ✅ then redirect
+          await getUserData();     
+          navigate('/');          
         } else {
           toast.error(data.message);
         }
@@ -39,8 +39,8 @@ function Login() {
         });
 
         if (data.success) {
-          await getUserData();     // ✅ wait for user data
-          navigate('/');           // ✅ then redirect
+          await getUserData(); 
+          navigate('/');       
         } else {
           toast.error(data.message);
         }
