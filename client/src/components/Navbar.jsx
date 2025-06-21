@@ -65,7 +65,7 @@ function Navbar() {
 
   return (
     <div className='w-full flex justify-between items-center p-4 sm:p-6 sm:px-24 absolute top-0'>
-      {/* ✅ Smaller Logo */}
+      {/*  Smaller Logo */}
 <img src={assets.logo} alt="Logo" className='w-28 sm:w-36 bg-transparent !bg-none' />
 
 
