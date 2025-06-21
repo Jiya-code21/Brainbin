@@ -8,6 +8,8 @@ export const AppContextProvider = (props) => {
   axios.defaults.withCredentials = true;
 
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
+  console.log("✅ FRONTEND BACKEND_URL:", backendUrl);  // Debugging line
+
   const [isLoggedin, setIsLoggedin] = useState(false);
   const [userData, setUserData] = useState(null);
 
@@ -16,7 +18,7 @@ export const AppContextProvider = (props) => {
       const { data } = await axios.get(backendUrl + '/api/user/data');
       if (data.success) {
         setUserData(data.userData);
-        setIsLoggedin(true); // ✅ Set logged-in status
+        setIsLoggedin(true);
         return data.userData;
       } else {
         toast.error(data.message);
