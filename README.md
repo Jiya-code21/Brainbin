@@ -1,5 +1,8 @@
 <h1 align="center">🧠 BrainBin</h1>
 <p align="center">Your thoughts, beautifully organized — because sticky notes are so last season.</p>
+
+![image](https://github.com/user-attachments/assets/54d8cb87-bee4-4287-a09b-29fe3e5903a6)
+
 🚀 What is BrainBin?
 
 **BrainBin** is your personal idea vault.  
