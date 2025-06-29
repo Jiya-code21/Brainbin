@@ -15,7 +15,7 @@ function Header() {
       @keyframes spin-slow {
         0% { transform: rotateY(0deg); }
         100% { transform: rotateY(360deg); }
-      }
+      } 
       .animate-spin-slow {
         animation: spin-slow 10s linear infinite;
         transform-style: preserve-3d;
