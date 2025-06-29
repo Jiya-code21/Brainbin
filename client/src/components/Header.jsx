@@ -3,10 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { assets } from "../assets/assets";
 import { AppContent } from "../context/AppContext";
 
+const { header_img, hand_wave, demoVideo } = assets;
+
 function Header() {
   const { userData } = useContext(AppContent);
   const navigate = useNavigate();
-
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -15,11 +16,10 @@ function Header() {
       @keyframes spin-slow {
         0% { transform: rotateY(0deg); }
         100% { transform: rotateY(360deg); }
-      } 
+      }
       .animate-spin-slow {
         animation: spin-slow 10s linear infinite;
         transform-style: preserve-3d;
-        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
       }
 
       @keyframes wave {
@@ -58,18 +58,17 @@ function Header() {
         width: 64px;
         height: 64px;
         border: 6px solid transparent;
-        border-top-color: #06b6d4;   /* cyan */
-        border-right-color: #3b82f6; /* blue */
-        border-bottom-color: #8b5cf6; /* violet */
-        border-left-color: #facc15;  /* yellow */
+        border-top-color: #06b6d4;
+        border-right-color: #3b82f6;
+        border-bottom-color: #8b5cf6;
+        border-left-color: #facc15;
         border-radius: 50%;
         animation: spinnerRotate 1s linear infinite;
       }
     `;
     document.head.appendChild(style);
 
-    // Fake loading delay removed: simulate real load
-    const timer = setTimeout(() => setLoading(false), 800); // faster
+    const timer = setTimeout(() => setLoading(false), 800);
     return () => clearTimeout(timer);
   }, []);
 
@@ -82,36 +81,63 @@ function Header() {
   }
 
   return (
-    <div className='flex flex-col items-center mt-20 px-4 text-center text-gray-800'>
+    <div className="relative flex flex-col items-center justify-center min-h-screen px-2 sm:px-4 text-center text-gray-800 bg-white overflow-hidden pt-14">
+
+      {/* Avatar */}
       <img
-        src={assets.header_img}
+        src={header_img}
         alt="profile"
-        className='w-36 h-36 rounded-full mb-6 animate-spin-slow'
+        className='w-20 h-20 sm:w-28 sm:h-28 rounded-full mb-3 animate-spin-slow shadow-xl'
       />
 
-      <h1 className='flex items-center gap-2 text-xl sm:text-3xl font-medium mb-2 text-gray-800'>
+      {/* Welcome Text */}
+      <h1 className='flex items-center gap-2 text-base sm:text-xl font-medium mb-1 text-gray-800'>
         Hey {userData ? userData.name : 'Developer'}
         <img
-          src={assets.hand_wave}
+          src={hand_wave}
           alt="wave"
-          className='w-8 aspect-square animate-wave'
+          className='w-5 sm:w-6 aspect-square animate-wave'
         />
       </h1>
 
-      <h2 className='text-3xl sm:text-5xl font-semibold mb-4 typing-text'>
-        Welcome to Brain bin
+      {/* Heading */}
+      <h2 className='text-xl sm:text-3xl font-semibold mb-2 typing-text'>
+        Welcome to Brain Bin
       </h2>
 
-      <p className='mb-8 max-w-md text-gray-600'>
-        Let's start with a quick product tour and we will have you up and running in no time!
+      {/* Sub Text */}
+      <p className='mb-4 max-w-xs sm:max-w-md text-gray-700 text-sm font-medium'>
+        See your knowledge flow in motion. Add, organize, and share visually.
       </p>
 
-      <button
-        onClick={() => navigate("/notes")}
-        className="bg-gradient-to-r from-teal-400 via-sky-500 to-violet-600 hover:from-teal-500 hover:via-sky-600 hover:to-violet-700 text-white font-semibold px-6 py-3 rounded-full shadow-lg hover:shadow-violet-400/60 transition-all duration-500 ease-in-out transform hover:scale-105 flex items-center gap-2"
-      >
-        Organize Now ➕🗂️
-      </button>
+      {/* Cliply-Style Video Section */}
+      <div className="p-[2px] bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 rounded-2xl shadow-2xl max-w-4xl w-full mb-8">
+        <div className="bg-[#1e1e2f] rounded-2xl overflow-hidden">
+          <div className="flex items-center px-4 py-2 bg-[#2c2c3b]">
+            <div className="w-3 h-3 rounded-full bg-red-500 mr-2"></div>
+            <div className="w-3 h-3 rounded-full bg-yellow-500 mr-2"></div>
+            <div className="w-3 h-3 rounded-full bg-green-500"></div>
+            <span className="text-white text-sm ml-4">brainbin</span>
+          </div>
+          <video
+            src={demoVideo}
+            controls
+            playsInline
+            muted={false}
+            className="w-full aspect-video object-cover"
+          />
+        </div>
+      </div>
+
+      {/* Organize Button with spacing */}
+      <div className="mb-8">
+        <button
+          onClick={() => navigate("/notes")}
+          className="flex items-center gap-2 bg-gradient-to-r from-teal-500 to-indigo-600 hover:scale-105 transition-all duration-300 text-white font-semibold px-5 py-2 sm:px-6 sm:py-3 rounded-full shadow-md text-sm sm:text-base"
+        >
+          <span>Organize Now</span> <span>🗂</span>
+        </button>
+      </div>
     </div>
   );
 }
