@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import Select from "react-select";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import {
   FaBook,
@@ -10,41 +9,17 @@ import {
   FaLightbulb,
   FaLink,
 } from "react-icons/fa";
- 
+
 const Spinner = () => (
-  <div className="w-full h-screen flex items-center justify-center bg-white">
-    <div className="multi-color-spinner"></div>
+  <div className="flex justify-center items-center min-h-screen">
+    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
   </div>
 );
 
-const statusOptions = [
-  { value: "Concepts", label: "📝 To Do", color: "#06b6d4" },
-  { value: "In Progress", label: "⏳ In Progress", color: "#facc15" },
-  { value: "Done", label: "✅ Done", color: "#22c55e" },
-];
-
-const customStyles = {
-  option: (provided, state) => ({
-    ...provided,
-    backgroundColor: state.isSelected
-      ? state.data.color
-      : state.isFocused
-      ? "#f3f4f6"
-      : "#fff",
-    color: "#000",
-    fontWeight: "bold",
-  }),
-  singleValue: (provided, state) => ({
-    ...provided,
-    color: state.data.color,
-    fontWeight: "bold",
-  }),
-};
-
 const statusColors = {
-  Concepts: "border-cyan-500",
-  "In Progress": "border-yellow-500",
-  Done: "border-green-500",
+  "To Do": "border-red-400",
+  "In Progress": "border-yellow-400",
+  Done: "border-green-400",
 };
 
 const NOTES_PER_PAGE = 6;
@@ -52,427 +27,330 @@ const NOTES_PER_PAGE = 6;
 const Notes = () => {
   const [notes, setNotes] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
-  const [subject, setSubject] = useState("");
-  const [tags, setTags] = useState("");
-  const [resourceUrl, setResourceUrl] = useState("");
-  const [status, setStatus] = useState("Concepts");
-  const [editId, setEditId] = useState(null);
-  const [activeTab, setActiveTab] = useState("Concepts");
-  const [showModal, setShowModal] = useState(false);
-  const [bookOpen, setBookOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [activeTab, setActiveTab] = useState("all");
+  const [showModal, setShowModal] = useState(false);
+  const [editNoteId, setEditNoteId] = useState(null);
+
+  const [noteData, setNoteData] = useState({
+    title: "",
+    content: "",
+    subject: "",
+    status: "To Do",
+    tags: "",
+    resourceUrl: "",
+  });
 
   useEffect(() => {
     fetchNotes();
   }, []);
 
-  useEffect(() => {
-    const style = document.createElement("style");
-    style.innerHTML = `
-      @keyframes spinnerRotate {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-      }
-      .multi-color-spinner {
-        width: 64px;
-        height: 64px;
-        border: 6px solid transparent;
-        border-top-color: #06b6d4;
-        border-right-color: #3b82f6;
-        border-bottom-color: #8b5cf6;
-        border-left-color: #facc15;
-        border-radius: 50%;
-        animation: spinnerRotate 1s linear infinite;
-      }
-    `;
-    document.head.appendChild(style);
-  }, []);
-
   const fetchNotes = async () => {
     try {
-      setLoading(true);
-          const res = await axios.get(`${backendUrl}/api/notes/my-notes`, {
+      const res = await axios.get("http://localhost:4000/api/note/my-notes", {
         withCredentials: true,
       });
-      const sorted = res.data.notes?.sort(
-        (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
-      );
-      setNotes(sorted || []);
+      setNotes(res.data.notes);
     } catch (err) {
-      console.error("Error fetching notes:", err);
+      console.error("Fetch error:", err);
     } finally {
-      setTimeout(() => setLoading(false), 500);
+      setLoading(false);
+    }
+  };
+
+  const handleNoteSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const payload = {
+        ...noteData,
+        tags: noteData.tags.split(",").map((tag) => tag.trim()),
+      };
+
+      if (editNoteId) {
+        const res = await axios.put(`http://localhost:4000/api/note/update/${editNoteId}`, payload, {
+          withCredentials: true,
+        });
+        setNotes((prev) =>
+          prev.map((n) => (n._id === editNoteId ? res.data.note : n))
+        );
+      } else {
+        const res = await axios.post("http://localhost:4000/api/note/create", payload, {
+          withCredentials: true,
+        });
+        setNotes((prev) => [res.data.note, ...prev]);
+      }
+
+      setShowModal(false);
+      setEditNoteId(null);
+      resetForm();
+    } catch (err) {
+      console.error("Submit error:", err);
     }
   };
 
   const resetForm = () => {
-    setTitle("");
-    setContent("");
-    setSubject("");
-    setTags("");
-    setResourceUrl("");
-    setStatus("Concepts");
-    setEditId(null);
-    setShowModal(false);
-  };
-
-  const handleAddOrUpdateNote = async () => {
-    if (!title.trim() || !content.trim()) {
-      alert("Title and content are required.");
-      return;
-    }
-
-    const noteData = {
-      title,
-      content,
-      subject,
-      tags: tags.split(",").map((t) => t.trim()),
-      resourceUrl,
-      status,
-    };
-
-    try {
-      if (editId) {
-  await axios.put(
-          `${backendUrl}/api/notes/update/${editId}`,
-          noteData,
-          { withCredentials: true }
-        );
-      } else {
- await axios.post(`${backendUrl}/api/notes/create`, noteData, {
-          withCredentials: true,
-        });
-      }
-      resetForm();
-      fetchNotes();
-    } catch (err) {
-      console.error("Error saving note:", err);
-    }
+    setNoteData({
+      title: "",
+      content: "",
+      subject: "",
+      status: "To Do",
+      tags: "",
+      resourceUrl: "",
+    });
   };
 
   const handleEdit = (note) => {
-    setEditId(note._id);
-    setTitle(note.title);
-    setContent(note.content);
-    setSubject(note.subject);
-    setTags(note.tags.join(", "));
-    setResourceUrl(note.resourceUrl);
-    setStatus(note.status);
+    setNoteData({
+      ...note,
+      tags: note.tags.join(", "),
+    });
+    setEditNoteId(note._id);
     setShowModal(true);
   };
 
   const handleDelete = async (id) => {
     try {
-       await axios.delete(`${backendUrl}/api/notes/delete/${id}`, {
+      await axios.delete(`http://localhost:4000/api/note/delete/${id}`, {
         withCredentials: true,
       });
-      fetchNotes();
+      setNotes((prev) => prev.filter((n) => n._id !== id));
     } catch (err) {
       console.error("Delete error:", err);
     }
   };
 
-  const handleDragEnd = async (result) => {
-    const { source, destination, draggableId } = result;
-    if (!destination || source.index === destination.index) return;
-    const movedNote = notes.find((n) => n._id === draggableId);
-    if (!movedNote) return;
-    try {
-    await axios.put(
-        `${backendUrl}/api/notes/update/${draggableId}`,
-        { ...movedNote, status: activeTab },
-        { withCredentials: true }
-      );
-      fetchNotes();
-    } catch (err) {
-      console.error("Drag update error:", err);
-    }
+  const handleDragEnd = (result) => {
+    if (!result.destination) return;
+    const reordered = Array.from(notes);
+    const [moved] = reordered.splice(result.source.index, 1);
+    reordered.splice(result.destination.index, 0, moved);
+    setNotes(reordered);
   };
 
-  const filteredNotesAll = notes.filter((n) => n.status === activeTab);
-  const totalPages = Math.ceil(filteredNotesAll.length / NOTES_PER_PAGE);
+  const handleOrganize = () => {
+    const sorted = [...notes].sort((a, b) => {
+      if (a.subject !== b.subject) return a.subject.localeCompare(b.subject);
+      return a.status.localeCompare(b.status);
+    });
+    setNotes(sorted);
+  };
 
-  const paginatedNotes = filteredNotesAll.slice(
+  const getSubjectCounts = () => {
+    const counts = {};
+    notes.forEach((n) => {
+      if (n.subject) counts[n.subject] = (counts[n.subject] || 0) + 1;
+    });
+    return counts;
+  };
+
+  const filteredNotes =
+    activeTab === "all" ? notes : notes.filter((n) => n.status === activeTab);
+
+  const paginatedNotes = filteredNotes.slice(
     (currentPage - 1) * NOTES_PER_PAGE,
     currentPage * NOTES_PER_PAGE
   );
 
-  const getSubjectCounts = () => {
-    return notes.reduce((acc, note) => {
-      if (note.subject) acc[note.subject] = (acc[note.subject] || 0) + 1;
-      return acc;
-    }, {});
-  };
-
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen text-sm font-medium">
       {/* Sidebar */}
-      <div className="w-80 bg-gradient-to-br from-indigo-800 to-purple-900 text-white p-6 shadow-2xl">
-        <h1
-          className="text-2xl font-bold flex items-center gap-2 cursor-pointer group"
-          onClick={() => setBookOpen(!bookOpen)}
-        >
-          <FaBook
-            className={`transition-transform duration-500 group-hover:scale-110 ${
-              bookOpen ? "rotate-[20deg] text-yellow-300" : "rotate-0 text-white"
-            }`}
-          />
-          Notes Dashboard
-        </h1>
+      <div className="w-64 bg-gradient-to-b from-purple-600 to-indigo-700 text-white p-4 flex flex-col justify-between">
+        <div>
+          <h1 className="text-xl font-bold mb-4 flex items-center gap-2">
+            <FaBook /> Notes Dashboard
+          </h1>
+         
 
-        <button
-          className="mt-6 bg-white text-indigo-700 px-4 py-2 rounded shadow flex items-center gap-2 hover:bg-indigo-100"
-          onClick={() => setShowModal(true)}
-        >
-          <FaPlus /> Add Note
-        </button>
-
-        <div className="space-y-2 mt-6">
-          {statusOptions.map((o) => (
+          <div className="space-y-2 mb-4">
+            {["To Do", "In Progress", "Done"].map((tab) => (
+              <button
+                key={tab}
+                onClick={() => {
+                  setActiveTab(tab);
+                  setCurrentPage(1);
+                }}
+                className={`block w-full text-left px-3 py-2 rounded ${
+                  activeTab === tab
+                    ? "bg-white text-indigo-600 font-bold"
+                    : "hover:bg-white hover:text-indigo-600"
+                }`}
+              >
+                {tab === "To Do" && "📝 To Do"}
+                {tab === "In Progress" && "⏳ In Progress"}
+                {tab === "Done" && "✅ Done"}
+              </button>
+            ))}
             <button
-              key={o.value}
               onClick={() => {
-                setActiveTab(o.value);
-                setCurrentPage(1); // Reset page on tab switch
+                setActiveTab("all");
+                setCurrentPage(1);
               }}
-              className={`w-full text-left px-3 py-2 rounded ${
-                activeTab === o.value
-                  ? "bg-indigo-300 text-indigo-900 font-bold"
-                  : "hover:bg-indigo-600"
+              className={`block w-full text-left px-3 py-2 rounded ${
+                activeTab === "all"
+                  ? "bg-white text-indigo-600 font-bold"
+                  : "hover:bg-white hover:text-indigo-600"
               }`}
             >
-              {o.label}
+              📋 All Notes
             </button>
-          ))}
-        </div>
+          </div>
 
-        <div className="mt-6">
-          <h2 className="text-lg font-semibold mb-2">📘 Subjects</h2>
-          <ul className="space-y-1 text-sm">
-            {Object.entries(getSubjectCounts()).map(([sub, count]) => (
-              <li key={sub} className="flex justify-between">
+          <h2 className="text-sm uppercase text-gray-200 mb-1">📚 Subjects</h2>
+          <ul className="text-xs space-y-1">
+            {Object.entries(getSubjectCounts()).map(([sub, count], i) => (
+              <li
+                key={i}
+                className="flex justify-between bg-white text-indigo-700 px-2 py-1 rounded"
+              >
                 <span>{sub}</span>
-                <span className="bg-white text-indigo-700 px-2 rounded-full">
-                  {count}
-                </span>
+                <span className="font-bold">{count}</span>
               </li>
             ))}
           </ul>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 bg-[#f8fafc] p-6">
+      {/* Main Section */}
+      <div className="flex-1 bg-[#f1f5f9] p-6">
         {loading ? (
           <Spinner />
         ) : (
           <DragDropContext onDragEnd={handleDragEnd}>
             <Droppable droppableId="notes">
               {(prov) => (
-                <>
-                  <div
-                    ref={prov.innerRef}
-                    {...prov.droppableProps}
-                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-                  >
-                    {paginatedNotes.map((n, i) => (
-                      <Draggable key={n._id} draggableId={n._id} index={i}>
-                        {(p) => (
-                          <div
-                            ref={p.innerRef}
-                            {...p.draggableProps}
-                            {...p.dragHandleProps}
-                            className={`bg-white p-4 rounded shadow border-l-4 ${
-                              statusColors[n.status] || "border-gray-300"
-                            }`}
-                          >
-                            <h2 className="font-bold text-lg flex items-center gap-2">
-                              <FaLightbulb /> {n.title}
-                            </h2>
-                            <p className="text-sm my-2">{n.content}</p>
-                            {n.subject && (
-                              <p className="text-sm text-gray-600">
-                                📚 {n.subject}
-                              </p>
-                            )}
-                            <div className="flex flex-wrap gap-1 text-xs py-2">
-                              {n.tags?.map((t, idx) => (
-                                <span
-                                  key={idx}
-                                  className="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full"
-                                >
-                                  {t}
-                                </span>
-                              ))}
-                            </div>
-                            {n.resourceUrl && (
-                              <a
-                                href={n.resourceUrl}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="text-blue-600 underline flex items-center gap-1"
+                <div
+                  ref={prov.innerRef}
+                  {...prov.droppableProps}
+                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+                >
+                  {paginatedNotes.map((n, i) => (
+                    <Draggable key={n._id} draggableId={n._id} index={i}>
+                      {(p) => (
+                        <div
+                          ref={p.innerRef}
+                          {...p.draggableProps}
+                          {...p.dragHandleProps}
+                          className={`bg-white p-4 rounded-xl shadow-md border-l-4 ${
+                            statusColors[n.status] || "border-gray-300"
+                          }`}
+                        >
+                          <h2 className="font-bold text-lg flex items-center gap-2 mb-1">
+                            <FaLightbulb className="text-yellow-500" /> {n.title}
+                          </h2>
+                          <p className="text-gray-700 text-sm mb-1">{n.content}</p>
+                          {n.subject && (
+                            <p className="text-indigo-600 text-sm mb-2">
+                              📘 {n.subject}
+                            </p>
+                          )}
+                          <div className="flex flex-wrap gap-2 mb-2">
+                            {n.tags?.map((t, idx) => (
+                              <span
+                                key={idx}
+                                className="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full text-xs"
                               >
-                                <FaLink /> Visit
-                              </a>
-                            )}
-                            <div className="flex gap-2 mt-4">
-                              <button
-                                onClick={() => handleEdit(n)}
-                                className="text-yellow-600 hover:text-yellow-800"
-                              >
-                                <FaEdit />
-                              </button>
-                              <button
-                                onClick={() => handleDelete(n._id)}
-                                className="text-red-600 hover:text-red-800"
-                              >
-                                <FaTrash />
-                              </button>
-                            </div>
+                                {t}
+                              </span>
+                            ))}
                           </div>
-                        )}
-                      </Draggable>
-                    ))}
-                    {prov.placeholder}
-                  </div>
-
-                  {/* Pagination Footer */}
-                  {totalPages > 1 && (
-                    <div className="col-span-full flex justify-center mt-6">
-                      <ul className="flex gap-2 items-center text-sm">
-                        <li>
-                          <button
-                            className="w-8 h-8 rounded-full border text-gray-600 hover:bg-gray-100"
-                            onClick={() => setCurrentPage(1)}
-                            disabled={currentPage === 1}
-                          >
-                            «
-                          </button>
-                        </li>
-                        <li>
-                          <button
-                            className="w-8 h-8 rounded-full border text-gray-600 hover:bg-gray-100"
-                            onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-                            disabled={currentPage === 1}
-                          >
-                            ‹
-                          </button>
-                        </li>
-                        {Array.from({ length: totalPages }, (_, i) => i + 1)
-                          .filter((pageNum) => {
-                            if (pageNum === 1 || pageNum === totalPages) return true;
-                            if (Math.abs(currentPage - pageNum) <= 1) return true;
-                            return false;
-                          })
-                          .map((pageNum, idx, arr) => (
-                            <React.Fragment key={pageNum}>
-                              {idx > 0 &&
-                                pageNum - arr[idx - 1] > 1 && (
-                                  <span className="px-1">...</span>
-                                )}
-                              <li>
-                                <button
-                                  className={`w-8 h-8 rounded-full border ${
-                                    currentPage === pageNum
-                                      ? "bg-blue-500 text-white font-bold"
-                                      : "text-gray-600 hover:bg-gray-100"
-                                  }`}
-                                  onClick={() => setCurrentPage(pageNum)}
-                                >
-                                  {pageNum}
-                                </button>
-                              </li>
-                            </React.Fragment>
-                          ))}
-                        <li>
-                          <button
-                            className="w-8 h-8 rounded-full border text-gray-600 hover:bg-gray-100"
-                            onClick={() =>
-                              setCurrentPage((p) => Math.min(p + 1, totalPages))
-                            }
-                            disabled={currentPage === totalPages}
-                          >
-                            ›
-                          </button>
-                        </li>
-                        <li>
-                          <button
-                            className="w-8 h-8 rounded-full border text-gray-600 hover:bg-gray-100"
-                            onClick={() => setCurrentPage(totalPages)}
-                            disabled={currentPage === totalPages}
-                          >
-                            »
-                          </button>
-                        </li>
-                      </ul>
-                    </div>
-                  )}
-                </>
+                          {n.resourceUrl && (
+                            <a
+                              href={n.resourceUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="flex items-center text-blue-600 text-sm gap-1 underline"
+                            >
+                              <FaLink /> Visit
+                            </a>
+                          )}
+                          <div className="flex gap-4 mt-4">
+                            <button
+                              onClick={() => handleEdit(n)}
+                              className="text-yellow-600 hover:text-yellow-800"
+                            >
+                              <FaEdit />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(n._id)}
+                              className="text-red-600 hover:text-red-800"
+                            >
+                              <FaTrash />
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
+                  {prov.placeholder}
+                </div>
               )}
             </Droppable>
           </DragDropContext>
         )}
+
+        {/* Pagination */}
+        <div className="mt-6 flex justify-center gap-2">
+          {Array.from({
+            length: Math.ceil(filteredNotes.length / NOTES_PER_PAGE),
+          }).map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrentPage(i + 1)}
+              className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                currentPage === i + 1
+                  ? "bg-indigo-600 text-white"
+                  : "bg-white text-indigo-600 border border-indigo-600"
+              }`}
+            >
+              {i + 1}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* Modal (unchanged) */}
+      {/* Add/Edit Note Modal */}
+      <button
+        onClick={() => {
+          resetForm();
+          setEditNoteId(null);
+          setShowModal(true);
+        }}
+        className="fixed bottom-6 right-6 bg-indigo-600 text-white px-5 py-3 rounded-full shadow-lg hover:bg-indigo-700 transition-all"
+      >
+        <FaPlus className="inline mr-2" /> Add Note
+      </button>
+
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded shadow-md w-[90%] md:w-[600px] space-y-3">
-            <h2 className="text-xl font-bold mb-3">
-              {editId ? "✏️ Update Note" : "➕ Add Note"}
+        <div className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm flex justify-center items-center z-50">
+          <div className="bg-white w-full max-w-md rounded-lg p-6 relative">
+            <button
+              onClick={() => {
+                setShowModal(false);
+                resetForm();
+                setEditNoteId(null);
+              }}
+              className="absolute top-3 right-4 text-gray-500 hover:text-gray-700"
+            >
+              ✖
+            </button>
+            <h2 className="text-lg font-semibold mb-4">
+              {editNoteId ? "Edit Note" : "Add New Note"}
             </h2>
-            <input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Title"
-              className="border p-2 rounded w-full"
-            />
-            <input
-              value={subject}
-              onChange={(e) => setSubject(e.target.value)}
-              placeholder="Subject"
-              className="border p-2 rounded w-full"
-            />
-            <textarea
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder="Content"
-              className="border p-2 rounded w-full h-24"
-            />
-            <input
-              value={tags}
-              onChange={(e) => setTags(e.target.value)}
-              placeholder="Tags (comma separated)"
-              className="border p-2 rounded w-full"
-            />
-            <input
-              value={resourceUrl}
-              onChange={(e) => setResourceUrl(e.target.value)}
-              placeholder="Resource URL"
-              className="border p-2 rounded w-full"
-            />
-            <Select
-              value={statusOptions.find((o) => o.value === status)}
-              onChange={(opt) => setStatus(opt.value)}
-              options={statusOptions}
-              styles={customStyles}
-            />
-            <div className="flex justify-between mt-4">
-              <button
-                onClick={handleAddOrUpdateNote}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded"
-              >
-                {editId ? "Update Note" : "Add Note"}
+            <form onSubmit={handleNoteSubmit} className="space-y-3 text-sm">
+              <input type="text" placeholder="Title" required value={noteData.title} onChange={(e) => setNoteData({ ...noteData, title: e.target.value })} className="w-full border px-3 py-2 rounded" />
+              <textarea placeholder="Content" required value={noteData.content} onChange={(e) => setNoteData({ ...noteData, content: e.target.value })} className="w-full border px-3 py-2 rounded" />
+              <input type="text" placeholder="Subject" value={noteData.subject} onChange={(e) => setNoteData({ ...noteData, subject: e.target.value })} className="w-full border px-3 py-2 rounded" />
+              <select value={noteData.status} onChange={(e) => setNoteData({ ...noteData, status: e.target.value })} className="w-full border px-3 py-2 rounded">
+                <option value="To Do">📝 To Do</option>
+                <option value="In Progress">⏳ In Progress</option>
+                <option value="Done">✅ Done</option>
+              </select>
+              <input type="text" placeholder="Tags (comma separated)" value={noteData.tags} onChange={(e) => setNoteData({ ...noteData, tags: e.target.value })} className="w-full border px-3 py-2 rounded" />
+              <input type="url" placeholder="Resource Link (optional)" value={noteData.resourceUrl} onChange={(e) => setNoteData({ ...noteData, resourceUrl: e.target.value })} className="w-full border px-3 py-2 rounded" />
+              <button type="submit" className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 w-full">
+                {editNoteId ? "Update Note" : "Add Note"}
               </button>
-              <button
-                onClick={resetForm}
-                className="bg-gray-300 hover:bg-gray-400 px-4 py-2 rounded"
-              >
-                Cancel
-              </button>
-            </div>
+            </form>
           </div>
         </div>
       )}
