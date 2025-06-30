@@ -65,6 +65,21 @@ function Header() {
         border-radius: 50%;
         animation: spinnerRotate 1s linear infinite;
       }
+
+      @keyframes borderGlow {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+
+      .animated-border {
+        background: linear-gradient(270deg, #00f5ff, #a855f7, #ff80bf, #00f5ff);
+        background-size: 800% 800%;
+        animation: borderGlow 12s ease infinite;
+        padding: 6px;
+        border-radius: 24px;
+        box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+      }
     `;
     document.head.appendChild(style);
 
@@ -82,7 +97,7 @@ function Header() {
 
   return (
     <div className="relative flex flex-col items-center justify-center min-h-screen px-2 sm:px-4 text-center text-gray-800 bg-white overflow-hidden pt-14">
-
+      
       {/* Avatar */}
       <img
         src={header_img}
@@ -110,8 +125,8 @@ function Header() {
         See your knowledge flow in motion. Add, organize, and share visually.
       </p>
 
-      {/* Cliply-Style Video Section */}
-      <div className="p-[2px] bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 rounded-2xl shadow-2xl max-w-4xl w-full mb-8">
+      {/* Video Section with Animated Border */}
+      <div className="animated-border max-w-4xl w-full mb-8">
         <div className="bg-[#1e1e2f] rounded-2xl overflow-hidden">
           <div className="flex items-center px-4 py-2 bg-[#2c2c3b]">
             <div className="w-3 h-3 rounded-full bg-red-500 mr-2"></div>
@@ -129,7 +144,7 @@ function Header() {
         </div>
       </div>
 
-      {/* Organize Button with spacing */}
+      {/* Organize Button */}
       <div className="mb-8">
         <button
           onClick={() => navigate("/notes")}
