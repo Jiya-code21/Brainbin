@@ -96,7 +96,8 @@ function Header() {
   }
 
   return (
-    <div className="relative flex flex-col items-center justify-center min-h-screen px-2 sm:px-4 text-center text-gray-800 bg-white overflow-hidden pt-14">
+    <div className="relative flex flex-col items-center justify-center min-h-screen px-2 sm:px-4 text-center text-gray-800 bg-white overflow-hidden pt-28 sm:pt-24">
+
       
       {/* Avatar */}
       <img
