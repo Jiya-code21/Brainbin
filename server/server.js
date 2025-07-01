@@ -19,24 +19,19 @@ const allowedOrigins = [
   'https://brainbin-frontend.onrender.com'
 ];
 
+// ✅ CORS setup (mobile + secure compatible)
 app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
+  origin: allowedOrigins,
   credentials: true
 }));
 
 app.use(express.json());
 app.use(cookieParser());
 
-// ✅ Root route to test server
+// ✅ Test route
 app.get("/", (req, res) => res.send("API Working"));
 
-// ✅ Route handlers
+// ✅ API routes
 app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
 app.use("/api/note", noteRouter);
