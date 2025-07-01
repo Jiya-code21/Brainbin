@@ -10,19 +10,36 @@ import noteRouter from "./routes/noteroutes.js";
 const app = express();
 const port = process.env.PORT || 4000;
 
+// Connect MongoDB
 connectDB();
 
-const allowedOrigins = ['http://localhost:5173'];
+// ✅ Allow both local and deployed frontend
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://brainbin-frontend.onrender.com'
+];
 
-app.use(cors({ origin: allowedOrigins, credentials: true }));
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true
+}));
+
 app.use(express.json());
 app.use(cookieParser());
 
+// ✅ Root route to test server
 app.get("/", (req, res) => res.send("API Working"));
 
+// ✅ Route handlers
 app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
 app.use("/api/note", noteRouter);
 
-
+// ✅ Start server
 app.listen(port, () => console.log(`Server running on port ${port}`));
