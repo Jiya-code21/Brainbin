@@ -5,7 +5,7 @@ import mail_icon from './mail_icon.svg'
 import person_icon from './person_icon.svg'
 import hand_wave from './hand_wave.png'
 import header_img from './header_img.png'
-import demoVideo from "./brainbin_recording.mp4"
+import demoVideo from "./Brainbin_record.mp4"
 
 
 export const assets = {
