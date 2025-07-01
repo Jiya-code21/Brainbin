@@ -132,7 +132,7 @@ function Header() {
             <div className="w-3 h-3 rounded-full bg-red-500 mr-2"></div>
             <div className="w-3 h-3 rounded-full bg-yellow-500 mr-2"></div>
             <div className="w-3 h-3 rounded-full bg-green-500"></div>
-            <span className="text-white text-sm ml-4">brainbin</span>
+         
           </div>
           <video
             src={demoVideo}
