@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import {
@@ -9,6 +9,7 @@ import {
   FaLightbulb,
   FaLink,
 } from "react-icons/fa";
+import { AppContent } from "../context/AppContext"; // ✅ import context
 
 const Spinner = () => (
   <div className="flex justify-center items-center min-h-screen">
@@ -25,6 +26,8 @@ const statusColors = {
 const NOTES_PER_PAGE = 6;
 
 const Notes = () => {
+  const { backendUrl } = useContext(AppContent); // ✅ use backendUrl from context
+
   const [notes, setNotes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -47,7 +50,7 @@ const Notes = () => {
 
   const fetchNotes = async () => {
     try {
-      const res = await axios.get("http://localhost:4000/api/note/my-notes", {
+      const res = await axios.get(`${backendUrl}/api/note/my-notes`, {
         withCredentials: true,
       });
       setNotes(res.data.notes);
@@ -67,14 +70,14 @@ const Notes = () => {
       };
 
       if (editNoteId) {
-        const res = await axios.put(`http://localhost:4000/api/note/update/${editNoteId}`, payload, {
+        const res = await axios.put(`${backendUrl}/api/note/update/${editNoteId}`, payload, {
           withCredentials: true,
         });
         setNotes((prev) =>
           prev.map((n) => (n._id === editNoteId ? res.data.note : n))
         );
       } else {
-        const res = await axios.post("http://localhost:4000/api/note/create", payload, {
+        const res = await axios.post(`${backendUrl}/api/note/create`, payload, {
           withCredentials: true,
         });
         setNotes((prev) => [res.data.note, ...prev]);
@@ -110,7 +113,7 @@ const Notes = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:4000/api/note/delete/${id}`, {
+      await axios.delete(`${backendUrl}/api/note/delete/${id}`, {
         withCredentials: true,
       });
       setNotes((prev) => prev.filter((n) => n._id !== id));
@@ -159,7 +162,6 @@ const Notes = () => {
           <h1 className="text-xl font-bold mb-4 flex items-center gap-2">
             <FaBook /> Notes Dashboard
           </h1>
-         
 
           <div className="space-y-2 mb-4">
             {["To Do", "In Progress", "Done"].map((tab) => (
