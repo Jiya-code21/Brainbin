@@ -4,7 +4,7 @@
 
 https://github.com/user-attachments/assets/67d88608-04fa-49e8-bbca-83f719916954
 
-📌 **What is BrainBin?**
+📌 What is BrainBin?
 
 BrainBin is your personal idea vault — a lightning-fast notes app built for clean, minimal productivity.  
 Whether it's your next big idea, class notes, or tasks to remember — BrainBin helps you organize everything without the mess.
