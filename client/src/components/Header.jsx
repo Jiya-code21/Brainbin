@@ -9,6 +9,7 @@ function Header() {
   const { userData } = useContext(AppContent);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
   useEffect(() => {
     const style = document.createElement('style');
@@ -146,12 +147,26 @@ function Header() {
       {/* Organize Button */}
       <div className="mb-8">
         <button
-          onClick={() => navigate("/notes")}
+          onClick={() => {
+            if (userData) {
+              navigate("/notes");
+            } else {
+              setShowLoginPrompt(true);
+              setTimeout(() => setShowLoginPrompt(false), 3000);
+            }
+          }}
           className="flex items-center gap-2 bg-gradient-to-r from-teal-500 to-indigo-600 hover:scale-105 transition-all duration-300 text-white font-semibold px-5 py-2 sm:px-6 sm:py-3 rounded-full shadow-md text-sm sm:text-base"
         >
           <span>Organize Now</span> <span>🗂</span>
         </button>
       </div>
+
+      {/* Popup Message if Not Logged In */}
+      {showLoginPrompt && (
+        <div className="fixed bottom-10 bg-yellow-100 text-yellow-800 px-6 py-3 rounded-md shadow-md text-sm font-semibold">
+          Please login first to access your notes.
+        </div>
+      )}
     </div>
   );
 }
