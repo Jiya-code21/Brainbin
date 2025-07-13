@@ -61,8 +61,9 @@ BrainBin solves this by combining:
 
 🤝 Contributing
 
-Found a bug? Got an idea to improve the extension?  
-Feel free to **fork** the repo, raise an issue, or create a PR! Contributions are always welcome.
+Found a bug or have an idea to make BrainBin even better?  
+Feel free to **fork** this repository, open an issue, or submit a pull request.  
+Your contributions and feedback are always appreciated!
 
 <h3 align="center">🙌 Thanks for stopping by!</h3>
 <p align="center">Loved BrainBin? Give it a ⭐ to show your support.</p>
