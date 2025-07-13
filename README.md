@@ -4,12 +4,12 @@
 
 https://github.com/user-attachments/assets/67d88608-04fa-49e8-bbca-83f719916954
 
-📌 What is BrainBin?
+📌 **What is BrainBin?**
 
 BrainBin is your personal idea vault — a lightning-fast notes app built for clean, minimal productivity.  
 Whether it's your next big idea, class notes, or tasks to remember — BrainBin helps you organize everything without the mess.
 
-❓ Why BrainBin?
+❓** Why BrainBin?**
 
 Tired of scattered thoughts and cluttered dashboards?  
 I built BrainBin to solve 3 common problems:
@@ -22,7 +22,7 @@ BrainBin solves this by combining:
 - ✅ Speed
 - ✅ Structure
 
-⚙️ How Does It Work?
+⚙️ **How Does It Work?**
 
 - ✍ **Write** what matters — fast and clean
 - 🧠 **Organize** by subjects, tags, and status
@@ -40,7 +40,7 @@ BrainBin solves this by combining:
 | React + Vite  | Express.js    | MongoDB  | Tailwind CSS   | JWT Auth, Drag & Drop, Zod |
 
 
-✨ Features at a Glance
+✨ **Features at a Glance**
 📒 Add / Edit / Delete notes
 
 🎯 Filter by To Do / In Progress / Done
@@ -59,7 +59,7 @@ BrainBin solves this by combining:
 
 🔐 JWT authentication
 
-🤝 Contributing
+🤝 **Contributing**
 
 Found a bug or have an idea to make BrainBin even better?  
 Feel free to **fork** this repository, open an issue, or submit a pull request.  
