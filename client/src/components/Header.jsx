@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate } from "react-router-dom";
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { assets } from "../assets/assets";
 import { AppContent } from "../context/AppContext";
 
@@ -102,13 +102,19 @@ function Header() {
       navigate("/notes");
     } else {
       toast.warn("Please login first to access your notes.", {
-        position: "bottom-center",
+        position: "bottom-left",
         autoClose: 3000,
-        hideProgressBar: false,
+        hideProgressBar: true,
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
         progress: undefined,
+        style: {
+          fontSize: '0.8rem',
+          padding: '8px 12px',
+          minWidth: '200px',
+          borderRadius: '6px',
+        },
       });
     }
   };
@@ -161,7 +167,7 @@ function Header() {
         </div>
       </div>
 
-      {/* Organize Button */}
+  
       <div className="mb-8">
         <button
           onClick={handleOrganizeClick}
@@ -171,7 +177,7 @@ function Header() {
         </button>
       </div>
 
-      {/* Toast Container */}
+  
       <ToastContainer />
     </div>
   );
