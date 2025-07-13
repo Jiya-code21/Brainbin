@@ -273,7 +273,11 @@ const Notes = () => {
                               <FaEdit />
                             </button>
                             <button
-                              onClick={() => handleDelete(n._id)}
+                               onClick={()=>{
+                     const confirmDelete=window.confirm("Are you sure you want to delete this note?");
+                       if (confirmDelete) {
+                         handleDelete(n._id);
+                       } }}
                               className="text-red-600 hover:text-red-800"
                             >
                               <FaTrash />
