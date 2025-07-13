@@ -82,7 +82,7 @@ function Header() {
         box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
       }
 
-      /* Toast styles */
+      /* Toast styles - bottom right */
       @keyframes fadeOut {
         0% {
           opacity: 1;
@@ -96,7 +96,7 @@ function Header() {
       .toast {
         position: fixed;
         right: 20px;
-        top: 20px;
+        bottom: 20px;
         background-color: #facc15;
         color: #78350f;
         padding: 8px 14px;
@@ -180,7 +180,7 @@ function Header() {
         </div>
       </div>
 
-    
+      {/* Organize Button */}
       <div className="mb-8">
         <button
           onClick={handleOrganizeClick}
@@ -190,6 +190,7 @@ function Header() {
         </button>
       </div>
 
+      {/* Toast Notification */}
       {showLoginPrompt && (
         <div className="toast">
           Please login first to access your notes.
