@@ -9,6 +9,7 @@ function Header() {
   const { userData } = useContext(AppContent);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
   useEffect(() => {
     const style = document.createElement('style');
@@ -97,7 +98,7 @@ function Header() {
 
   return (
     <div className="relative flex flex-col items-center justify-center min-h-screen px-2 sm:px-4 text-center text-gray-800 bg-white overflow-hidden pt-28 sm:pt-24">
-      
+
       {/* Avatar */}
       <img
         src={header_img}
@@ -143,20 +144,28 @@ function Header() {
         </div>
       </div>
 
-      {/* CTA Section Above Button */}
-      <p className="text-sm text-gray-600 mb-2">
-        Ready to jump in? Your notes await!
-      </p>
-      <div className="w-16 h-1 bg-indigo-500 rounded-full mb-4"></div>
-
       {/* Organize Button */}
-      <div className="mb-8">
+      <div className="mb-8 relative">
         <button
-          onClick={() => navigate("/notes")}
+          onClick={() => {
+            if (userData) {
+              navigate("/notes");
+            } else {
+              setShowLoginPrompt(true);
+              setTimeout(() => setShowLoginPrompt(false), 3000);
+            }
+          }}
           className="flex items-center gap-2 bg-gradient-to-r from-teal-500 to-indigo-600 hover:scale-105 transition-all duration-300 text-white font-semibold px-5 py-2 sm:px-6 sm:py-3 rounded-full shadow-md text-sm sm:text-base"
         >
           <span>Organize Now</span> <span>🗂</span>
         </button>
+
+        {/* Popup Message above Button */}
+        {showLoginPrompt && (
+          <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-yellow-100 text-yellow-800 px-4 py-2 text-xs sm:text-sm rounded shadow-md animate-bounce z-10">
+             Please login first to access your notes
+          </div>
+        )}
       </div>
     </div>
   );
