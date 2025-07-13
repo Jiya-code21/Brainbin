@@ -1,5 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { assets } from "../assets/assets";
 import { AppContent } from "../context/AppContext";
 
@@ -9,7 +11,6 @@ function Header() {
   const { userData } = useContext(AppContent);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
   useEffect(() => {
     const style = document.createElement('style');
@@ -96,6 +97,22 @@ function Header() {
     );
   }
 
+  const handleOrganizeClick = () => {
+    if (userData) {
+      navigate("/notes");
+    } else {
+      toast.warn("Please login first to access your notes.", {
+        position: "bottom-center",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+    }
+  };
+
   return (
     <div className="relative flex flex-col items-center justify-center min-h-screen px-2 sm:px-4 text-center text-gray-800 bg-white overflow-hidden pt-28 sm:pt-24">
 
@@ -147,26 +164,15 @@ function Header() {
       {/* Organize Button */}
       <div className="mb-8">
         <button
-          onClick={() => {
-            if (userData) {
-              navigate("/notes");
-            } else {
-              setShowLoginPrompt(true);
-              setTimeout(() => setShowLoginPrompt(false), 3000);
-            }
-          }}
+          onClick={handleOrganizeClick}
           className="flex items-center gap-2 bg-gradient-to-r from-teal-500 to-indigo-600 hover:scale-105 transition-all duration-300 text-white font-semibold px-5 py-2 sm:px-6 sm:py-3 rounded-full shadow-md text-sm sm:text-base"
         >
           <span>Organize Now</span> <span>🗂</span>
         </button>
       </div>
 
-      {/* Popup Message if Not Logged In */}
-      {showLoginPrompt && (
-        <div className="fixed bottom-10 bg-yellow-100 text-yellow-800 px-6 py-3 rounded-md shadow-md text-sm font-semibold">
-           Please login first to access your notes.
-        </div>
-      )}
+      {/* Toast Container */}
+      <ToastContainer />
     </div>
   );
 }
