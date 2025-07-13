@@ -59,6 +59,11 @@ BrainBin solves this by combining:
 
 🔐 JWT authentication
 
+🤝 Contributing
+
+Found a bug? Got an idea to improve the extension?  
+Feel free to **fork** the repo, raise an issue, or create a PR! Contributions are always welcome.
+
 <h3 align="center">🙌 Thanks for stopping by!</h3>
 <p align="center">Loved BrainBin? Give it a ⭐ to show your support.</p>
 <p align="center">Keep noting. Keep building. 💡✨</p>
