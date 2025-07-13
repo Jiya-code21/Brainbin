@@ -12,8 +12,8 @@ import {
 import { AppContent } from "../context/AppContext";
 
 const Spinner = () => (
-  <div className="flex justify-center items-center min-h-screen">
-    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+  <div className="w-full h-screen flex justify-center items-center bg-white">
+    <div className="multi-color-spinner"></div>
   </div>
 );
 
@@ -35,8 +35,8 @@ const Notes = () => {
   const [showModal, setShowModal] = useState(false);
   const [editNoteId, setEditNoteId] = useState(null);
 
-  const [showDeleteModal, setShowDeleteModal] = useState(false); // new
-  const [noteToDelete, setNoteToDelete] = useState(null);        //new
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [noteToDelete, setNoteToDelete] = useState(null);
 
   const [noteData, setNoteData] = useState({
     title: "",
@@ -49,6 +49,31 @@ const Notes = () => {
 
   useEffect(() => {
     fetchNotes();
+
+    // Add spinner CSS animation styles dynamically
+    const style = document.createElement("style");
+    style.innerHTML = `
+      @keyframes spinnerRotate {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      .multi-color-spinner {
+        width: 64px;
+        height: 64px;
+        border: 6px solid transparent;
+        border-top-color: #06b6d4;
+        border-right-color: #3b82f6;
+        border-bottom-color: #8b5cf6;
+        border-left-color: #facc15;
+        border-radius: 50%;
+        animation: spinnerRotate 1s linear infinite;
+      }
+    `;
+    document.head.appendChild(style);
+
+    return () => {
+      document.head.removeChild(style);
+    };
   }, []);
 
   const fetchNotes = async () => {
@@ -345,17 +370,67 @@ const Notes = () => {
               {editNoteId ? "Edit Note" : "Add New Note"}
             </h2>
             <form onSubmit={handleNoteSubmit} className="space-y-3 text-sm">
-              <input type="text" placeholder="Title" required value={noteData.title} onChange={(e) => setNoteData({ ...noteData, title: e.target.value })} className="w-full border px-3 py-2 rounded" />
-              <textarea placeholder="Content" required value={noteData.content} onChange={(e) => setNoteData({ ...noteData, content: e.target.value })} className="w-full border px-3 py-2 rounded" />
-              <input type="text" placeholder="Subject" value={noteData.subject} onChange={(e) => setNoteData({ ...noteData, subject: e.target.value })} className="w-full border px-3 py-2 rounded" />
-              <select value={noteData.status} onChange={(e) => setNoteData({ ...noteData, status: e.target.value })} className="w-full border px-3 py-2 rounded">
+              <input
+                type="text"
+                placeholder="Title"
+                required
+                value={noteData.title}
+                onChange={(e) =>
+                  setNoteData({ ...noteData, title: e.target.value })
+                }
+                className="w-full border px-3 py-2 rounded"
+              />
+              <textarea
+                placeholder="Content"
+                required
+                value={noteData.content}
+                onChange={(e) =>
+                  setNoteData({ ...noteData, content: e.target.value })
+                }
+                className="w-full border px-3 py-2 rounded"
+              />
+              <input
+                type="text"
+                placeholder="Subject"
+                value={noteData.subject}
+                onChange={(e) =>
+                  setNoteData({ ...noteData, subject: e.target.value })
+                }
+                className="w-full border px-3 py-2 rounded"
+              />
+              <select
+                value={noteData.status}
+                onChange={(e) =>
+                  setNoteData({ ...noteData, status: e.target.value })
+                }
+                className="w-full border px-3 py-2 rounded"
+              >
                 <option value="To Do">📝 To Do</option>
                 <option value="In Progress">⏳ In Progress</option>
                 <option value="Done">✅ Done</option>
               </select>
-              <input type="text" placeholder="Tags (comma separated)" value={noteData.tags} onChange={(e) => setNoteData({ ...noteData, tags: e.target.value })} className="w-full border px-3 py-2 rounded" />
-              <input type="url" placeholder="Resource Link (optional)" value={noteData.resourceUrl} onChange={(e) => setNoteData({ ...noteData, resourceUrl: e.target.value })} className="w-full border px-3 py-2 rounded" />
-              <button type="submit" className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 w-full">
+              <input
+                type="text"
+                placeholder="Tags (comma separated)"
+                value={noteData.tags}
+                onChange={(e) =>
+                  setNoteData({ ...noteData, tags: e.target.value })
+                }
+                className="w-full border px-3 py-2 rounded"
+              />
+              <input
+                type="url"
+                placeholder="Resource Link (optional)"
+                value={noteData.resourceUrl}
+                onChange={(e) =>
+                  setNoteData({ ...noteData, resourceUrl: e.target.value })
+                }
+                className="w-full border px-3 py-2 rounded"
+              />
+              <button
+                type="submit"
+                className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 w-full"
+              >
                 {editNoteId ? "Update Note" : "Add Note"}
               </button>
             </form>
@@ -363,7 +438,7 @@ const Notes = () => {
         </div>
       )}
 
-      {/* ✅ Delete Confirmation Modal */}
+      {/* Delete Confirmation Modal */}
       {showDeleteModal && (
         <div className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm flex justify-center items-center z-50">
           <div className="bg-white w-full max-w-sm rounded-lg p-6 relative text-center">
