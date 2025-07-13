@@ -82,31 +82,27 @@ function Header() {
         box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
       }
 
-      /* Toast styles - bottom right */
-      @keyframes fadeOut {
-        0% {
-          opacity: 1;
-          transform: translateX(0);
-        }
-        100% {
-          opacity: 0;
-          transform: translateX(20px);
-        }
-      }
+      /* Toast style */
       .toast {
         position: fixed;
         right: 20px;
         bottom: 20px;
-        background-color: #facc15;
-        color: #78350f;
+        background-color: #a855f7;  /* violet purple */
+        color: #f3f4f6;             /* light gray */
         padding: 8px 14px;
         border-radius: 8px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        box-shadow: 0 2px 6px rgba(168, 85, 247, 0.5);
         font-size: 0.85rem;
         font-weight: 600;
         animation: fadeOut 3s forwards;
         z-index: 1000;
         max-width: 220px;
+      }
+
+      @keyframes fadeOut {
+        0% { opacity: 1; }
+        80% { opacity: 1; }
+        100% { opacity: 0; }
       }
     `;
     document.head.appendChild(style);
@@ -114,15 +110,6 @@ function Header() {
     const timer = setTimeout(() => setLoading(false), 800);
     return () => clearTimeout(timer);
   }, []);
-
-  const handleOrganizeClick = () => {
-    if (userData) {
-      navigate("/notes");
-    } else {
-      setShowLoginPrompt(true);
-      setTimeout(() => setShowLoginPrompt(false), 3000);
-    }
-  };
 
   if (loading) {
     return (
@@ -139,26 +126,26 @@ function Header() {
       <img
         src={header_img}
         alt="profile"
-        className="w-20 h-20 sm:w-28 sm:h-28 rounded-full mb-3 animate-spin-slow shadow-xl"
+        className='w-20 h-20 sm:w-28 sm:h-28 rounded-full mb-3 animate-spin-slow shadow-xl'
       />
 
       {/* Welcome Text */}
-      <h1 className="flex items-center gap-2 text-base sm:text-xl font-medium mb-1 text-gray-800">
+      <h1 className='flex items-center gap-2 text-base sm:text-xl font-medium mb-1 text-gray-800'>
         Hey {userData ? userData.name : 'Developer'}
         <img
           src={hand_wave}
           alt="wave"
-          className="w-5 sm:w-6 aspect-square animate-wave"
+          className='w-5 sm:w-6 aspect-square animate-wave'
         />
       </h1>
 
       {/* Heading */}
-      <h2 className="text-xl sm:text-3xl font-semibold mb-2 typing-text">
+      <h2 className='text-xl sm:text-3xl font-semibold mb-2 typing-text'>
         Welcome to Brain Bin
       </h2>
 
       {/* Sub Text */}
-      <p className="mb-4 max-w-xs sm:max-w-md text-gray-700 text-sm font-medium">
+      <p className='mb-4 max-w-xs sm:max-w-md text-gray-700 text-sm font-medium'>
         See your knowledge flow in motion. Add, organize, and share visually.
       </p>
 
@@ -183,14 +170,21 @@ function Header() {
       {/* Organize Button */}
       <div className="mb-8">
         <button
-          onClick={handleOrganizeClick}
+          onClick={() => {
+            if (userData) {
+              navigate("/notes");
+            } else {
+              setShowLoginPrompt(true);
+              setTimeout(() => setShowLoginPrompt(false), 3000);
+            }
+          }}
           className="flex items-center gap-2 bg-gradient-to-r from-teal-500 to-indigo-600 hover:scale-105 transition-all duration-300 text-white font-semibold px-5 py-2 sm:px-6 sm:py-3 rounded-full shadow-md text-sm sm:text-base"
         >
           <span>Organize Now</span> <span>🗂</span>
         </button>
       </div>
 
-      {/* Toast Notification */}
+
       {showLoginPrompt && (
         <div className="toast">
           Please login first to access your notes.
