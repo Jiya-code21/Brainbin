@@ -1,5 +1,4 @@
-
-<h1 align="center">🧠 BrainBin</h1>
+ <h1 align="center">🧠 BrainBin</h1>
 <p align="center">Your thoughts, beautifully organized — because sticky notes are so last season.</p>
 
 https://github.com/user-attachments/assets/67d88608-04fa-49e8-bbca-83f719916954
