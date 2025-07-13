@@ -12,7 +12,7 @@ function Header() {
 
   useEffect(() => {
     const style = document.createElement('style');
-    style.innerHTML = 
+    style.innerHTML = `
       @keyframes spin-slow {
         0% { transform: rotateY(0deg); }
         100% { transform: rotateY(360deg); }
@@ -80,7 +80,7 @@ function Header() {
         border-radius: 24px;
         box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
       }
-    ;
+    `;
     document.head.appendChild(style);
 
     const timer = setTimeout(() => setLoading(false), 800);
@@ -98,7 +98,6 @@ function Header() {
   return (
     <div className="relative flex flex-col items-center justify-center min-h-screen px-2 sm:px-4 text-center text-gray-800 bg-white overflow-hidden pt-28 sm:pt-24">
 
-      
       {/* Avatar */}
       <img
         src={header_img}
@@ -133,7 +132,6 @@ function Header() {
             <div className="w-3 h-3 rounded-full bg-red-500 mr-2"></div>
             <div className="w-3 h-3 rounded-full bg-yellow-500 mr-2"></div>
             <div className="w-3 h-3 rounded-full bg-green-500"></div>
-         
           </div>
           <video
             src={demoVideo}
