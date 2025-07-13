@@ -9,7 +9,7 @@ import {
   FaLightbulb,
   FaLink,
 } from "react-icons/fa";
-import { AppContent } from "../context/AppContext"; // ✅ import context
+import { AppContent } from "../context/AppContext";
 
 const Spinner = () => (
   <div className="flex justify-center items-center min-h-screen">
@@ -26,7 +26,7 @@ const statusColors = {
 const NOTES_PER_PAGE = 6;
 
 const Notes = () => {
-  const { backendUrl } = useContext(AppContent); // ✅ use backendUrl from context
+  const { backendUrl } = useContext(AppContent);
 
   const [notes, setNotes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -34,6 +34,9 @@ const Notes = () => {
   const [activeTab, setActiveTab] = useState("all");
   const [showModal, setShowModal] = useState(false);
   const [editNoteId, setEditNoteId] = useState(null);
+
+  const [showDeleteModal, setShowDeleteModal] = useState(false); // new
+  const [noteToDelete, setNoteToDelete] = useState(null);        //new
 
   const [noteData, setNoteData] = useState({
     title: "",
@@ -273,11 +276,10 @@ const Notes = () => {
                               <FaEdit />
                             </button>
                             <button
-                               onClick={()=>{
-                     const confirmDelete=window.confirm("Are you sure you want to delete this note?");
-                       if (confirmDelete) {
-                         handleDelete(n._id);
-                       } }}
+                              onClick={() => {
+                                setNoteToDelete(n._id);
+                                setShowDeleteModal(true);
+                              }}
                               className="text-red-600 hover:text-red-800"
                             >
                               <FaTrash />
@@ -357,6 +359,38 @@ const Notes = () => {
                 {editNoteId ? "Update Note" : "Add Note"}
               </button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ✅ Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm flex justify-center items-center z-50">
+          <div className="bg-white w-full max-w-sm rounded-lg p-6 relative text-center">
+            <h3 className="text-lg font-semibold mb-4">
+              Are you sure you want to delete this note?
+            </h3>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={() => {
+                  handleDelete(noteToDelete);
+                  setShowDeleteModal(false);
+                  setNoteToDelete(null);
+                }}
+                className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+              >
+                Yes, Delete
+              </button>
+              <button
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setNoteToDelete(null);
+                }}
+                className="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}
