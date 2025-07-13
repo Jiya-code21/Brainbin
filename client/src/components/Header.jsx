@@ -1,7 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { assets } from "../assets/assets";
 import { AppContent } from "../context/AppContext";
 
@@ -11,6 +9,7 @@ function Header() {
   const { userData } = useContext(AppContent);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
   useEffect(() => {
     const style = document.createElement('style');
@@ -82,12 +81,48 @@ function Header() {
         border-radius: 24px;
         box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
       }
+
+      /* Toast styles */
+      @keyframes fadeOut {
+        0% {
+          opacity: 1;
+          transform: translateX(0);
+        }
+        100% {
+          opacity: 0;
+          transform: translateX(20px);
+        }
+      }
+      .toast {
+        position: fixed;
+        right: 20px;
+        top: 20px;
+        background-color: #facc15;
+        color: #78350f;
+        padding: 8px 14px;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        font-size: 0.85rem;
+        font-weight: 600;
+        animation: fadeOut 3s forwards;
+        z-index: 1000;
+        max-width: 220px;
+      }
     `;
     document.head.appendChild(style);
 
     const timer = setTimeout(() => setLoading(false), 800);
     return () => clearTimeout(timer);
   }, []);
+
+  const handleOrganizeClick = () => {
+    if (userData) {
+      navigate("/notes");
+    } else {
+      setShowLoginPrompt(true);
+      setTimeout(() => setShowLoginPrompt(false), 3000);
+    }
+  };
 
   if (loading) {
     return (
@@ -97,28 +132,6 @@ function Header() {
     );
   }
 
-  const handleOrganizeClick = () => {
-    if (userData) {
-      navigate("/notes");
-    } else {
-      toast.warn("Please login first to access your notes.", {
-        position: "bottom-left",
-        autoClose: 3000,
-        hideProgressBar: true,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        style: {
-          fontSize: '0.8rem',
-          padding: '8px 12px',
-          minWidth: '200px',
-          borderRadius: '6px',
-        },
-      });
-    }
-  };
-
   return (
     <div className="relative flex flex-col items-center justify-center min-h-screen px-2 sm:px-4 text-center text-gray-800 bg-white overflow-hidden pt-28 sm:pt-24">
 
@@ -126,26 +139,26 @@ function Header() {
       <img
         src={header_img}
         alt="profile"
-        className='w-20 h-20 sm:w-28 sm:h-28 rounded-full mb-3 animate-spin-slow shadow-xl'
+        className="w-20 h-20 sm:w-28 sm:h-28 rounded-full mb-3 animate-spin-slow shadow-xl"
       />
 
       {/* Welcome Text */}
-      <h1 className='flex items-center gap-2 text-base sm:text-xl font-medium mb-1 text-gray-800'>
+      <h1 className="flex items-center gap-2 text-base sm:text-xl font-medium mb-1 text-gray-800">
         Hey {userData ? userData.name : 'Developer'}
         <img
           src={hand_wave}
           alt="wave"
-          className='w-5 sm:w-6 aspect-square animate-wave'
+          className="w-5 sm:w-6 aspect-square animate-wave"
         />
       </h1>
 
       {/* Heading */}
-      <h2 className='text-xl sm:text-3xl font-semibold mb-2 typing-text'>
+      <h2 className="text-xl sm:text-3xl font-semibold mb-2 typing-text">
         Welcome to Brain Bin
       </h2>
 
       {/* Sub Text */}
-      <p className='mb-4 max-w-xs sm:max-w-md text-gray-700 text-sm font-medium'>
+      <p className="mb-4 max-w-xs sm:max-w-md text-gray-700 text-sm font-medium">
         See your knowledge flow in motion. Add, organize, and share visually.
       </p>
 
@@ -167,7 +180,7 @@ function Header() {
         </div>
       </div>
 
-  
+    
       <div className="mb-8">
         <button
           onClick={handleOrganizeClick}
@@ -177,8 +190,11 @@ function Header() {
         </button>
       </div>
 
-  
-      <ToastContainer />
+      {showLoginPrompt && (
+        <div className="toast">
+          Please login first to access your notes.
+        </div>
+      )}
     </div>
   );
 }
