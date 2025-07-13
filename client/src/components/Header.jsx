@@ -145,7 +145,7 @@ function Header() {
       </div>
 
       {/* Organize Button */}
-      <div className="mb-8 relative">
+      <div className="mb-8">
         <button
           onClick={() => {
             if (userData) {
@@ -159,14 +159,14 @@ function Header() {
         >
           <span>Organize Now</span> <span>🗂</span>
         </button>
-
-        {/* Popup Message above Button */}
-        {showLoginPrompt && (
-          <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-yellow-100 text-yellow-800 px-4 py-2 text-xs sm:text-sm rounded shadow-md animate-bounce z-10">
-             Please login first to access your notes
-          </div>
-        )}
       </div>
+
+      {/* Popup Message if Not Logged In */}
+      {showLoginPrompt && (
+        <div className="fixed bottom-10 bg-yellow-100 text-yellow-800 px-6 py-3 rounded-md shadow-md text-sm font-semibold">
+           Please login first to access your notes.
+        </div>
+      )}
     </div>
   );
 }
