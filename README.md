@@ -39,41 +39,6 @@ BrainBin solves this by combining:
 |---------------|---------------|----------|----------------|---------------------------|
 | React + Vite  | Express.js    | MongoDB  | Tailwind CSS   | JWT Auth, Drag & Drop, Zod |
 
----
-
-🛠️ Installation
-
-Option 1: Clone
-
-
-git clone https://github.com/your-username/brainbin.git
-cd brainbin
-Option 2: Fork this repo
-Click the Fork button at the top right of this page
-
-Clone your forked version:
-
-bash
-Copy
-Edit
-git clone https://github.com/your-username/brainbin.git
-📦 Setup
-1. Backend
-bash
-Copy
-Edit
-cd server
-npm install
-# Add your `.env` file with MongoDB URI
-npm start
-2. Frontend
-bash
-Copy
-Edit
-cd client
-npm install
-npm run dev
-Make sure MongoDB is running and backend is connected.
 
 ✨ Features at a Glance
 📒 Add / Edit / Delete notes
