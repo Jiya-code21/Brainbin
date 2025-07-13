@@ -59,12 +59,7 @@ BrainBin solves this by combining:
 
 🔐 JWT authentication
 
-🙌 Thank You for Visiting!
-If you made it this far — thank you!
-I hope BrainBin makes your note-taking experience better, faster, and simpler.
-
-If you found this helpful or inspiring, please consider giving it a ⭐️ Star
-It really motivates and helps this project grow!
-
-Happy Noting & Keep Building 💡✨
+<h3 align="center">🙌 Thanks for stopping by!</h3>
+<p align="center">Loved BrainBin? Give it a ⭐ to show your support.</p>
+<p align="center">Keep noting. Keep building. 💡✨</p>
 
