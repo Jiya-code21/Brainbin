@@ -1,103 +1,167 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { assets } from "../assets/assets"; 
+import { assets } from "../assets/assets";
 import { AppContent } from "../context/AppContext";
 
 const { header_img, hand_wave, demoVideo } = assets;
 
-function Header() { 
+function Header() {
   const { userData } = useContext(AppContent);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [showLoginModal, setShowLoginModal] = useState(false); //add new state
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   useEffect(() => {
-    const style = document.createElement('style');
-    style.innerHTML = 
-      @keyframes spin-slow {
-        0% { transform: rotateY(0deg); }
-        100% { transform: rotateY(360deg); }
+    const style = document.createElement("style");
+    style.innerHTML = `
+      /* Gradient background */
+      .bg-gradient {
+        background: linear-gradient(135deg, #6b46c1 0%, #3182ce 100%);
       }
-      .animate-spin-slow {
-        animation: spin-slow 10s linear infinite;
+
+      /* Spinner animation */
+      @keyframes spinSlow {
+        from { transform: rotate(0deg);}
+        to { transform: rotate(360deg);}
+      }
+      .spin-slow {
+        animation: spinSlow 12s linear infinite;
         transform-style: preserve-3d;
       }
+
+      /* Wave animation for emoji */
       @keyframes wave {
-        0% { transform: rotate(0deg); }
-        10% { transform: rotate(14deg); }
-        20% { transform: rotate(-8deg); }
-        30% { transform: rotate(14deg); }
-        40% { transform: rotate(-4deg); }
-        50% { transform: rotate(10deg); }
-        60% { transform: rotate(0deg); }
-        100% { transform: rotate(0deg); }
+        0%, 100% { transform: rotate(0deg);}
+        15% { transform: rotate(15deg);}
+        30% { transform: rotate(-10deg);}
+        45% { transform: rotate(12deg);}
+        60% { transform: rotate(-8deg);}
+        75% { transform: rotate(10deg);}
       }
-      .animate-wave {
+      .wave-animate {
         display: inline-block;
-        transform-origin: bottom right;
+        transform-origin: 70% 70%;
         animation: wave 2s infinite;
       }
+
+      /* Typing effect */
       @keyframes typing {
-        from { width: 0 }
-        to { width: 100% }
+        from { width: 0; }
+        to { width: 100%; }
+      }
+      @keyframes blinkCaret {
+        0%, 100% { border-color: transparent; }
+        50% { border-color: #fff; }
       }
       .typing-text {
-        overflow: hidden;
+        font-weight: 700;
+        font-size: 2rem;
+        color: white;
+        border-right: 3px solid white;
         white-space: nowrap;
+        overflow: hidden;
         width: 0;
-        animation: typing 3s steps(30, end) forwards;
-        color: #1f2937;
+        animation:
+          typing 3s steps(20, end) forwards,
+          blinkCaret 0.8s step-end infinite;
       }
-      @keyframes spinnerRotate {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-      }
-      .multi-color-spinner {
-        width: 64px;
-        height: 64px;
-        border: 6px solid transparent;
-        border-top-color: #06b6d4;
-        border-right-color: #3b82f6;
-        border-bottom-color: #8b5cf6;
-        border-left-color: #facc15;
+
+      /* Floating circles */
+      .circle {
+        position: absolute;
         border-radius: 50%;
-        animation: spinnerRotate 1s linear infinite;
+        opacity: 0.15;
+        background: white;
+        animation: floatUpDown 6s ease-in-out infinite;
       }
-      @keyframes borderGlow {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
+      @keyframes floatUpDown {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-15px); }
       }
-      .animated-border {
-        background: linear-gradient(270deg, #00f5ff, #a855f7, #ff80bf, #00f5ff);
-        background-size: 800% 800%;
-        animation: borderGlow 12s ease infinite;
-        padding: 6px;
-        border-radius: 24px;
-        box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
-      }
-      /* Toast style */
-      .toast {
-        position: fixed;
-        right: 20px;
-        bottom: 20px;
-        background-color: #a855f7;  /* violet purple */
-        color: #f3f4f6;             /* light gray */
-        padding: 8px 14px;
-        border-radius: 8px;
-        box-shadow: 0 2px 6px rgba(168, 85, 247, 0.5);
-        font-size: 0.85rem;
+
+      /* Button */
+      .btn-gradient {
+        background: linear-gradient(90deg, #7b5cf5, #3b82f6);
+        padding: 12px 28px;
+        color: white;
         font-weight: 600;
-        animation: fadeOut 3s forwards;
+        border-radius: 9999px;
+        box-shadow: 0 6px 15px rgb(123 92 245 / 0.6);
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 1rem;
+        cursor: pointer;
+      }
+      .btn-gradient:hover {
+        filter: brightness(1.1);
+        transform: scale(1.05);
+        box-shadow: 0 8px 20px rgb(123 92 245 / 0.9);
+      }
+
+      /* Modal */
+      .modal-backdrop {
+        background: rgba(0,0,0,0.3);
+        backdrop-filter: blur(4px);
+        position: fixed;
+        inset: 0;
+        z-index: 999;
+      }
+      .modal-content {
+        position: fixed;
+        top: 50%;
+        right: 0;
+        transform: translateY(-50%);
+        background: white;
+        padding: 24px;
+        border-radius: 12px 0 0 12px;
+        box-shadow: -4px 0 12px rgba(0,0,0,0.2);
+        width: 320px;
         z-index: 1000;
-        max-width: 220px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       }
-      @keyframes fadeOut {
-        0% { opacity: 1; }
-        80% { opacity: 1; }
-        100% { opacity: 0; }
+      .modal-content h2 {
+        margin-bottom: 16px;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #3b82f6;
       }
-    ;
+      .modal-buttons {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+      }
+      .modal-btn {
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        transition: background-color 0.3s ease;
+      }
+      .modal-btn.login {
+        background-color: #3b82f6;
+        color: white;
+      }
+      .modal-btn.login:hover {
+        background-color: #2563eb;
+      }
+      .modal-btn.cancel {
+        background-color: #ddd;
+        color: #444;
+      }
+      .modal-btn.cancel:hover {
+        background-color: #bbb;
+      }
+
+      /* Responsive text sizes */
+      @media (min-width: 640px) {
+        .typing-text {
+          font-size: 3rem;
+        }
+      }
+    `;
     document.head.appendChild(style);
 
     const timer = setTimeout(() => setLoading(false), 800);
@@ -107,106 +171,101 @@ function Header() {
   if (loading) {
     return (
       <div className="w-full h-screen flex justify-center items-center bg-white">
-        <div className="multi-color-spinner"></div>
+        <div className="multi-color-spinner spin-slow" style={{
+          width: "64px",
+          height: "64px",
+          border: "6px solid transparent",
+          borderTopColor: "#3b82f6",
+          borderRightColor: "#7b5cf5",
+          borderBottomColor: "#3b82f6",
+          borderLeftColor: "#7b5cf5",
+          borderRadius: "50%",
+          animation: "spinSlow 1s linear infinite"
+        }}></div>
       </div>
     );
   }
 
   return (
-    <div className="relative flex flex-col items-center justify-center min-h-screen px-2 sm:px-4 text-center text-gray-800 bg-white overflow-hidden pt-28 sm:pt-24">
+    <div className="relative flex flex-col items-center justify-center min-h-screen px-4 text-center bg-gradient pt-28 sm:pt-24 overflow-hidden">
+      
+      {/* Floating Circles */}
+      <div className="circle w-24 h-24" style={{ top: "10%", left: "5%", animationDelay: "0s" }}></div>
+      <div className="circle w-16 h-16" style={{ top: "30%", right: "10%", animationDelay: "2s" }}></div>
+      <div className="circle w-20 h-20" style={{ bottom: "15%", left: "15%", animationDelay: "4s" }}></div>
 
       {/* Avatar */}
       <img
         src={header_img}
         alt="profile"
-        className='w-20 h-20 sm:w-28 sm:h-28 rounded-full mb-3 animate-spin-slow shadow-xl'
+        className="w-20 h-20 sm:w-28 sm:h-28 rounded-full mb-4 spin-slow shadow-lg"
       />
 
       {/* Welcome Text */}
-      <h1 className='flex items-center gap-2 text-base sm:text-xl font-medium mb-1 text-gray-800'>
-        Hey {userData ? userData.name : 'Developer'}
-        <img
-          src={hand_wave}
-          alt="wave"
-          className='w-5 sm:w-6 aspect-square animate-wave'
-        />
+      <h1 className="flex items-center gap-2 text-lg sm:text-2xl font-semibold mb-2 text-white">
+        Hey {userData ? userData.name : "Developer"}
+        <img src={hand_wave} alt="wave" className="wave-animate w-6 h-6" />
       </h1>
 
       {/* Heading */}
-      <h2 className='text-xl sm:text-3xl font-semibold mb-2 typing-text'>
-        Welcome to Brain Bin
-      </h2>
+      <h2 className="typing-text mb-4 select-none">Welcome to Brain Bin</h2>
 
       {/* Sub Text */}
-      <p className='mb-4 max-w-xs sm:max-w-md text-gray-700 text-sm font-medium'>
+      <p className="max-w-md text-white/90 mb-10 font-medium text-sm sm:text-base">
         See your knowledge flow in motion. Add, organize, and share visually.
       </p>
 
-      {/* Video Section with Animated Border */}
-      <div className="animated-border max-w-4xl w-full mb-8">
-        <div className="bg-[#1e1e2f] rounded-2xl overflow-hidden">
-          <div className="flex items-center px-4 py-2 bg-[#2c2c3b]">
-            <div className="w-3 h-3 rounded-full bg-red-500 mr-2"></div>
-            <div className="w-3 h-3 rounded-full bg-yellow-500 mr-2"></div>
-            <div className="w-3 h-3 rounded-full bg-green-500"></div>
-          </div>
-          <video
-            src={demoVideo}
-            controls
-            playsInline
-            muted={false}
-            className="w-full aspect-video object-cover"
-          />
-        </div>
+      {/* Video Section */}
+      <div className="rounded-2xl overflow-hidden max-w-4xl w-full mb-10 shadow-lg border-4 border-white/20">
+        <video
+          src={demoVideo}
+          controls
+          playsInline
+          muted={false}
+          className="w-full aspect-video object-cover"
+        />
       </div>
 
       {/* Organize Button */}
-      <div className="mb-8">
-        <button
-          onClick={() => {
-            if (userData) {
-              navigate("/notes");
-            } else {
-              setShowLoginModal(true);  // Show modal instead of direct navigation
-            }
-          }}
-          className="flex items-center gap-2 bg-gradient-to-r from-teal-500 to-indigo-600 hover:scale-105 transition-all duration-300 text-white font-semibold px-5 py-2 sm:px-6 sm:py-3 rounded-full shadow-md text-sm sm:text-base"
-        >
-          <span>Organize Now</span> <span>🗂</span>
-        </button>
-      </div>
+      <button
+        onClick={() => {
+          if (userData) {
+            navigate("/notes");
+          } else {
+            setShowLoginModal(true);
+          }
+        }}
+        className="btn-gradient"
+      >
+        <span>Organize Now</span> <span>🗂</span>
+      </button>
 
-      {/* LOGIN MODAL */}
+      {/* Login Modal */}
       {showLoginModal && (
-        <div className="fixed inset-0 flex justify-center items-center z-50"
-             style={{
-      backgroundColor: "rgba(0,0,0,0.4)",
-      backdropFilter: "blur(6px)",
-      WebkitBackdropFilter: "blur(6px)",
-    }}>
-          <div className="bg-white rounded-lg p-6 max-w-sm w-full text-center shadow-lg">
-            <h2 className="text-xl font-semibold mb-6 text-gray-900">Kindly log in to continue</h2>
-            <div className="flex justify-center gap-6">
+        <>
+          <div className="modal-backdrop" onClick={() => setShowLoginModal(false)}></div>
+          <div className="modal-content" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+            <h2 id="modalTitle">Please log in to continue</h2>
+            <div className="modal-buttons">
               <button
+                className="modal-btn login"
                 onClick={() => {
                   setShowLoginModal(false);
                   navigate("/login", { state: { from: "/notes" } });
                 }}
-                className="px-4 py-2 bg-indigo-600 text-white rounded-lg transition"
               >
                 Login Now
               </button>
               <button
+                className="modal-btn cancel"
                 onClick={() => setShowLoginModal(false)}
-                className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition"
               >
                 Cancel
               </button>
             </div>
           </div>
-        </div>
+        </>
       )}
-
     </div>
   );
 }
