@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate } from "react-router-dom";
-import { assets } from "../assets/assets"; 
+import { assets } from "../assets/assets";
 import { AppContent } from "../context/AppContext";
 
 const { header_img, hand_wave, demoVideo } = assets;
@@ -37,28 +37,66 @@ function Header() {
         transform-origin: bottom right;
         animation: wave 2s infinite;
       }
-      @keyframes shine {
-        100% { left: 125%; }
+      @keyframes typing {
+        from { width: 0 }
+        to { width: 100% }
       }
-      .button-shine {
-        position: relative;
+      .typing-text {
         overflow: hidden;
+        white-space: nowrap;
+        width: 0;
+        animation: typing 3s steps(30, end) forwards;
+        color: #1f2937;
       }
-      .button-shine::after {
-        content: '';
+      @keyframes spinnerRotate {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      .multi-color-spinner {
+        width: 64px;
+        height: 64px;
+        border: 6px solid transparent;
+        border-top-color: #06b6d4;
+        border-right-color: #3b82f6;
+        border-bottom-color: #8b5cf6;
+        border-left-color: #facc15;
+        border-radius: 50%;
+        animation: spinnerRotate 1s linear infinite;
+      }
+      @keyframes borderGlow {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+      .animated-border {
+        background: linear-gradient(270deg, #00f5ff, #a855f7, #ff80bf, #00f5ff);
+        background-size: 800% 800%;
+        animation: borderGlow 12s ease infinite;
+        padding: 6px;
+        border-radius: 24px;
+        box-shadow: 0 0 30px rgba(168, 85, 247, 0.5);
+        position: relative;
+      }
+      .recording-dot {
         position: absolute;
-        top: 0;
-        left: -75%;
-        width: 50%;
-        height: 100%;
-        background: linear-gradient(
-          120deg,
-          rgba(255, 255, 255, 0.2),
-          rgba(255, 255, 255, 0.5),
-          rgba(255, 255, 255, 0.2)
-        );
-        transform: skewX(-25deg);
-        animation: shine 2s infinite;
+        top: 10px;
+        right: 14px;
+        width: 12px;
+        height: 12px;
+        background-color: red;
+        border-radius: 50%;
+        box-shadow: 0 0 8px red;
+        animation: pulse 1.2s infinite;
+      }
+      @keyframes pulse {
+        0%, 100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+        50% {
+          transform: scale(1.3);
+          opacity: 0.6;
+        }
       }
     `;
     document.head.appendChild(style);
@@ -76,74 +114,89 @@ function Header() {
   }
 
   return (
-    <div className="relative w-full overflow-hidden min-h-screen flex justify-center items-center px-4 sm:px-8 py-16 bg-white text-gray-800">
+    <div className="relative flex flex-col items-center justify-center min-h-screen px-2 sm:px-4 text-center text-gray-800 bg-white overflow-hidden pt-28 sm:pt-24">
 
-      {/* Glowing Purple Blob */}
-      <div className="absolute w-[400px] h-[400px] bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse top-0 -left-20 z-0"></div>
+      {/* Avatar */}
+      <img
+        src={header_img}
+        alt="profile"
+        className='w-20 h-20 sm:w-28 sm:h-28 rounded-full mb-3 animate-spin-slow shadow-xl'
+      />
 
-      {/* Main Content */}
-      <div className="relative z-10 flex flex-col-reverse md:flex-row items-center justify-between w-full max-w-6xl mx-auto gap-12">
-        
-        {/* Left Side: Text + CTA */}
-        <div className="flex-1 text-center md:text-left">
-          <div className="flex items-center justify-center md:justify-start gap-2 text-base sm:text-xl font-medium text-gray-800 mb-2">
-            Hey {userData ? userData.name : 'Developer'}
-            <img src={hand_wave} alt="wave" className="w-6 animate-wave" />
+      {/* Welcome Text */}
+      <h1 className='flex items-center gap-2 text-base sm:text-xl font-medium mb-1 text-gray-800'>
+        Hey {userData ? userData.name : 'Developer'}
+        <img src={hand_wave} alt="wave" className='w-5 sm:w-6 aspect-square animate-wave' />
+      </h1>
+
+      {/* Heading */}
+      <h2 className='text-xl sm:text-3xl font-semibold mb-2 typing-text'>
+        Welcome to Brain Bin
+      </h2>
+
+      {/* Sub Text */}
+      <p className='mb-4 max-w-xs sm:max-w-md text-gray-700 text-sm font-medium'>
+        See your knowledge flow in motion. Add, organize, and share visually.
+      </p>
+
+      {/* Video Section */}
+      <div className="animated-border max-w-4xl w-full mb-8">
+        <div className="recording-dot"></div>
+        <div className="bg-[#1e1e2f] rounded-2xl overflow-hidden">
+          <div className="flex items-center px-4 py-2 bg-[#2c2c3b]">
+            <div className="w-3 h-3 rounded-full bg-red-500 mr-2"></div>
+            <div className="w-3 h-3 rounded-full bg-yellow-500 mr-2"></div>
+            <div className="w-3 h-3 rounded-full bg-green-500"></div>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-            Welcome to Brain Bin
-          </h1>
-          <p className="text-gray-600 text-base sm:text-lg mb-6 max-w-md">
-            See your knowledge flow in motion. Add, organize, and share visually.
-          </p>
-          <button
-            onClick={() => {
-              if (userData) {
-                navigate("/notes");
-              } else {
-                setShowLoginModal(true);
-              }
-            }}
-            className="button-shine bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-6 py-3 rounded-full shadow-xl hover:scale-105 transition-all"
-          >
-            Organize Now 🚀
-          </button>
-        </div>
-
-        {/* Right Side: Video */}
-        <div className="flex-1">
           <video
             src={demoVideo}
             controls
-            muted
-            className="w-full rounded-2xl shadow-xl border border-gray-200"
+            playsInline
+            muted={false}
+            className="w-full aspect-video object-cover"
           />
         </div>
       </div>
 
+      {/* Organize Button */}
+      <div className="mb-8">
+        <button
+          onClick={() => {
+            if (userData) {
+              navigate("/notes");
+            } else {
+              setShowLoginModal(true);
+            }
+          }}
+          className="flex items-center gap-2 bg-gradient-to-r from-purple-500 to-indigo-600 hover:scale-105 transition-all duration-300 text-white font-semibold px-6 py-3 rounded-full shadow-lg text-base"
+        >
+          <span>Organize Now</span> <span>🗂</span>
+        </button>
+      </div>
+
       {/* LOGIN MODAL */}
       {showLoginModal && (
-        <div className="fixed inset-0 flex justify-center items-center z-50"
-             style={{
-               backgroundColor: "rgba(0,0,0,0.4)",
-               backdropFilter: "blur(6px)",
-               WebkitBackdropFilter: "blur(6px)",
-             }}>
-          <div className="bg-white rounded-lg p-6 max-w-sm w-full text-center shadow-lg">
-            <h2 className="text-xl font-semibold mb-6 text-gray-900">Kindly log in to continue</h2>
-            <div className="flex justify-center gap-6">
+        <div className="fixed inset-0 flex justify-end items-start z-50 p-4"
+          style={{
+            backgroundColor: "rgba(0,0,0,0.4)",
+            backdropFilter: "blur(6px)",
+            WebkitBackdropFilter: "blur(6px)",
+          }}>
+          <div className="bg-white rounded-lg p-6 max-w-sm w-full text-center shadow-2xl border border-indigo-200">
+            <h2 className="text-xl font-semibold mb-6 text-gray-900">🔐 Kindly log in to continue</h2>
+            <div className="flex justify-center gap-4">
               <button
                 onClick={() => {
                   setShowLoginModal(false);
                   navigate("/login", { state: { from: "/notes" } });
                 }}
-                className="px-4 py-2 bg-indigo-600 text-white rounded-lg transition"
+                className="px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
               >
                 Login Now
               </button>
               <button
                 onClick={() => setShowLoginModal(false)}
-                className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition"
+                className="px-5 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500 transition"
               >
                 Cancel
               </button>
@@ -151,7 +204,6 @@ function Header() {
           </div>
         </div>
       )}
-
     </div>
   );
 }
