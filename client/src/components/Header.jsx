@@ -14,10 +14,10 @@ function Header() {
   useEffect(() => {
     const style = document.createElement('style');
     style.innerHTML = `
-      /* Smooth radial gradient background for whole page */
+      /* Soft, light radial gradient background */
       body, html, #root {
         margin: 0; padding: 0; height: 100%;
-        background: radial-gradient(circle at center, #6b46c1 0%, #3182ce 80%);
+        background: radial-gradient(circle at center, #dbeafe 0%, #bfdbfe 80%);
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         background-repeat: no-repeat;
         background-attachment: fixed;
@@ -60,7 +60,7 @@ function Header() {
         white-space: nowrap;
         width: 0;
         animation: typing 3s steps(30, end) forwards;
-        color: #f3f4f6; /* light color for contrast on dark bg */
+        color: #1e293b; /* dark slate blue - easy on eyes */
       }
 
       /* Spinner */
@@ -72,10 +72,10 @@ function Header() {
         width: 64px;
         height: 64px;
         border: 6px solid transparent;
-        border-top-color: #06b6d4;
-        border-right-color: #3b82f6;
-        border-bottom-color: #8b5cf6;
-        border-left-color: #facc15;
+        border-top-color: #60a5fa; /* soft blue */
+        border-right-color: #93c5fd; /* lighter blue */
+        border-bottom-color: #bfdbfe; /* even lighter */
+        border-left-color: #a5b4fc; /* pastel purple */
         border-radius: 50%;
         animation: spinnerRotate 1s linear infinite;
       }
@@ -87,12 +87,12 @@ function Header() {
         100% { background-position: 0% 50%; }
       }
       .animated-border {
-        background: linear-gradient(270deg, #00f5ff, #a855f7, #ff80bf, #00f5ff);
+        background: linear-gradient(270deg, #a5b4fc, #93c5fd, #bfdbfe, #a5b4fc);
         background-size: 800% 800%;
         animation: borderGlow 12s ease infinite;
         padding: 6px;
         border-radius: 24px;
-        box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+        box-shadow: 0 0 20px rgba(165, 180, 252, 0.4);
       }
 
       /* Toast style */
@@ -100,11 +100,11 @@ function Header() {
         position: fixed;
         right: 20px;
         bottom: 20px;
-        background-color: #a855f7;  /* violet purple */
-        color: #f3f4f6;             /* light gray */
+        background-color: #818cf8;  /* soft violet */
+        color: #f9fafb;             /* near white */
         padding: 8px 14px;
         border-radius: 8px;
-        box-shadow: 0 2px 6px rgba(168, 85, 247, 0.5);
+        box-shadow: 0 2px 6px rgba(129, 140, 248, 0.5);
         font-size: 0.85rem;
         font-weight: 600;
         animation: fadeOut 3s forwards;
@@ -132,16 +132,16 @@ function Header() {
   }
 
   return (
-    <div className="relative flex flex-col items-center justify-center min-h-screen px-2 sm:px-4 text-center text-gray-100 overflow-hidden pt-28 sm:pt-24">
+    <div className="relative flex flex-col items-center justify-center min-h-screen px-2 sm:px-4 text-center text-slate-900 overflow-hidden pt-28 sm:pt-24">
       {/* Avatar */}
       <img
         src={header_img}
         alt="profile"
-        className="w-20 h-20 sm:w-28 sm:h-28 rounded-full mb-3 animate-spin-slow shadow-xl"
+        className="w-20 h-20 sm:w-28 sm:h-28 rounded-full mb-3 animate-spin-slow shadow-lg"
       />
 
       {/* Welcome Text */}
-      <h1 className="flex items-center gap-2 text-base sm:text-xl font-medium mb-1">
+      <h1 className="flex items-center gap-2 text-base sm:text-xl font-medium mb-1 text-slate-900">
         Hey {userData ? userData.name : "Developer"}
         <img
           src={hand_wave}
@@ -156,17 +156,17 @@ function Header() {
       </h2>
 
       {/* Sub Text */}
-      <p className="mb-4 max-w-xs sm:max-w-md text-gray-300 text-sm font-medium">
+      <p className="mb-4 max-w-xs sm:max-w-md text-slate-700 text-sm font-medium">
         See your knowledge flow in motion. Add, organize, and share visually.
       </p>
 
       {/* Video Section with Animated Border */}
       <div className="animated-border max-w-4xl w-full mb-8">
-        <div className="bg-[#1e1e2f] rounded-2xl overflow-hidden">
-          <div className="flex items-center px-4 py-2 bg-[#2c2c3b]">
-            <div className="w-3 h-3 rounded-full bg-red-500 mr-2"></div>
-            <div className="w-3 h-3 rounded-full bg-yellow-500 mr-2"></div>
-            <div className="w-3 h-3 rounded-full bg-green-500"></div>
+        <div className="bg-white rounded-2xl overflow-hidden shadow-md">
+          <div className="flex items-center px-4 py-2 bg-gray-100">
+            <div className="w-3 h-3 rounded-full bg-red-400 mr-2"></div>
+            <div className="w-3 h-3 rounded-full bg-yellow-400 mr-2"></div>
+            <div className="w-3 h-3 rounded-full bg-green-400"></div>
           </div>
           <video
             src={demoVideo}
@@ -188,7 +188,7 @@ function Header() {
               setShowLoginModal(true);
             }
           }}
-          className="flex items-center gap-2 bg-gradient-to-r from-teal-400 to-indigo-700 hover:scale-105 transition-all duration-300 text-white font-semibold px-5 py-2 sm:px-6 sm:py-3 rounded-full shadow-md text-sm sm:text-base"
+          className="flex items-center gap-2 bg-gradient-to-r from-sky-400 to-indigo-500 hover:scale-105 transition-all duration-300 text-white font-semibold px-5 py-2 sm:px-6 sm:py-3 rounded-full shadow-md text-sm sm:text-base"
         >
           <span>Organize Now</span> <span>🗂</span>
         </button>
@@ -199,9 +199,9 @@ function Header() {
         <div
           className="fixed inset-0 flex justify-center items-center z-50"
           style={{
-            backgroundColor: "rgba(0,0,0,0.4)",
-            backdropFilter: "blur(6px)",
-            WebkitBackdropFilter: "blur(6px)",
+            backgroundColor: "rgba(0,0,0,0.3)",
+            backdropFilter: "blur(5px)",
+            WebkitBackdropFilter: "blur(5px)",
           }}
         >
           <div className="bg-white rounded-lg p-6 max-w-sm w-full text-center shadow-lg">
