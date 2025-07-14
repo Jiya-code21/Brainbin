@@ -198,7 +198,7 @@ function Header() {
               </button>
               <button
                 onClick={() => setShowLoginModal(false)}
-                className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+                className="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition"
               >
                 Cancel
               </button>
