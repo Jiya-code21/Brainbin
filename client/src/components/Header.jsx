@@ -1,19 +1,32 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate } from "react-router-dom";
-import { assets } from "../assets/assets"; 
+import { assets } from "../assets/assets";
 import { AppContent } from "../context/AppContext";
 
 const { header_img, hand_wave, demoVideo } = assets;
 
-function Header() { 
+function Header() {
   const { userData } = useContext(AppContent);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [showLoginModal, setShowLoginModal] = useState(false); //add new state
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   useEffect(() => {
     const style = document.createElement('style');
-    style.innerHTML = 
+    style.innerHTML = `
+      body {
+        overflow-x: hidden;
+      }
+      .bg-animated {
+        background: linear-gradient(-45deg, #fdfcfb, #e2d1c3, #f5d0fe, #dbeafe);
+        background-size: 600% 600%;
+        animation: gradientBG 12s ease infinite;
+      }
+      @keyframes gradientBG {
+        0% {background-position: 0% 50%;}
+        50% {background-position: 100% 50%;}
+        100% {background-position: 0% 50%;}
+      }
       @keyframes spin-slow {
         0% { transform: rotateY(0deg); }
         100% { transform: rotateY(360deg); }
@@ -46,7 +59,10 @@ function Header() {
         white-space: nowrap;
         width: 0;
         animation: typing 3s steps(30, end) forwards;
-        color: #1f2937;
+        background: linear-gradient(to right, #7e22ce, #0ea5e9);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: bold;
       }
       @keyframes spinnerRotate {
         0% { transform: rotate(0deg); }
@@ -76,28 +92,18 @@ function Header() {
         border-radius: 24px;
         box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
       }
-      /* Toast style */
-      .toast {
-        position: fixed;
-        right: 20px;
-        bottom: 20px;
-        background-color: #a855f7;  /* violet purple */
-        color: #f3f4f6;             /* light gray */
-        padding: 8px 14px;
-        border-radius: 8px;
-        box-shadow: 0 2px 6px rgba(168, 85, 247, 0.5);
-        font-size: 0.85rem;
-        font-weight: 600;
-        animation: fadeOut 3s forwards;
-        z-index: 1000;
-        max-width: 220px;
+      .floating-circle {
+        position: absolute;
+        border-radius: 9999px;
+        opacity: 0.15;
+        animation: float 6s ease-in-out infinite;
       }
-      @keyframes fadeOut {
-        0% { opacity: 1; }
-        80% { opacity: 1; }
-        100% { opacity: 0; }
+      @keyframes float {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-20px); }
+        100% { transform: translateY(0px); }
       }
-    ;
+    `;
     document.head.appendChild(style);
 
     const timer = setTimeout(() => setLoading(false), 800);
@@ -113,7 +119,12 @@ function Header() {
   }
 
   return (
-    <div className="relative flex flex-col items-center justify-center min-h-screen px-2 sm:px-4 text-center text-gray-800 bg-white overflow-hidden pt-28 sm:pt-24">
+    <div className="relative bg-animated flex flex-col items-center justify-center min-h-screen px-2 sm:px-4 text-center text-gray-800 overflow-hidden pt-28 sm:pt-24">
+
+      {/* Floating Decorative Circles */}
+      <div className="floating-circle bg-purple-400 w-24 h-24 top-10 left-10"></div>
+      <div className="floating-circle bg-yellow-300 w-20 h-20 top-20 right-10"></div>
+      <div className="floating-circle bg-pink-300 w-16 h-16 bottom-20 left-5"></div>
 
       {/* Avatar */}
       <img
@@ -167,10 +178,10 @@ function Header() {
             if (userData) {
               navigate("/notes");
             } else {
-              setShowLoginModal(true);  // Show modal instead of direct navigation
+              setShowLoginModal(true);
             }
           }}
-          className="flex items-center gap-2 bg-gradient-to-r from-teal-500 to-indigo-600 hover:scale-105 transition-all duration-300 text-white font-semibold px-5 py-2 sm:px-6 sm:py-3 rounded-full shadow-md text-sm sm:text-base"
+          className="flex items-center gap-2 bg-gradient-to-r from-fuchsia-500 to-blue-500 hover:brightness-110 hover:scale-105 transition-all duration-300 text-white font-semibold px-6 py-3 rounded-full shadow-lg text-sm sm:text-base"
         >
           <span>Organize Now</span> <span>🗂</span>
         </button>
@@ -180,10 +191,10 @@ function Header() {
       {showLoginModal && (
         <div className="fixed inset-0 flex justify-center items-center z-50"
              style={{
-      backgroundColor: "rgba(0,0,0,0.4)",
-      backdropFilter: "blur(6px)",
-      WebkitBackdropFilter: "blur(6px)",
-    }}>
+              backgroundColor: "rgba(0,0,0,0.4)",
+              backdropFilter: "blur(6px)",
+              WebkitBackdropFilter: "blur(6px)",
+        }}>
           <div className="bg-white rounded-lg p-6 max-w-sm w-full text-center shadow-lg">
             <h2 className="text-xl font-semibold mb-6 text-gray-900">Kindly log in to continue</h2>
             <div className="flex justify-center gap-6">
@@ -206,7 +217,6 @@ function Header() {
           </div>
         </div>
       )}
-
     </div>
   );
 }
