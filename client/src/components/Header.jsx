@@ -5,11 +5,11 @@ import { AppContent } from "../context/AppContext";
 
 const { header_img, hand_wave, demoVideo } = assets;
 
-function Header() { 
+function Header() {
   const { userData } = useContext(AppContent);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [showLoginModal, setShowLoginModal] = useState(false); //add new state
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   useEffect(() => {
     const style = document.createElement('style');
@@ -37,65 +37,28 @@ function Header() {
         transform-origin: bottom right;
         animation: wave 2s infinite;
       }
-      @keyframes typing {
-        from { width: 0 }
-        to { width: 100% }
+      @keyframes shine {
+        100% { left: 125%; }
       }
-      .typing-text {
+      .button-shine {
+        position: relative;
         overflow: hidden;
-        white-space: nowrap;
-        width: 0;
-        animation: typing 3s steps(30, end) forwards;
-        color: #1f2937;
       }
-      @keyframes spinnerRotate {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-      }
-      .multi-color-spinner {
-        width: 64px;
-        height: 64px;
-        border: 6px solid transparent;
-        border-top-color: #06b6d4;
-        border-right-color: #3b82f6;
-        border-bottom-color: #8b5cf6;
-        border-left-color: #facc15;
-        border-radius: 50%;
-        animation: spinnerRotate 1s linear infinite;
-      }
-      @keyframes borderGlow {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
-      }
-      .animated-border {
-        background: linear-gradient(270deg, #00f5ff, #a855f7, #ff80bf, #00f5ff);
-        background-size: 800% 800%;
-        animation: borderGlow 12s ease infinite;
-        padding: 6px;
-        border-radius: 24px;
-        box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
-      }
-      /* Toast style */
-      .toast {
-        position: fixed;
-        right: 20px;
-        bottom: 20px;
-        background-color: #a855f7;  /* violet purple */
-        color: #f3f4f6;             /* light gray */
-        padding: 8px 14px;
-        border-radius: 8px;
-        box-shadow: 0 2px 6px rgba(168, 85, 247, 0.5);
-        font-size: 0.85rem;
-        font-weight: 600;
-        animation: fadeOut 3s forwards;
-        z-index: 1000;
-        max-width: 220px;
-      }
-      @keyframes fadeOut {
-        0% { opacity: 1; }
-        80% { opacity: 1; }
-        100% { opacity: 0; }
+      .button-shine::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -75%;
+        width: 50%;
+        height: 100%;
+        background: linear-gradient(
+          120deg,
+          rgba(255, 255, 255, 0.2),
+          rgba(255, 255, 255, 0.5),
+          rgba(255, 255, 255, 0.2)
+        );
+        transform: skewX(-25deg);
+        animation: shine 2s infinite;
       }
     `;
     document.head.appendChild(style);
@@ -113,77 +76,59 @@ function Header() {
   }
 
   return (
-    <div className="relative flex flex-col items-center justify-center min-h-screen px-2 sm:px-4 text-center text-gray-800 bg-white overflow-hidden pt-28 sm:pt-24">
+    <div className="relative w-full overflow-hidden min-h-screen flex justify-center items-center px-4 sm:px-8 py-16 bg-white text-gray-800">
 
-      {/* Avatar */}
-      <img
-        src={header_img}
-        alt="profile"
-        className='w-20 h-20 sm:w-28 sm:h-28 rounded-full mb-3 animate-spin-slow shadow-xl'
-      />
+      {/* Glowing Purple Blob */}
+      <div className="absolute w-[400px] h-[400px] bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse top-0 -left-20 z-0"></div>
 
-      {/* Welcome Text */}
-      <h1 className='flex items-center gap-2 text-base sm:text-xl font-medium mb-1 text-gray-800'>
-        Hey {userData ? userData.name : 'Developer'}
-        <img
-          src={hand_wave}
-          alt="wave"
-          className='w-5 sm:w-6 aspect-square animate-wave'
-        />
-      </h1>
-
-      {/* Heading */}
-      <h2 className='text-xl sm:text-3xl font-semibold mb-2 typing-text'>
-        Welcome to Brain Bin
-      </h2>
-
-      {/* Sub Text */}
-      <p className='mb-4 max-w-xs sm:max-w-md text-gray-700 text-sm font-medium'>
-        See your knowledge flow in motion. Add, organize, and share visually.
-      </p>
-
-      {/* Video Section with Animated Border */}
-      <div className="animated-border max-w-4xl w-full mb-8">
-        <div className="bg-[#1e1e2f] rounded-2xl overflow-hidden">
-          <div className="flex items-center px-4 py-2 bg-[#2c2c3b]">
-            <div className="w-3 h-3 rounded-full bg-red-500 mr-2"></div>
-            <div className="w-3 h-3 rounded-full bg-yellow-500 mr-2"></div>
-            <div className="w-3 h-3 rounded-full bg-green-500"></div>
+      {/* Main Content */}
+      <div className="relative z-10 flex flex-col-reverse md:flex-row items-center justify-between w-full max-w-6xl mx-auto gap-12">
+        
+        {/* Left Side: Text + CTA */}
+        <div className="flex-1 text-center md:text-left">
+          <div className="flex items-center justify-center md:justify-start gap-2 text-base sm:text-xl font-medium text-gray-800 mb-2">
+            Hey {userData ? userData.name : 'Developer'}
+            <img src={hand_wave} alt="wave" className="w-6 animate-wave" />
           </div>
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+            Welcome to Brain Bin
+          </h1>
+          <p className="text-gray-600 text-base sm:text-lg mb-6 max-w-md">
+            See your knowledge flow in motion. Add, organize, and share visually.
+          </p>
+          <button
+            onClick={() => {
+              if (userData) {
+                navigate("/notes");
+              } else {
+                setShowLoginModal(true);
+              }
+            }}
+            className="button-shine bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-6 py-3 rounded-full shadow-xl hover:scale-105 transition-all"
+          >
+            Organize Now 🚀
+          </button>
+        </div>
+
+        {/* Right Side: Video */}
+        <div className="flex-1">
           <video
             src={demoVideo}
             controls
-            playsInline
-            muted={false}
-            className="w-full aspect-video object-cover"
+            muted
+            className="w-full rounded-2xl shadow-xl border border-gray-200"
           />
         </div>
-      </div>
-
-      {/* Organize Button */}
-      <div className="mb-8">
-        <button
-          onClick={() => {
-            if (userData) {
-              navigate("/notes");
-            } else {
-              setShowLoginModal(true);  // Show modal instead of direct navigation
-            }
-          }}
-          className="flex items-center gap-2 bg-gradient-to-r from-teal-500 to-indigo-600 hover:scale-105 transition-all duration-300 text-white font-semibold px-5 py-2 sm:px-6 sm:py-3 rounded-full shadow-md text-sm sm:text-base"
-        >
-          <span>Organize Now</span> <span>🗂</span>
-        </button>
       </div>
 
       {/* LOGIN MODAL */}
       {showLoginModal && (
         <div className="fixed inset-0 flex justify-center items-center z-50"
              style={{
-      backgroundColor: "rgba(0,0,0,0.4)",
-      backdropFilter: "blur(6px)",
-      WebkitBackdropFilter: "blur(6px)",
-    }}>
+               backgroundColor: "rgba(0,0,0,0.4)",
+               backdropFilter: "blur(6px)",
+               WebkitBackdropFilter: "blur(6px)",
+             }}>
           <div className="bg-white rounded-lg p-6 max-w-sm w-full text-center shadow-lg">
             <h2 className="text-xl font-semibold mb-6 text-gray-900">Kindly log in to continue</h2>
             <div className="flex justify-center gap-6">
