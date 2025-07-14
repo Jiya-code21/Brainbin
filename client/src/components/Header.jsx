@@ -2,14 +2,14 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import { assets } from "../assets/assets";
 import { AppContent } from "../context/AppContext";
- 
+
 const { header_img, hand_wave, demoVideo } = assets;
 
 function Header() {
   const { userData } = useContext(AppContent);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
- const [showLoginModal, setShowLoginModal]=useState(false); //add new state
+  const [showLoginModal, setShowLoginModal] = useState(false); //add new state
 
   useEffect(() => {
     const style = document.createElement('style');
@@ -22,7 +22,6 @@ function Header() {
         animation: spin-slow 10s linear infinite;
         transform-style: preserve-3d;
       }
-
       @keyframes wave {
         0% { transform: rotate(0deg); }
         10% { transform: rotate(14deg); }
@@ -38,7 +37,6 @@ function Header() {
         transform-origin: bottom right;
         animation: wave 2s infinite;
       }
-
       @keyframes typing {
         from { width: 0 }
         to { width: 100% }
@@ -50,7 +48,6 @@ function Header() {
         animation: typing 3s steps(30, end) forwards;
         color: #1f2937;
       }
-
       @keyframes spinnerRotate {
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
@@ -66,13 +63,11 @@ function Header() {
         border-radius: 50%;
         animation: spinnerRotate 1s linear infinite;
       }
-
       @keyframes borderGlow {
         0% { background-position: 0% 50%; }
         50% { background-position: 100% 50%; }
         100% { background-position: 0% 50%; }
       }
-
       .animated-border {
         background: linear-gradient(270deg, #00f5ff, #a855f7, #ff80bf, #00f5ff);
         background-size: 800% 800%;
@@ -81,7 +76,6 @@ function Header() {
         border-radius: 24px;
         box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
       }
-
       /* Toast style */
       .toast {
         position: fixed;
@@ -98,7 +92,6 @@ function Header() {
         z-index: 1000;
         max-width: 220px;
       }
-
       @keyframes fadeOut {
         0% { opacity: 1; }
         80% { opacity: 1; }
@@ -167,14 +160,14 @@ function Header() {
         </div>
       </div>
 
-  {/* Organize Button */}
+      {/* Organize Button */}
       <div className="mb-8">
         <button
           onClick={() => {
             if (userData) {
               navigate("/notes");
             } else {
-              setShowLoginModal(true);  // <-- Show modal instead of navigate directly
+              setShowLoginModal(true);  // Show modal instead of direct navigation
             }
           }}
           className="flex items-center gap-2 bg-gradient-to-r from-teal-500 to-indigo-600 hover:scale-105 transition-all duration-300 text-white font-semibold px-5 py-2 sm:px-6 sm:py-3 rounded-full shadow-md text-sm sm:text-base"
@@ -207,6 +200,9 @@ function Header() {
             </div>
           </div>
         </div>
+      )}
+
+    </div>
   );
 }
 
