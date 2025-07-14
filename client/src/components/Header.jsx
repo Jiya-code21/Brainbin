@@ -185,7 +185,7 @@ function Header() {
       WebkitBackdropFilter: "blur(6px)",
     }}>
           <div className="bg-white rounded-lg p-6 max-w-sm w-full text-center shadow-lg">
-            <h2 className="text-xl font-semibold mb-6 text-gray-900">Please login to access notes</h2>
+            <h2 className="text-xl font-semibold mb-6 text-gray-900">Kindly log in to continue</h2>
             <div className="flex justify-center gap-6">
               <button
                 onClick={() => {
