@@ -1,19 +1,19 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate } from "react-router-dom";
-import { assets } from "../assets/assets";
+import { assets } from "../assets/assets"; 
 import { AppContent } from "../context/AppContext";
 
 const { header_img, hand_wave, demoVideo } = assets;
 
-function Header() {
+function Header() { 
   const { userData } = useContext(AppContent);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false); //add new state
 
   useEffect(() => {
     const style = document.createElement('style');
-    style.innerHTML = `
+    style.innerHTML = 
       @keyframes spin-slow {
         0% { transform: rotateY(0deg); }
         100% { transform: rotateY(360deg); }
@@ -74,31 +74,30 @@ function Header() {
         animation: borderGlow 12s ease infinite;
         padding: 6px;
         border-radius: 24px;
-        box-shadow: 0 0 30px rgba(168, 85, 247, 0.5);
-        position: relative;
+        box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
       }
-      .recording-dot {
-        position: absolute;
-        top: 10px;
-        right: 14px;
-        width: 12px;
-        height: 12px;
-        background-color: red;
-        border-radius: 50%;
-        box-shadow: 0 0 8px red;
-        animation: pulse 1.2s infinite;
+      /* Toast style */
+      .toast {
+        position: fixed;
+        right: 20px;
+        bottom: 20px;
+        background-color: #a855f7;  /* violet purple */
+        color: #f3f4f6;             /* light gray */
+        padding: 8px 14px;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(168, 85, 247, 0.5);
+        font-size: 0.85rem;
+        font-weight: 600;
+        animation: fadeOut 3s forwards;
+        z-index: 1000;
+        max-width: 220px;
       }
-      @keyframes pulse {
-        0%, 100% {
-          transform: scale(1);
-          opacity: 1;
-        }
-        50% {
-          transform: scale(1.3);
-          opacity: 0.6;
-        }
+      @keyframes fadeOut {
+        0% { opacity: 1; }
+        80% { opacity: 1; }
+        100% { opacity: 0; }
       }
-    `;
+    ;
     document.head.appendChild(style);
 
     const timer = setTimeout(() => setLoading(false), 800);
@@ -126,7 +125,11 @@ function Header() {
       {/* Welcome Text */}
       <h1 className='flex items-center gap-2 text-base sm:text-xl font-medium mb-1 text-gray-800'>
         Hey {userData ? userData.name : 'Developer'}
-        <img src={hand_wave} alt="wave" className='w-5 sm:w-6 aspect-square animate-wave' />
+        <img
+          src={hand_wave}
+          alt="wave"
+          className='w-5 sm:w-6 aspect-square animate-wave'
+        />
       </h1>
 
       {/* Heading */}
@@ -139,9 +142,8 @@ function Header() {
         See your knowledge flow in motion. Add, organize, and share visually.
       </p>
 
-      {/* Video Section */}
+      {/* Video Section with Animated Border */}
       <div className="animated-border max-w-4xl w-full mb-8">
-        <div className="recording-dot"></div>
         <div className="bg-[#1e1e2f] rounded-2xl overflow-hidden">
           <div className="flex items-center px-4 py-2 bg-[#2c2c3b]">
             <div className="w-3 h-3 rounded-full bg-red-500 mr-2"></div>
@@ -165,10 +167,10 @@ function Header() {
             if (userData) {
               navigate("/notes");
             } else {
-              setShowLoginModal(true);
+              setShowLoginModal(true);  // Show modal instead of direct navigation
             }
           }}
-          className="flex items-center gap-2 bg-gradient-to-r from-purple-500 to-indigo-600 hover:scale-105 transition-all duration-300 text-white font-semibold px-6 py-3 rounded-full shadow-lg text-base"
+          className="flex items-center gap-2 bg-gradient-to-r from-teal-500 to-indigo-600 hover:scale-105 transition-all duration-300 text-white font-semibold px-5 py-2 sm:px-6 sm:py-3 rounded-full shadow-md text-sm sm:text-base"
         >
           <span>Organize Now</span> <span>🗂</span>
         </button>
@@ -176,27 +178,27 @@ function Header() {
 
       {/* LOGIN MODAL */}
       {showLoginModal && (
-        <div className="fixed inset-0 flex justify-end items-start z-50 p-4"
-          style={{
-            backgroundColor: "rgba(0,0,0,0.4)",
-            backdropFilter: "blur(6px)",
-            WebkitBackdropFilter: "blur(6px)",
-          }}>
-          <div className="bg-white rounded-lg p-6 max-w-sm w-full text-center shadow-2xl border border-indigo-200">
-            <h2 className="text-xl font-semibold mb-6 text-gray-900">🔐 Kindly log in to continue</h2>
-            <div className="flex justify-center gap-4">
+        <div className="fixed inset-0 flex justify-center items-center z-50"
+             style={{
+      backgroundColor: "rgba(0,0,0,0.4)",
+      backdropFilter: "blur(6px)",
+      WebkitBackdropFilter: "blur(6px)",
+    }}>
+          <div className="bg-white rounded-lg p-6 max-w-sm w-full text-center shadow-lg">
+            <h2 className="text-xl font-semibold mb-6 text-gray-900">Kindly log in to continue</h2>
+            <div className="flex justify-center gap-6">
               <button
                 onClick={() => {
                   setShowLoginModal(false);
                   navigate("/login", { state: { from: "/notes" } });
                 }}
-                className="px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+                className="px-4 py-2 bg-indigo-600 text-white rounded-lg transition"
               >
                 Login Now
               </button>
               <button
                 onClick={() => setShowLoginModal(false)}
-                className="px-5 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500 transition"
+                className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition"
               >
                 Cancel
               </button>
@@ -204,6 +206,7 @@ function Header() {
           </div>
         </div>
       )}
+
     </div>
   );
 }
