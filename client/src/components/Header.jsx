@@ -14,11 +14,13 @@ function Header() {
   useEffect(() => {
     const style = document.createElement('style');
     style.innerHTML = `
-      /* Page full gradient background */
+      /* Smooth radial gradient background for whole page */
       body, html, #root {
         margin: 0; padding: 0; height: 100%;
-        background: linear-gradient(135deg, #6b46c1 0%, #3182ce 100%);
+        background: radial-gradient(circle at center, #6b46c1 0%, #3182ce 80%);
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
       }
 
       /* Spinner animation */
