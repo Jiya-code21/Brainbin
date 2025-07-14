@@ -178,22 +178,27 @@ function Header() {
 
       {/* LOGIN MODAL */}
       {showLoginModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
+        <div className="fixed inset-0 flex justify-center items-center z-50"
+             style={{
+      backgroundColor: "rgba(0,0,0,0.4)",
+      backdropFilter: "blur(6px)",
+      WebkitBackdropFilter: "blur(6px)",
+    }}>
           <div className="bg-white rounded-lg p-6 max-w-sm w-full text-center shadow-lg">
-            <h2 className="text-lg font-semibold mb-4">Please login to access notes</h2>
-            <div className="flex justify-center gap-4">
+            <h2 className="text-xl font-semibold mb-6 text-gray-900">Please login to access notes</h2>
+            <div className="flex justify-center gap-6">
               <button
                 onClick={() => {
                   setShowLoginModal(false);
                   navigate("/login", { state: { from: "/notes" } });
                 }}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition
               >
                 Login Now
               </button>
               <button
                 onClick={() => setShowLoginModal(false)}
-                className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-100 transition"
+                className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-100 transition"
               >
                 Cancel
               </button>
