@@ -14,9 +14,11 @@ function Header() {
   useEffect(() => {
     const style = document.createElement("style");
     style.innerHTML = `
-      /* Gradient background */
-      .bg-gradient {
+      /* Full page gradient background */
+      body, html, #root {
+        margin: 0; padding: 0; height: 100%;
         background: linear-gradient(135deg, #6b46c1 0%, #3182ce 100%);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       }
 
       /* Spinner animation */
@@ -51,13 +53,13 @@ function Header() {
       }
       @keyframes blinkCaret {
         0%, 100% { border-color: transparent; }
-        50% { border-color: #fff; }
+        50% { border-color: #6b46c1; }
       }
       .typing-text {
         font-weight: 700;
         font-size: 2rem;
-        color: white;
-        border-right: 3px solid white;
+        color: #6b46c1;
+        border-right: 3px solid #6b46c1;
         white-space: nowrap;
         overflow: hidden;
         width: 0;
@@ -155,6 +157,17 @@ function Header() {
         background-color: #bbb;
       }
 
+      /* Content box container */
+      .content-box {
+        background: white;
+        border-radius: 24px;
+        padding: 2.5rem 2rem;
+        max-width: 700px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        z-index: 10;
+        position: relative;
+      }
+
       /* Responsive text sizes */
       @media (min-width: 640px) {
         .typing-text {
@@ -170,75 +183,80 @@ function Header() {
 
   if (loading) {
     return (
-      <div className="w-full h-screen flex justify-center items-center bg-white">
-        <div className="multi-color-spinner spin-slow" style={{
-          width: "64px",
-          height: "64px",
-          border: "6px solid transparent",
-          borderTopColor: "#3b82f6",
-          borderRightColor: "#7b5cf5",
-          borderBottomColor: "#3b82f6",
-          borderLeftColor: "#7b5cf5",
-          borderRadius: "50%",
-          animation: "spinSlow 1s linear infinite"
-        }}></div>
+      <div className="w-full h-screen flex justify-center items-center bg-transparent">
+        <div
+          className="spin-slow"
+          style={{
+            width: "64px",
+            height: "64px",
+            border: "6px solid transparent",
+            borderTopColor: "#3b82f6",
+            borderRightColor: "#7b5cf5",
+            borderBottomColor: "#3b82f6",
+            borderLeftColor: "#7b5cf5",
+            borderRadius: "50%",
+            animation: "spinSlow 1s linear infinite",
+          }}
+        ></div>
       </div>
     );
   }
 
   return (
-    <div className="relative flex flex-col items-center justify-center min-h-screen px-4 text-center bg-gradient pt-28 sm:pt-24 overflow-hidden">
-      
+    <div className="relative flex justify-center items-center min-h-screen px-4 bg-gradient overflow-hidden">
       {/* Floating Circles */}
       <div className="circle w-24 h-24" style={{ top: "10%", left: "5%", animationDelay: "0s" }}></div>
       <div className="circle w-16 h-16" style={{ top: "30%", right: "10%", animationDelay: "2s" }}></div>
       <div className="circle w-20 h-20" style={{ bottom: "15%", left: "15%", animationDelay: "4s" }}></div>
 
-      {/* Avatar */}
-      <img
-        src={header_img}
-        alt="profile"
-        className="w-20 h-20 sm:w-28 sm:h-28 rounded-full mb-4 spin-slow shadow-lg"
-      />
-
-      {/* Welcome Text */}
-      <h1 className="flex items-center gap-2 text-lg sm:text-2xl font-semibold mb-2 text-white">
-        Hey {userData ? userData.name : "Developer"}
-        <img src={hand_wave} alt="wave" className="wave-animate w-6 h-6" />
-      </h1>
-
-      {/* Heading */}
-      <h2 className="typing-text mb-4 select-none">Welcome to Brain Bin</h2>
-
-      {/* Sub Text */}
-      <p className="max-w-md text-white/90 mb-10 font-medium text-sm sm:text-base">
-        See your knowledge flow in motion. Add, organize, and share visually.
-      </p>
-
-      {/* Video Section */}
-      <div className="rounded-2xl overflow-hidden max-w-4xl w-full mb-10 shadow-lg border-4 border-white/20">
-        <video
-          src={demoVideo}
-          controls
-          playsInline
-          muted={false}
-          className="w-full aspect-video object-cover"
+      {/* Content Box */}
+      <div className="content-box text-center">
+        {/* Avatar */}
+        <img
+          src={header_img}
+          alt="profile"
+          className="w-20 h-20 sm:w-28 sm:h-28 rounded-full mb-6 spin-slow shadow-lg mx-auto"
         />
-      </div>
 
-      {/* Organize Button */}
-      <button
-        onClick={() => {
-          if (userData) {
-            navigate("/notes");
-          } else {
-            setShowLoginModal(true);
-          }
-        }}
-        className="btn-gradient"
-      >
-        <span>Organize Now</span> <span>🗂</span>
-      </button>
+        {/* Welcome Text */}
+        <h1 className="flex items-center justify-center gap-2 text-lg sm:text-2xl font-semibold mb-4 text-gray-800">
+          Hey {userData ? userData.name : "Developer"}
+          <img src={hand_wave} alt="wave" className="wave-animate w-6 h-6" />
+        </h1>
+
+        {/* Heading */}
+        <h2 className="typing-text mb-6 select-none">Welcome to Brain Bin</h2>
+
+        {/* Sub Text */}
+        <p className="max-w-md mx-auto mb-10 font-medium text-gray-700 text-base">
+          See your knowledge flow in motion. Add, organize, and share visually.
+        </p>
+
+        {/* Video Section */}
+        <div className="rounded-2xl overflow-hidden max-w-4xl w-full mx-auto mb-10 shadow-md border border-gray-200">
+          <video
+            src={demoVideo}
+            controls
+            playsInline
+            muted={false}
+            className="w-full aspect-video object-cover"
+          />
+        </div>
+
+        {/* Organize Button */}
+        <button
+          onClick={() => {
+            if (userData) {
+              navigate("/notes");
+            } else {
+              setShowLoginModal(true);
+            }
+          }}
+          className="btn-gradient"
+        >
+          <span>Organize Now</span> <span>🗂</span>
+        </button>
+      </div>
 
       {/* Login Modal */}
       {showLoginModal && (
