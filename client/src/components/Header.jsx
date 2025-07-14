@@ -5,7 +5,7 @@ import { AppContent } from "../context/AppContext";
 
 const { header_img, hand_wave, demoVideo } = assets;
 
-function Header() {
+function Header() { 
   const { userData } = useContext(AppContent);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
