@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate } from "react-router-dom";
-import { assets } from "../assets/assets";
+import { assets } from "../assets/assets"; 
 import { AppContent } from "../context/AppContext";
 
 const { header_img, hand_wave, demoVideo } = assets;
