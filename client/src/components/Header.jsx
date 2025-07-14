@@ -190,7 +190,7 @@ function Header() {
           }}
           className="flex items-center gap-2 bg-gradient-to-r from-sky-400 to-indigo-500 hover:scale-105 transition-all duration-300 text-white font-semibold px-5 py-2 sm:px-6 sm:py-3 rounded-full shadow-md text-sm sm:text-base"
         >
-          <span>Organize Now</span> <span>🗂</span>
+          <span>Organize Now 📂</span>
         </button>
       </div>
 
