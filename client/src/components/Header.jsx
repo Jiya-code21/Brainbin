@@ -9,7 +9,6 @@ function Header() {
   const { userData } = useContext(AppContent);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
   useEffect(() => {
     const style = document.createElement('style');
@@ -174,8 +173,7 @@ function Header() {
             if (userData) {
               navigate("/notes");
             } else {
-              setShowLoginPrompt(true);
-              setTimeout(() => setShowLoginPrompt(false), 3000);
+              navigate("/login", { state: { from: "/notes" } });
             }
           }}
           className="flex items-center gap-2 bg-gradient-to-r from-teal-500 to-indigo-600 hover:scale-105 transition-all duration-300 text-white font-semibold px-5 py-2 sm:px-6 sm:py-3 rounded-full shadow-md text-sm sm:text-base"
@@ -183,13 +181,6 @@ function Header() {
           <span>Organize Now</span> <span>🗂</span>
         </button>
       </div>
-
-
-      {showLoginPrompt && (
-        <div className="toast">
-          Please login first to access your notes.
-        </div>
-      )}
     </div>
   );
 }
