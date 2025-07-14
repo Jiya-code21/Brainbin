@@ -9,6 +9,7 @@ function Header() {
   const { userData } = useContext(AppContent);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+ const [showLoginModal, setShowLoginModal]=useState(false); //add new state
 
   useEffect(() => {
     const style = document.createElement('style');
@@ -166,14 +167,14 @@ function Header() {
         </div>
       </div>
 
-      {/* Organize Button */}
+  {/* Organize Button */}
       <div className="mb-8">
         <button
           onClick={() => {
             if (userData) {
               navigate("/notes");
             } else {
-              navigate("/login", { state: { from: "/notes" } });
+              setShowLoginModal(true);  // <-- Show modal instead of navigate directly
             }
           }}
           className="flex items-center gap-2 bg-gradient-to-r from-teal-500 to-indigo-600 hover:scale-105 transition-all duration-300 text-white font-semibold px-5 py-2 sm:px-6 sm:py-3 rounded-full shadow-md text-sm sm:text-base"
@@ -181,7 +182,31 @@ function Header() {
           <span>Organize Now</span> <span>🗂</span>
         </button>
       </div>
-    </div>
+
+      {/* LOGIN MODAL */}
+      {showLoginModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-sm w-full text-center shadow-lg">
+            <h2 className="text-lg font-semibold mb-4">Please login to access notes</h2>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={() => {
+                  setShowLoginModal(false);
+                  navigate("/login", { state: { from: "/notes" } });
+                }}
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+              >
+                Login Now
+              </button>
+              <button
+                onClick={() => setShowLoginModal(false)}
+                className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-100 transition"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
   );
 }
 
