@@ -192,7 +192,7 @@ function Header() {
                   setShowLoginModal(false);
                   navigate("/login", { state: { from: "/notes" } });
                 }}
-                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
               >
                 Login Now
               </button>
