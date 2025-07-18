@@ -4,7 +4,7 @@ import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import {
   FaBook,
   FaPlus,
-  FaEdit,
+  FaEdit, 
   FaTrash,
   FaLightbulb,
   FaLink,
