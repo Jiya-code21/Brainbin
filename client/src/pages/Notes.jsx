@@ -4,13 +4,13 @@ import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import {
   FaBook,
   FaPlus,
-  FaEdit, 
+  FaEdit,
   FaTrash,
   FaLightbulb,
   FaLink,
 } from "react-icons/fa";
 import { AppContent } from "../context/AppContext";
-
+ 
 const Spinner = () => (
   <div className="w-full h-screen flex justify-center items-center bg-white">
     <div className="multi-color-spinner"></div>
@@ -34,6 +34,7 @@ const Notes = () => {
   const [activeTab, setActiveTab] = useState("all");
   const [showModal, setShowModal] = useState(false);
   const [editNoteId, setEditNoteId] = useState(null);
+
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [noteToDelete, setNoteToDelete] = useState(null);
 
@@ -48,8 +49,10 @@ const Notes = () => {
 
   useEffect(() => {
     fetchNotes();
+
+    // Add spinner CSS animation styles dynamically
     const style = document.createElement("style");
-    style.innerHTML = `
+    style.innerHTML = 
       @keyframes spinnerRotate {
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
@@ -65,8 +68,9 @@ const Notes = () => {
         border-radius: 50%;
         animation: spinnerRotate 1s linear infinite;
       }
-    `;
+    ;
     document.head.appendChild(style);
+
     return () => {
       document.head.removeChild(style);
     };
@@ -74,7 +78,7 @@ const Notes = () => {
 
   const fetchNotes = async () => {
     try {
-      const res = await axios.get(`${backendUrl}/api/note/my-notes`, {
+      const res = await axios.get(${backendUrl}/api/note/my-notes, {
         withCredentials: true,
       });
       setNotes(res.data.notes);
@@ -94,14 +98,14 @@ const Notes = () => {
       };
 
       if (editNoteId) {
-        const res = await axios.put(`${backendUrl}/api/note/update/${editNoteId}`, payload, {
+        const res = await axios.put(${backendUrl}/api/note/update/${editNoteId}, payload, {
           withCredentials: true,
         });
         setNotes((prev) =>
           prev.map((n) => (n._id === editNoteId ? res.data.note : n))
         );
       } else {
-        const res = await axios.post(`${backendUrl}/api/note/create`, payload, {
+        const res = await axios.post(${backendUrl}/api/note/create, payload, {
           withCredentials: true,
         });
         setNotes((prev) => [res.data.note, ...prev]);
@@ -137,7 +141,7 @@ const Notes = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`${backendUrl}/api/note/delete/${id}`, {
+      await axios.delete(${backendUrl}/api/note/delete/${id}, {
         withCredentials: true,
       });
       setNotes((prev) => prev.filter((n) => n._id !== id));
@@ -179,9 +183,9 @@ const Notes = () => {
   );
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen text-sm font-medium">
+    <div className="flex min-h-screen text-sm font-medium">
       {/* Sidebar */}
-      <div className="w-full md:w-64 bg-gradient-to-b from-purple-600 to-indigo-700 text-white p-4 flex flex-col justify-between">
+      <div className="w-64 bg-gradient-to-b from-purple-600 to-indigo-700 text-white p-4 flex flex-col justify-between">
         <div>
           <h1 className="text-xl font-bold mb-4 flex items-center gap-2">
             <FaBook /> Notes Dashboard
@@ -195,11 +199,11 @@ const Notes = () => {
                   setActiveTab(tab);
                   setCurrentPage(1);
                 }}
-                className={`block w-full text-left px-3 py-2 rounded ${
+                className={block w-full text-left px-3 py-2 rounded ${
                   activeTab === tab
                     ? "bg-white text-indigo-600 font-bold"
                     : "hover:bg-white hover:text-indigo-600"
-                }`}
+                }}
               >
                 {tab === "To Do" && "📝 To Do"}
                 {tab === "In Progress" && "⏳ In Progress"}
@@ -211,11 +215,11 @@ const Notes = () => {
                 setActiveTab("all");
                 setCurrentPage(1);
               }}
-              className={`block w-full text-left px-3 py-2 rounded ${
+              className={block w-full text-left px-3 py-2 rounded ${
                 activeTab === "all"
                   ? "bg-white text-indigo-600 font-bold"
                   : "hover:bg-white hover:text-indigo-600"
-              }`}
+              }}
             >
               📋 All Notes
             </button>
@@ -236,7 +240,7 @@ const Notes = () => {
         </div>
       </div>
 
-      {/* Main Content */}
+      {/* Main Section */}
       <div className="flex-1 bg-[#f1f5f9] p-6">
         {loading ? (
           <Spinner />
@@ -247,7 +251,7 @@ const Notes = () => {
                 <div
                   ref={prov.innerRef}
                   {...prov.droppableProps}
-                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
                 >
                   {paginatedNotes.map((n, i) => (
                     <Draggable key={n._id} draggableId={n._id} index={i}>
@@ -256,9 +260,9 @@ const Notes = () => {
                           ref={p.innerRef}
                           {...p.draggableProps}
                           {...p.dragHandleProps}
-                          className={`bg-white p-4 rounded-xl shadow-md border-l-4 ${
+                          className={bg-white p-4 rounded-xl shadow-md border-l-4 ${
                             statusColors[n.status] || "border-gray-300"
-                          }`}
+                          }}
                         >
                           <h2 className="font-bold text-lg flex items-center gap-2 mb-1">
                             <FaLightbulb className="text-yellow-500" /> {n.title}
@@ -325,11 +329,11 @@ const Notes = () => {
             <button
               key={i}
               onClick={() => setCurrentPage(i + 1)}
-              className={`w-8 h-8 rounded-full flex items-center justify-center ${
+              className={w-8 h-8 rounded-full flex items-center justify-center ${
                 currentPage === i + 1
                   ? "bg-indigo-600 text-white"
                   : "bg-white text-indigo-600 border border-indigo-600"
-              }`}
+              }}
             >
               {i + 1}
             </button>
@@ -337,7 +341,7 @@ const Notes = () => {
         </div>
       </div>
 
-      {/* Floating Add Note Button */}
+      {/* Add/Edit Note Modal */}
       <button
         onClick={() => {
           resetForm();
@@ -349,7 +353,122 @@ const Notes = () => {
         <FaPlus className="inline mr-2" /> Add Note
       </button>
 
-      {/* Add your Modals here (Add/Edit + Delete Confirm) */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm flex justify-center items-center z-50">
+          <div className="bg-white w-full max-w-md rounded-lg p-6 relative">
+            <button
+              onClick={() => {
+                setShowModal(false);
+                resetForm();
+                setEditNoteId(null);
+              }}
+              className="absolute top-3 right-4 text-gray-500 hover:text-gray-700"
+            >
+              ✖
+            </button>
+            <h2 className="text-lg font-semibold mb-4">
+              {editNoteId ? "Edit Note" : "Add New Note"}
+            </h2>
+            <form onSubmit={handleNoteSubmit} className="space-y-3 text-sm">
+              <input
+                type="text"
+                placeholder="Title"
+                required
+                value={noteData.title}
+                onChange={(e) =>
+                  setNoteData({ ...noteData, title: e.target.value })
+                }
+                className="w-full border px-3 py-2 rounded"
+              />
+              <textarea
+                placeholder="Content"
+                required
+                value={noteData.content}
+                onChange={(e) =>
+                  setNoteData({ ...noteData, content: e.target.value })
+                }
+                className="w-full border px-3 py-2 rounded"
+              />
+              <input
+                type="text"
+                placeholder="Subject"
+                value={noteData.subject}
+                onChange={(e) =>
+                  setNoteData({ ...noteData, subject: e.target.value })
+                }
+                className="w-full border px-3 py-2 rounded"
+              />
+              <select
+                value={noteData.status}
+                onChange={(e) =>
+                  setNoteData({ ...noteData, status: e.target.value })
+                }
+                className="w-full border px-3 py-2 rounded"
+              >
+                <option value="To Do">📝 To Do</option>
+                <option value="In Progress">⏳ In Progress</option>
+                <option value="Done">✅ Done</option>
+              </select>
+              <input
+                type="text"
+                placeholder="Tags (comma separated)"
+                value={noteData.tags}
+                onChange={(e) =>
+                  setNoteData({ ...noteData, tags: e.target.value })
+                }
+                className="w-full border px-3 py-2 rounded"
+              />
+              <input
+                type="url"
+                placeholder="Resource Link (optional)"
+                value={noteData.resourceUrl}
+                onChange={(e) =>
+                  setNoteData({ ...noteData, resourceUrl: e.target.value })
+                }
+                className="w-full border px-3 py-2 rounded"
+              />
+              <button
+                type="submit"
+                className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 w-full"
+              >
+                {editNoteId ? "Update Note" : "Add Note"}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm flex justify-center items-center z-50">
+          <div className="bg-white w-full max-w-sm rounded-lg p-6 relative text-center">
+            <h3 className="text-lg font-semibold mb-4">
+              Are you sure you want to delete this note?
+            </h3>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={() => {
+                  handleDelete(noteToDelete);
+                  setShowDeleteModal(false);
+                  setNoteToDelete(null);
+                }}
+                className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+              >
+                Yes, Delete
+              </button>
+              <button
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setNoteToDelete(null);
+                }}
+                className="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
