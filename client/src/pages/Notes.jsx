@@ -349,8 +349,7 @@ const Notes = () => {
         <FaPlus className="inline mr-2" /> Add Note
       </button>
 
-      {/* Modals code remains same (Add/Edit and Delete) */}
-      {/* Keep your modals as they were — no need to repeat */}
+      {/* Add your Modals here (Add/Edit + Delete Confirm) */}
     </div>
   );
 };
