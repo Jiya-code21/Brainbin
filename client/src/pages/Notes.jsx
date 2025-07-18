@@ -10,7 +10,7 @@ import {
   FaLink,
 } from "react-icons/fa";
 import { AppContent } from "../context/AppContext";
- 
+
 const Spinner = () => (
   <div className="w-full h-screen flex justify-center items-center bg-white">
     <div className="multi-color-spinner"></div>
@@ -34,7 +34,6 @@ const Notes = () => {
   const [activeTab, setActiveTab] = useState("all");
   const [showModal, setShowModal] = useState(false);
   const [editNoteId, setEditNoteId] = useState(null);
-
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [noteToDelete, setNoteToDelete] = useState(null);
 
@@ -50,7 +49,6 @@ const Notes = () => {
   useEffect(() => {
     fetchNotes();
 
-    // Add spinner CSS animation styles dynamically
     const style = document.createElement("style");
     style.innerHTML = `
       @keyframes spinnerRotate {
@@ -183,9 +181,9 @@ const Notes = () => {
   );
 
   return (
-    <div className="flex min-h-screen text-sm font-medium">
+    <div className="flex flex-col sm:flex-row min-h-screen text-sm font-medium">
       {/* Sidebar */}
-      <div className="w-64 bg-gradient-to-b from-purple-600 to-indigo-700 text-white p-4 flex flex-col justify-between">
+      <div className="hidden sm:block w-64 bg-gradient-to-b from-purple-600 to-indigo-700 text-white p-4 flex flex-col justify-between">
         <div>
           <h1 className="text-xl font-bold mb-4 flex items-center gap-2">
             <FaBook /> Notes Dashboard
@@ -241,7 +239,7 @@ const Notes = () => {
       </div>
 
       {/* Main Section */}
-      <div className="flex-1 bg-[#f1f5f9] p-6">
+      <div className="flex-1 bg-[#f1f5f9] p-4 sm:p-6">
         {loading ? (
           <Spinner />
         ) : (
@@ -251,7 +249,7 @@ const Notes = () => {
                 <div
                   ref={prov.innerRef}
                   {...prov.droppableProps}
-                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
                 >
                   {paginatedNotes.map((n, i) => (
                     <Draggable key={n._id} draggableId={n._id} index={i}>
@@ -322,7 +320,7 @@ const Notes = () => {
         )}
 
         {/* Pagination */}
-        <div className="mt-6 flex justify-center gap-2">
+        <div className="mt-6 flex flex-wrap justify-center gap-2">
           {Array.from({
             length: Math.ceil(filteredNotes.length / NOTES_PER_PAGE),
           }).map((_, i) => (
@@ -341,21 +339,22 @@ const Notes = () => {
         </div>
       </div>
 
-      {/* Add/Edit Note Modal */}
+      {/* Floating Add Button */}
       <button
         onClick={() => {
           resetForm();
           setEditNoteId(null);
           setShowModal(true);
         }}
-        className="fixed bottom-6 right-6 bg-indigo-600 text-white px-5 py-3 rounded-full shadow-lg hover:bg-indigo-700 transition-all"
+        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 bg-indigo-600 text-white px-5 py-3 rounded-full shadow-lg hover:bg-indigo-700 transition-all"
       >
         <FaPlus className="inline mr-2" /> Add Note
       </button>
 
+      {/* Add/Edit Note Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm flex justify-center items-center z-50">
-          <div className="bg-white w-full max-w-md rounded-lg p-6 relative">
+          <div className="bg-white w-[90%] max-w-md rounded-lg p-6 relative">
             <button
               onClick={() => {
                 setShowModal(false);
@@ -441,7 +440,7 @@ const Notes = () => {
       {/* Delete Confirmation Modal */}
       {showDeleteModal && (
         <div className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm flex justify-center items-center z-50">
-          <div className="bg-white w-full max-w-sm rounded-lg p-6 relative text-center">
+          <div className="bg-white w-[90%] max-w-sm rounded-lg p-6 relative text-center">
             <h3 className="text-lg font-semibold mb-4">
               Are you sure you want to delete this note?
             </h3>
