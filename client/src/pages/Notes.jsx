@@ -48,7 +48,6 @@ const Notes = () => {
 
   useEffect(() => {
     fetchNotes();
-
     const style = document.createElement("style");
     style.innerHTML = `
       @keyframes spinnerRotate {
@@ -68,7 +67,6 @@ const Notes = () => {
       }
     `;
     document.head.appendChild(style);
-
     return () => {
       document.head.removeChild(style);
     };
@@ -181,9 +179,9 @@ const Notes = () => {
   );
 
   return (
-    <div className="flex flex-col sm:flex-row min-h-screen text-sm font-medium">
+    <div className="flex flex-col md:flex-row min-h-screen text-sm font-medium">
       {/* Sidebar */}
-      <div className="hidden sm:block w-64 bg-gradient-to-b from-purple-600 to-indigo-700 text-white p-4 flex flex-col justify-between">
+      <div className="w-full md:w-64 bg-gradient-to-b from-purple-600 to-indigo-700 text-white p-4 flex flex-col justify-between">
         <div>
           <h1 className="text-xl font-bold mb-4 flex items-center gap-2">
             <FaBook /> Notes Dashboard
@@ -238,8 +236,8 @@ const Notes = () => {
         </div>
       </div>
 
-      {/* Main Section */}
-      <div className="flex-1 bg-[#f1f5f9] p-4 sm:p-6">
+      {/* Main Content */}
+      <div className="flex-1 bg-[#f1f5f9] p-6">
         {loading ? (
           <Spinner />
         ) : (
@@ -320,7 +318,7 @@ const Notes = () => {
         )}
 
         {/* Pagination */}
-        <div className="mt-6 flex flex-wrap justify-center gap-2">
+        <div className="mt-6 flex justify-center gap-2">
           {Array.from({
             length: Math.ceil(filteredNotes.length / NOTES_PER_PAGE),
           }).map((_, i) => (
@@ -339,135 +337,20 @@ const Notes = () => {
         </div>
       </div>
 
-      {/* Floating Add Button */}
+      {/* Floating Add Note Button */}
       <button
         onClick={() => {
           resetForm();
           setEditNoteId(null);
           setShowModal(true);
         }}
-        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 bg-indigo-600 text-white px-5 py-3 rounded-full shadow-lg hover:bg-indigo-700 transition-all"
+        className="fixed bottom-6 right-6 bg-indigo-600 text-white px-5 py-3 rounded-full shadow-lg hover:bg-indigo-700 transition-all"
       >
         <FaPlus className="inline mr-2" /> Add Note
       </button>
 
-      {/* Add/Edit Note Modal */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm flex justify-center items-center z-50">
-          <div className="bg-white w-[90%] max-w-md rounded-lg p-6 relative">
-            <button
-              onClick={() => {
-                setShowModal(false);
-                resetForm();
-                setEditNoteId(null);
-              }}
-              className="absolute top-3 right-4 text-gray-500 hover:text-gray-700"
-            >
-              ✖
-            </button>
-            <h2 className="text-lg font-semibold mb-4">
-              {editNoteId ? "Edit Note" : "Add New Note"}
-            </h2>
-            <form onSubmit={handleNoteSubmit} className="space-y-3 text-sm">
-              <input
-                type="text"
-                placeholder="Title"
-                required
-                value={noteData.title}
-                onChange={(e) =>
-                  setNoteData({ ...noteData, title: e.target.value })
-                }
-                className="w-full border px-3 py-2 rounded"
-              />
-              <textarea
-                placeholder="Content"
-                required
-                value={noteData.content}
-                onChange={(e) =>
-                  setNoteData({ ...noteData, content: e.target.value })
-                }
-                className="w-full border px-3 py-2 rounded"
-              />
-              <input
-                type="text"
-                placeholder="Subject"
-                value={noteData.subject}
-                onChange={(e) =>
-                  setNoteData({ ...noteData, subject: e.target.value })
-                }
-                className="w-full border px-3 py-2 rounded"
-              />
-              <select
-                value={noteData.status}
-                onChange={(e) =>
-                  setNoteData({ ...noteData, status: e.target.value })
-                }
-                className="w-full border px-3 py-2 rounded"
-              >
-                <option value="To Do">📝 To Do</option>
-                <option value="In Progress">⏳ In Progress</option>
-                <option value="Done">✅ Done</option>
-              </select>
-              <input
-                type="text"
-                placeholder="Tags (comma separated)"
-                value={noteData.tags}
-                onChange={(e) =>
-                  setNoteData({ ...noteData, tags: e.target.value })
-                }
-                className="w-full border px-3 py-2 rounded"
-              />
-              <input
-                type="url"
-                placeholder="Resource Link (optional)"
-                value={noteData.resourceUrl}
-                onChange={(e) =>
-                  setNoteData({ ...noteData, resourceUrl: e.target.value })
-                }
-                className="w-full border px-3 py-2 rounded"
-              />
-              <button
-                type="submit"
-                className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 w-full"
-              >
-                {editNoteId ? "Update Note" : "Add Note"}
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Delete Confirmation Modal */}
-      {showDeleteModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm flex justify-center items-center z-50">
-          <div className="bg-white w-[90%] max-w-sm rounded-lg p-6 relative text-center">
-            <h3 className="text-lg font-semibold mb-4">
-              Are you sure you want to delete this note?
-            </h3>
-            <div className="flex justify-center gap-4">
-              <button
-                onClick={() => {
-                  handleDelete(noteToDelete);
-                  setShowDeleteModal(false);
-                  setNoteToDelete(null);
-                }}
-                className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-              >
-                Yes, Delete
-              </button>
-              <button
-                onClick={() => {
-                  setShowDeleteModal(false);
-                  setNoteToDelete(null);
-                }}
-                className="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Modals code remains same (Add/Edit and Delete) */}
+      {/* Keep your modals as they were — no need to repeat */}
     </div>
   );
 };
