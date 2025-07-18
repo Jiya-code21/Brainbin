@@ -27,6 +27,7 @@ const NOTES_PER_PAGE = 6;
 
 const Notes = () => {
   const { backendUrl } = useContext(AppContent);
+
   const [notes, setNotes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -35,6 +36,7 @@ const Notes = () => {
   const [editNoteId, setEditNoteId] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [noteToDelete, setNoteToDelete] = useState(null);
+
   const [noteData, setNoteData] = useState({
     title: "",
     content: "",
@@ -88,17 +90,21 @@ const Notes = () => {
         ...noteData,
         tags: noteData.tags.split(",").map((tag) => tag.trim()),
       };
+
       if (editNoteId) {
         const res = await axios.put(`${backendUrl}/api/note/update/${editNoteId}`, payload, {
           withCredentials: true,
         });
-        setNotes((prev) => prev.map((n) => (n._id === editNoteId ? res.data.note : n)));
+        setNotes((prev) =>
+          prev.map((n) => (n._id === editNoteId ? res.data.note : n))
+        );
       } else {
         const res = await axios.post(`${backendUrl}/api/note/create`, payload, {
           withCredentials: true,
         });
         setNotes((prev) => [res.data.note, ...prev]);
       }
+
       setShowModal(false);
       setEditNoteId(null);
       resetForm();
@@ -143,16 +149,13 @@ const Notes = () => {
     setNotes(reordered);
   };
 
-  const getSubjectCounts = () => {
-    const counts = {};
-    notes.forEach((n) => {
-      if (n.subject) counts[n.subject] = (counts[n.subject] || 0) + 1;
-    });
-    return counts;
-  };
+  const filteredNotes =
+    activeTab === "all" ? notes : notes.filter((n) => n.status === activeTab);
 
-  const filteredNotes = activeTab === "all" ? notes : notes.filter((n) => n.status === activeTab);
-  const paginatedNotes = filteredNotes.slice((currentPage - 1) * NOTES_PER_PAGE, currentPage * NOTES_PER_PAGE);
+  const paginatedNotes = filteredNotes.slice(
+    (currentPage - 1) * NOTES_PER_PAGE,
+    currentPage * NOTES_PER_PAGE
+  );
 
   return (
     <div className="flex min-h-screen text-sm font-medium">
