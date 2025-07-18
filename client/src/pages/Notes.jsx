@@ -52,7 +52,7 @@ const Notes = () => {
 
     // Add spinner CSS animation styles dynamically
     const style = document.createElement("style");
-    style.innerHTML = 
+    style.innerHTML = `
       @keyframes spinnerRotate {
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
@@ -68,7 +68,7 @@ const Notes = () => {
         border-radius: 50%;
         animation: spinnerRotate 1s linear infinite;
       }
-    ;
+    `;
     document.head.appendChild(style);
 
     return () => {
