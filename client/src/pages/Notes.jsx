@@ -1,90 +1,106 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import {
   FaBook,
+  FaPlus,
   FaEdit,
   FaTrash,
   FaLightbulb,
-  FaPlus,
   FaLink,
 } from "react-icons/fa";
 import { AppContent } from "../context/AppContext";
-import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+ 
+const Spinner = () => (
+  <div className="w-full h-screen flex justify-center items-center bg-white">
+    <div className="multi-color-spinner"></div>
+  </div>
+);
 
-const NOTES_PER_PAGE = 6;
 const statusColors = {
-  "To Do": "border-yellow-400",
-  "In Progress": "border-blue-400",
+  "To Do": "border-red-400",
+  "In Progress": "border-yellow-400",
   Done: "border-green-400",
 };
 
+const NOTES_PER_PAGE = 6;
+
 const Notes = () => {
   const { backendUrl } = useContext(AppContent);
+
   const [notes, setNotes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [activeTab, setActiveTab] = useState("all");
+  const [showModal, setShowModal] = useState(false);
   const [editNoteId, setEditNoteId] = useState(null);
+
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [noteToDelete, setNoteToDelete] = useState(null);
-  const [showModal, setShowModal] = useState(false);
+
   const [noteData, setNoteData] = useState({
     title: "",
     content: "",
-    tags: "",
     subject: "",
-    resourceUrl: "",
     status: "To Do",
+    tags: "",
+    resourceUrl: "",
   });
 
-  // Fetch notes from backend
   useEffect(() => {
-    const fetchNotes = async () => {
-      try {
-        const res = await axios.get(`${backendUrl}/api/note/all`, {
-          withCredentials: true,
-        });
-        setNotes(res.data.notes || []);
-      } catch (error) {
-        console.error("Fetch notes error:", error);
-        setNotes([]);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchNotes();
-  }, [backendUrl]);
 
-  const resetForm = () =>
-    setNoteData({
-      title: "",
-      content: "",
-      tags: "",
-      subject: "",
-      resourceUrl: "",
-      status: "To Do",
-    });
+    // Add spinner CSS animation styles dynamically
+    const style = document.createElement("style");
+    style.innerHTML = `
+      @keyframes spinnerRotate {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      .multi-color-spinner {
+        width: 64px;
+        height: 64px;
+        border: 6px solid transparent;
+        border-top-color: #06b6d4;
+        border-right-color: #3b82f6;
+        border-bottom-color: #8b5cf6;
+        border-left-color: #facc15;
+        border-radius: 50%;
+        animation: spinnerRotate 1s linear infinite;
+      }
+    `;
+    document.head.appendChild(style);
 
-  const handleEdit = (n) => {
-    setEditNoteId(n._id);
-    setNoteData({ ...n, tags: n.tags.join(", ") });
-    setShowModal(true);
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
+
+  const fetchNotes = async () => {
+    try {
+      const res = await axios.get(`${backendUrl}/api/note/my-notes`, {
+        withCredentials: true,
+      });
+      setNotes(res.data.notes);
+    } catch (err) {
+      console.error("Fetch error:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleFormSubmit = async (e) => {
+  const handleNoteSubmit = async (e) => {
     e.preventDefault();
-    const payload = {
-      ...noteData,
-      tags: noteData.tags.split(",").map((tag) => tag.trim()),
-    };
-
     try {
+      const payload = {
+        ...noteData,
+        tags: noteData.tags.split(",").map((tag) => tag.trim()),
+      };
+
       if (editNoteId) {
-        const res = await axios.put(
-          `${backendUrl}/api/note/update/${editNoteId}`,
-          payload,
-          { withCredentials: true }
-        );
+        const res = await axios.put(`${backendUrl}/api/note/update/${editNoteId}`, payload, {
+          withCredentials: true,
+        });
         setNotes((prev) =>
           prev.map((n) => (n._id === editNoteId ? res.data.note : n))
         );
@@ -94,33 +110,60 @@ const Notes = () => {
         });
         setNotes((prev) => [res.data.note, ...prev]);
       }
+
       setShowModal(false);
       setEditNoteId(null);
       resetForm();
-    } catch (error) {
-      console.error("Save note error:", error);
+    } catch (err) {
+      console.error("Submit error:", err);
     }
   };
 
-  const handleDelete = async () => {
+  const resetForm = () => {
+    setNoteData({
+      title: "",
+      content: "",
+      subject: "",
+      status: "To Do",
+      tags: "",
+      resourceUrl: "",
+    });
+  };
+
+  const handleEdit = (note) => {
+    setNoteData({
+      ...note,
+      tags: note.tags.join(", "),
+    });
+    setEditNoteId(note._id);
+    setShowModal(true);
+  };
+
+  const handleDelete = async (id) => {
     try {
-      await axios.delete(`${backendUrl}/api/note/delete/${noteToDelete}`, {
+      await axios.delete(`${backendUrl}/api/note/delete/${id}`, {
         withCredentials: true,
       });
-      setNotes((prev) => prev.filter((n) => n._id !== noteToDelete));
-      setShowDeleteModal(false);
-      setNoteToDelete(null);
-    } catch (error) {
-      console.error("Delete note error:", error);
+      setNotes((prev) => prev.filter((n) => n._id !== id));
+    } catch (err) {
+      console.error("Delete error:", err);
     }
   };
 
   const handleDragEnd = (result) => {
     if (!result.destination) return;
-    const items = Array.from(notes);
-    const [reordered] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reordered);
-    setNotes(items);
+    const reordered = Array.from(notes);
+    const [moved] = reordered.splice(result.source.index, 1);
+    reordered.splice(result.destination.index, 0, moved);
+    setNotes(reordered);
+  };
+
+  const handleOrganize = () => {
+    const sorted = [...notes].sort((a, b) => {
+      if (a.subject !== b.subject) return a.subject.localeCompare(b.subject);
+      return a.status.localeCompare(b.status);
+    });
+    setNotes(sorted);
   };
 
   const getSubjectCounts = () => {
@@ -139,22 +182,15 @@ const Notes = () => {
     currentPage * NOTES_PER_PAGE
   );
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <p className="text-gray-600 text-lg">Loading notes...</p>
-      </div>
-    );
-  }
-
   return (
-    <>
-      <div className="flex min-h-screen text-sm font-medium">
-        {/* Sidebar */}
-        <div className="w-64 bg-gradient-to-b from-purple-600 to-indigo-700 text-white p-4">
+    <div className="flex min-h-screen text-sm font-medium">
+      {/* Sidebar */}
+      <div className="w-64 bg-gradient-to-b from-purple-600 to-indigo-700 text-white p-4 flex flex-col justify-between">
+        <div>
           <h1 className="text-xl font-bold mb-4 flex items-center gap-2">
             <FaBook /> Notes Dashboard
           </h1>
+
           <div className="space-y-2 mb-4">
             {["To Do", "In Progress", "Done"].map((tab) => (
               <button
@@ -169,11 +205,9 @@ const Notes = () => {
                     : "hover:bg-white hover:text-indigo-600"
                 }`}
               >
-                {tab === "To Do"
-                  ? "📝 To Do"
-                  : tab === "In Progress"
-                  ? "⏳ In Progress"
-                  : "✅ Done"}
+                {tab === "To Do" && "📝 To Do"}
+                {tab === "In Progress" && "⏳ In Progress"}
+                {tab === "Done" && "✅ Done"}
               </button>
             ))}
             <button
@@ -190,11 +224,12 @@ const Notes = () => {
               📋 All Notes
             </button>
           </div>
+
           <h2 className="text-sm uppercase text-gray-200 mb-1">📚 Subjects</h2>
           <ul className="text-xs space-y-1">
-            {Object.entries(getSubjectCounts()).map(([sub, count]) => (
+            {Object.entries(getSubjectCounts()).map(([sub, count], i) => (
               <li
-                key={sub}
+                key={i}
                 className="flex justify-between bg-white text-indigo-700 px-2 py-1 rounded"
               >
                 <span>{sub}</span>
@@ -203,9 +238,13 @@ const Notes = () => {
             ))}
           </ul>
         </div>
+      </div>
 
-        {/* Main content */}
-        <div className="flex-1 bg-[#f1f5f9] p-6">
+      {/* Main Section */}
+      <div className="flex-1 bg-[#f1f5f9] p-6">
+        {loading ? (
+          <Spinner />
+        ) : (
           <DragDropContext onDragEnd={handleDragEnd}>
             <Droppable droppableId="notes">
               {(prov) => (
@@ -214,11 +253,6 @@ const Notes = () => {
                   {...prov.droppableProps}
                   className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
                 >
-                  {paginatedNotes.length === 0 && (
-                    <p className="text-center col-span-full text-gray-500">
-                      No notes found.
-                    </p>
-                  )}
                   {paginatedNotes.map((n, i) => (
                     <Draggable key={n._id} draggableId={n._id} index={i}>
                       {(p) => (
@@ -226,7 +260,9 @@ const Notes = () => {
                           ref={p.innerRef}
                           {...p.draggableProps}
                           {...p.dragHandleProps}
-                          className={`bg-white p-4 rounded-xl shadow-md border-l-4 ${statusColors[n.status]}`}
+                          className={`bg-white p-4 rounded-xl shadow-md border-l-4 ${
+                            statusColors[n.status] || "border-gray-300"
+                          }`}
                         >
                           <h2 className="font-bold text-lg flex items-center gap-2 mb-1">
                             <FaLightbulb className="text-yellow-500" /> {n.title}
@@ -234,7 +270,7 @@ const Notes = () => {
                           <p className="text-gray-700 text-sm mb-1">{n.content}</p>
                           {n.subject && (
                             <p className="text-indigo-600 text-sm mb-2">
-                              📚 {n.subject}
+                              📘 {n.subject}
                             </p>
                           )}
                           <div className="flex flex-wrap gap-2 mb-2">
@@ -261,7 +297,6 @@ const Notes = () => {
                             <button
                               onClick={() => handleEdit(n)}
                               className="text-yellow-600 hover:text-yellow-800"
-                              title="Edit Note"
                             >
                               <FaEdit />
                             </button>
@@ -271,7 +306,6 @@ const Notes = () => {
                                 setShowDeleteModal(true);
                               }}
                               className="text-red-600 hover:text-red-800"
-                              title="Delete Note"
                             >
                               <FaTrash />
                             </button>
@@ -285,168 +319,157 @@ const Notes = () => {
               )}
             </Droppable>
           </DragDropContext>
+        )}
 
-          {/* Pagination */}
-          <div className="mt-6 flex justify-center gap-2">
-            {Array.from({
-              length: Math.ceil(filteredNotes.length / NOTES_PER_PAGE),
-            }).map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setCurrentPage(i + 1)}
-                className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                  currentPage === i + 1
-                    ? "bg-indigo-600 text-white"
-                    : "bg-white text-indigo-600 border border-indigo-600"
-                }`}
-              >
-                {i + 1}
-              </button>
-            ))}
-          </div>
+        {/* Pagination */}
+        <div className="mt-6 flex justify-center gap-2">
+          {Array.from({
+            length: Math.ceil(filteredNotes.length / NOTES_PER_PAGE),
+          }).map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrentPage(i + 1)}
+              className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                currentPage === i + 1
+                  ? "bg-indigo-600 text-white"
+                  : "bg-white text-indigo-600 border border-indigo-600"
+              }`}
+            >
+              {i + 1}
+            </button>
+          ))}
         </div>
-
-        {/* Add Note Button */}
-        <button
-          onClick={() => {
-            resetForm();
-            setEditNoteId(null);
-            setShowModal(true);
-          }}
-          className="fixed bottom-6 right-6 bg-indigo-600 text-white px-5 py-3 rounded-full shadow-lg hover:bg-indigo-700 transition-all"
-          title="Add New Note"
-        >
-          <FaPlus className="inline mr-2" /> Add Note
-        </button>
       </div>
 
       {/* Add/Edit Note Modal */}
+      <button
+        onClick={() => {
+          resetForm();
+          setEditNoteId(null);
+          setShowModal(true);
+        }}
+        className="fixed bottom-6 right-6 bg-indigo-600 text-white px-5 py-3 rounded-full shadow-lg hover:bg-indigo-700 transition-all"
+      >
+        <FaPlus className="inline mr-2" /> Add Note
+      </button>
+
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <form
-            onSubmit={handleFormSubmit}
-            className="bg-white rounded-lg p-6 w-full max-w-md"
-          >
-            <h2 className="text-xl font-bold mb-4">
-              {editNoteId ? "Edit Note" : "Add Note"}
+        <div className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm flex justify-center items-center z-50">
+          <div className="bg-white w-full max-w-md rounded-lg p-6 relative">
+            <button
+              onClick={() => {
+                setShowModal(false);
+                resetForm();
+                setEditNoteId(null);
+              }}
+              className="absolute top-3 right-4 text-gray-500 hover:text-gray-700"
+            >
+              ✖
+            </button>
+            <h2 className="text-lg font-semibold mb-4">
+              {editNoteId ? "Edit Note" : "Add New Note"}
             </h2>
-            <label className="block mb-2">
-              Title:
+            <form onSubmit={handleNoteSubmit} className="space-y-3 text-sm">
               <input
                 type="text"
+                placeholder="Title"
+                required
                 value={noteData.title}
                 onChange={(e) =>
                   setNoteData({ ...noteData, title: e.target.value })
                 }
-                required
-                className="border p-2 w-full rounded mt-1"
+                className="w-full border px-3 py-2 rounded"
               />
-            </label>
-            <label className="block mb-2">
-              Content:
               <textarea
+                placeholder="Content"
+                required
                 value={noteData.content}
                 onChange={(e) =>
                   setNoteData({ ...noteData, content: e.target.value })
                 }
-                required
-                className="border p-2 w-full rounded mt-1"
+                className="w-full border px-3 py-2 rounded"
               />
-            </label>
-            <label className="block mb-2">
-              Tags (comma separated):
               <input
                 type="text"
-                value={noteData.tags}
-                onChange={(e) =>
-                  setNoteData({ ...noteData, tags: e.target.value })
-                }
-                className="border p-2 w-full rounded mt-1"
-              />
-            </label>
-            <label className="block mb-2">
-              Subject:
-              <input
-                type="text"
+                placeholder="Subject"
                 value={noteData.subject}
                 onChange={(e) =>
                   setNoteData({ ...noteData, subject: e.target.value })
                 }
-                className="border p-2 w-full rounded mt-1"
+                className="w-full border px-3 py-2 rounded"
               />
-            </label>
-            <label className="block mb-2">
-              Resource URL:
-              <input
-                type="url"
-                value={noteData.resourceUrl}
-                onChange={(e) =>
-                  setNoteData({ ...noteData, resourceUrl: e.target.value })
-                }
-                className="border p-2 w-full rounded mt-1"
-              />
-            </label>
-            <label className="block mb-4">
-              Status:
               <select
                 value={noteData.status}
                 onChange={(e) =>
                   setNoteData({ ...noteData, status: e.target.value })
                 }
-                className="border p-2 w-full rounded mt-1"
+                className="w-full border px-3 py-2 rounded"
               >
-                <option>To Do</option>
-                <option>In Progress</option>
-                <option>Done</option>
+                <option value="To Do">📝 To Do</option>
+                <option value="In Progress">⏳ In Progress</option>
+                <option value="Done">✅ Done</option>
               </select>
-            </label>
-            <div className="flex justify-end gap-4">
-              <button
-                type="button"
-                onClick={() => {
-                  setShowModal(false);
-                  resetForm();
-                  setEditNoteId(null);
-                }}
-                className="px-4 py-2 border rounded hover:bg-gray-100"
-              >
-                Cancel
-              </button>
+              <input
+                type="text"
+                placeholder="Tags (comma separated)"
+                value={noteData.tags}
+                onChange={(e) =>
+                  setNoteData({ ...noteData, tags: e.target.value })
+                }
+                className="w-full border px-3 py-2 rounded"
+              />
+              <input
+                type="url"
+                placeholder="Resource Link (optional)"
+                value={noteData.resourceUrl}
+                onChange={(e) =>
+                  setNoteData({ ...noteData, resourceUrl: e.target.value })
+                }
+                className="w-full border px-3 py-2 rounded"
+              />
               <button
                 type="submit"
-                className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
+                className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 w-full"
               >
-                {editNoteId ? "Update" : "Add"}
+                {editNoteId ? "Update Note" : "Add Note"}
               </button>
-            </div>
-          </form>
+            </form>
+          </div>
         </div>
       )}
 
       {/* Delete Confirmation Modal */}
       {showDeleteModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-sm text-center">
-            <h2 className="text-xl font-bold mb-4">Confirm Delete</h2>
-            <p>Are you sure you want to delete this note?</p>
-            <div className="mt-6 flex justify-center gap-4">
+        <div className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm flex justify-center items-center z-50">
+          <div className="bg-white w-full max-w-sm rounded-lg p-6 relative text-center">
+            <h3 className="text-lg font-semibold mb-4">
+              Are you sure you want to delete this note?
+            </h3>
+            <div className="flex justify-center gap-4">
               <button
-                onClick={() => setShowDeleteModal(false)}
-                className="px-4 py-2 border rounded hover:bg-gray-100"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleDelete}
+                onClick={() => {
+                  handleDelete(noteToDelete);
+                  setShowDeleteModal(false);
+                  setNoteToDelete(null);
+                }}
                 className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
               >
-                Delete
+                Yes, Delete
+              </button>
+              <button
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setNoteToDelete(null);
+                }}
+                className="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400"
+              >
+                Cancel
               </button>
             </div>
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 };
 
