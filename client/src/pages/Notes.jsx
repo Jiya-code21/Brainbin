@@ -9,8 +9,7 @@ import {
   FaLink,
 } from "react-icons/fa";
 import { AppContent } from "../context/AppContext";
-import Spinner from "../components/Spinner";
-import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd"; // Using @hello-pangea/dnd
 
 const NOTES_PER_PAGE = 6;
 const statusColors = {
@@ -140,7 +139,6 @@ const Notes = () => {
 
   return (
     <div className="flex min-h-screen text-sm font-medium">
-      {/* Sidebar */}
       <div className="w-64 bg-gradient-to-b from-purple-600 to-indigo-700 text-white p-4">
         <h1 className="text-xl font-bold mb-4 flex items-center gap-2">
           <FaBook /> Notes Dashboard
@@ -194,10 +192,9 @@ const Notes = () => {
         </ul>
       </div>
 
-      {/* Main content */}
       <div className="flex-1 bg-[#f1f5f9] p-6">
         {loading ? (
-          <Spinner />
+          <div className="text-center text-indigo-600 font-semibold">Loading...</div>
         ) : (
           <DragDropContext onDragEnd={handleDragEnd}>
             <Droppable droppableId="notes">
