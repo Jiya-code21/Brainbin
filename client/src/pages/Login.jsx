@@ -54,7 +54,6 @@ function Login() {
     }
   };
 
-  // Spinner Component
   const Spinner = () => (
     <div className="w-full h-32 flex justify-center items-center">
       <div className="loader"></div>
@@ -63,6 +62,23 @@ function Login() {
 
   return (
     <div className="flex items-center justify-center min-h-screen px-6 sm:px-0 bg-gradient-to-br from-blue-200 to-purple-400 relative">
+      {/* 👇 Inline spinner CSS */}
+      <style>
+        {`
+          .loader {
+            border: 4px solid #e0e0e0;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 0.8s linear infinite;
+          }
+          @keyframes spin {
+            to { transform: rotate(360deg); }
+          }
+        `}
+      </style>
+
       <img
         onClick={() => navigate('/')}
         src={assets.logo}
