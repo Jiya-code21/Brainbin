@@ -56,17 +56,16 @@ function Login() {
 
   return (
     <div className="flex items-center justify-center min-h-screen px-6 sm:px-0 bg-gradient-to-br from-blue-200 to-purple-400 relative">
-      {/* 👇 Inline spinner CSS */}
+      {/* 👇 Inline loader CSS (circle only) */}
       <style>
         {`
           .loader-btn {
             border: 3px solid transparent;
             border-top: 3px solid white;
-            border-right: 3px solid white;
             border-radius: 50%;
-            width: 18px;
-            height: 18px;
-            animation: spin 0.6s linear infinite;
+            width: 20px;
+            height: 20px;
+            animation: spin 0.7s linear infinite;
           }
           @keyframes spin {
             to { transform: rotate(360deg); }
@@ -135,24 +134,17 @@ function Login() {
             Forgot password?
           </p>
 
-          {/* Button with spinner */}
+          {/* ✅ Button with only spinner */}
           <button
             type="submit"
             disabled={loading}
-            className={`w-full py-2.5 rounded-full flex justify-center items-center gap-2 font-medium text-white ${
+            className={`w-full py-2.5 rounded-full flex justify-center items-center font-medium text-white transition ${
               loading
                 ? 'bg-indigo-700 cursor-not-allowed'
                 : 'bg-gradient-to-r from-indigo-500 to-indigo-900 hover:opacity-90'
             }`}
           >
-            {loading ? (
-              <>
-                <div className="loader-btn"></div>
-                Processing...
-              </>
-            ) : (
-              state
-            )}
+            {loading ? <div className="loader-btn"></div> : state}
           </button>
         </form>
 
