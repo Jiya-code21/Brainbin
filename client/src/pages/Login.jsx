@@ -54,24 +54,19 @@ function Login() {
     }
   };
 
-  const Spinner = () => (
-    <div className="w-full h-32 flex justify-center items-center">
-      <div className="loader"></div>
-    </div>
-  );
-
   return (
     <div className="flex items-center justify-center min-h-screen px-6 sm:px-0 bg-gradient-to-br from-blue-200 to-purple-400 relative">
       {/* 👇 Inline spinner CSS */}
       <style>
         {`
-          .loader {
-            border: 4px solid #e0e0e0;
-            border-top: 4px solid #3b82f6;
+          .loader-btn {
+            border: 3px solid transparent;
+            border-top: 3px solid white;
+            border-right: 3px solid white;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 0.8s linear infinite;
+            width: 18px;
+            height: 18px;
+            animation: spin 0.6s linear infinite;
           }
           @keyframes spin {
             to { transform: rotate(360deg); }
@@ -94,63 +89,72 @@ function Login() {
           {state === 'Sign Up' ? 'Create your account' : 'Welcome back! Please login.'}
         </p>
 
-        {loading ? (
-          <Spinner />
-        ) : (
-          <form onSubmit={onSubmitHandler}>
-            {state === 'Sign Up' && (
-              <div className="mb-4 flex items-center gap-3 w-full px-5 py-2.5 rounded-full bg-[#333A5C]">
-                <img src={assets.person_icon} alt="" />
-                <input
-                  onChange={(e) => setName(e.target.value)}
-                  value={name}
-                  className="bg-transparent outline-none text-white w-full"
-                  type="text"
-                  placeholder="Full Name"
-                  required
-                />
-              </div>
+        <form onSubmit={onSubmitHandler}>
+          {state === 'Sign Up' && (
+            <div className="mb-4 flex items-center gap-3 w-full px-5 py-2.5 rounded-full bg-[#333A5C]">
+              <img src={assets.person_icon} alt="" />
+              <input
+                onChange={(e) => setName(e.target.value)}
+                value={name}
+                className="bg-transparent outline-none text-white w-full"
+                type="text"
+                placeholder="Full Name"
+                required
+              />
+            </div>
+          )}
+
+          <div className="mb-4 flex items-center gap-3 w-full px-5 py-2.5 rounded-full bg-[#333A5C]">
+            <img src={assets.mail_icon} alt="" />
+            <input
+              onChange={(e) => setEmail(e.target.value)}
+              value={email}
+              className="bg-transparent outline-none text-white w-full"
+              type="email"
+              placeholder="Email id "
+              required
+            />
+          </div>
+
+          <div className="mb-4 flex items-center gap-3 w-full px-5 py-2.5 rounded-full bg-[#333A5C]">
+            <img src={assets.lock_icon} alt="" />
+            <input
+              onChange={(e) => setPassword(e.target.value)}
+              value={password}
+              className="bg-transparent outline-none text-white w-full"
+              type="password"
+              placeholder="Password"
+              required
+            />
+          </div>
+
+          <p
+            onClick={() => navigate('/reset-password')}
+            className="mb-4 text-indigo-500 cursor-pointer"
+          >
+            Forgot password?
+          </p>
+
+          {/* Button with spinner */}
+          <button
+            type="submit"
+            disabled={loading}
+            className={`w-full py-2.5 rounded-full flex justify-center items-center gap-2 font-medium text-white ${
+              loading
+                ? 'bg-indigo-700 cursor-not-allowed'
+                : 'bg-gradient-to-r from-indigo-500 to-indigo-900 hover:opacity-90'
+            }`}
+          >
+            {loading ? (
+              <>
+                <div className="loader-btn"></div>
+                Processing...
+              </>
+            ) : (
+              state
             )}
-
-            <div className="mb-4 flex items-center gap-3 w-full px-5 py-2.5 rounded-full bg-[#333A5C]">
-              <img src={assets.mail_icon} alt="" />
-              <input
-                onChange={(e) => setEmail(e.target.value)}
-                value={email}
-                className="bg-transparent outline-none text-white w-full"
-                type="email"
-                placeholder="Email id "
-                required
-              />
-            </div>
-
-            <div className="mb-4 flex items-center gap-3 w-full px-5 py-2.5 rounded-full bg-[#333A5C]">
-              <img src={assets.lock_icon} alt="" />
-              <input
-                onChange={(e) => setPassword(e.target.value)}
-                value={password}
-                className="bg-transparent outline-none text-white w-full"
-                type="password"
-                placeholder="Password"
-                required
-              />
-            </div>
-
-            <p
-              onClick={() => navigate('/reset-password')}
-              className="mb-4 text-indigo-500 cursor-pointer"
-            >
-              Forgot password?
-            </p>
-
-            <button
-              type="submit"
-              className="w-full py-2.5 rounded-full bg-gradient-to-r from-indigo-500 to-indigo-900 text-white font-medium"
-            >
-              {state}
-            </button>
-          </form>
-        )}
+          </button>
+        </form>
 
         <p className="text-gray-400 text-center text-xs mt-4">
           {state === 'Sign Up'
