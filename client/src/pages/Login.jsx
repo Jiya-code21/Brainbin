@@ -54,10 +54,10 @@ function Login() {
     }
   };
 
-  // 🔄 Spinner Component (inline)
+  // Spinner Component
   const Spinner = () => (
     <div className="w-full h-32 flex justify-center items-center">
-      <span className="loader"></span>
+      <div className="loader"></div>
     </div>
   );
 
@@ -66,7 +66,7 @@ function Login() {
       <img
         onClick={() => navigate('/')}
         src={assets.logo}
-        alt=""
+        alt="logo"
         className="absolute left-5 sm:left-20 top-5 w-28 sm:w-32 cursor-pointer"
       />
 
