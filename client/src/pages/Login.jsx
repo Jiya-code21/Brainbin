@@ -56,19 +56,23 @@ function Login() {
 
   return (
     <div className="flex items-center justify-center min-h-screen px-6 sm:px-0 bg-gradient-to-br from-blue-200 to-purple-400 relative">
-      {/* 👇 Inline loader CSS (circle only) */}
+      {/* 🔄 Stylish spinner CSS inside <style> */}
       <style>
         {`
           .loader-btn {
-            border: 3px solid transparent;
-            border-top: 3px solid white;
+            display: inline-block;
+            width: 22px;
+            height: 22px;
+            border: 3px solid rgba(255, 255, 255, 0.2);
             border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            animation: spin 0.7s linear infinite;
+            border-top-color: white;
+            border-left-color: white;
+            animation: spin 0.6s ease-in-out infinite;
           }
           @keyframes spin {
-            to { transform: rotate(360deg); }
+            0% { transform: rotate(0deg); }
+            50% { transform: rotate(180deg); }
+            100% { transform: rotate(360deg); }
           }
         `}
       </style>
@@ -134,7 +138,7 @@ function Login() {
             Forgot password?
           </p>
 
-          {/* ✅ Button with only spinner */}
+          {/* ✅ Login/Signup Button with Attractive Spinner */}
           <button
             type="submit"
             disabled={loading}
