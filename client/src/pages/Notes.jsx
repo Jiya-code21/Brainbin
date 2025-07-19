@@ -9,7 +9,7 @@ import {
   FaLink,
 } from "react-icons/fa";
 import { AppContent } from "../context/AppContext";
-import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd"; // Using @hello-pangea/dnd
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
 const NOTES_PER_PAGE = 6;
 const statusColors = {
@@ -37,16 +37,18 @@ const Notes = () => {
     status: "To Do",
   });
 
+  // Fetch notes from backend
   useEffect(() => {
     const fetchNotes = async () => {
       try {
         const res = await axios.get(`${backendUrl}/api/note/all`, {
           withCredentials: true,
         });
-        setNotes(res.data.notes);
-        setLoading(false);
+        setNotes(res.data.notes || []);
       } catch (error) {
         console.error("Fetch notes error:", error);
+        setNotes([]);
+      } finally {
         setLoading(false);
       }
     };
@@ -129,16 +131,24 @@ const Notes = () => {
   };
 
   const filteredNotes =
-    activeTab === "all"
-      ? notes
-      : notes.filter((n) => n.status === activeTab);
+    activeTab === "all" ? notes : notes.filter((n) => n.status === activeTab);
+
   const paginatedNotes = filteredNotes.slice(
     (currentPage - 1) * NOTES_PER_PAGE,
     currentPage * NOTES_PER_PAGE
   );
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-gray-600 text-lg">Loading notes...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-screen text-sm font-medium">
+      {/* Sidebar */}
       <div className="w-64 bg-gradient-to-b from-purple-600 to-indigo-700 text-white p-4">
         <h1 className="text-xl font-bold mb-4 flex items-center gap-2">
           <FaBook /> Notes Dashboard
@@ -192,84 +202,89 @@ const Notes = () => {
         </ul>
       </div>
 
+      {/* Main content */}
       <div className="flex-1 bg-[#f1f5f9] p-6">
-        {loading ? (
-          <div className="text-center text-indigo-600 font-semibold">Loading...</div>
-        ) : (
-          <DragDropContext onDragEnd={handleDragEnd}>
-            <Droppable droppableId="notes">
-              {(prov) => (
-                <div
-                  ref={prov.innerRef}
-                  {...prov.droppableProps}
-                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-                >
-                  {paginatedNotes.map((n, i) => (
-                    <Draggable key={n._id} draggableId={n._id} index={i}>
-                      {(p) => (
-                        <div
-                          ref={p.innerRef}
-                          {...p.draggableProps}
-                          {...p.dragHandleProps}
-                          className={`bg-white p-4 rounded-xl shadow-md border-l-4 ${statusColors[n.status]}`}
-                        >
-                          <h2 className="font-bold text-lg flex items-center gap-2 mb-1">
-                            <FaLightbulb className="text-yellow-500" /> {n.title}
-                          </h2>
-                          <p className="text-gray-700 text-sm mb-1">{n.content}</p>
-                          {n.subject && (
-                            <p className="text-indigo-600 text-sm mb-2">
-                              📚 {n.subject}
-                            </p>
-                          )}
-                          <div className="flex flex-wrap gap-2 mb-2">
-                            {n.tags?.map((t, idx) => (
-                              <span
-                                key={idx}
-                                className="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full text-xs"
-                              >
-                                {t}
-                              </span>
-                            ))}
-                          </div>
-                          {n.resourceUrl && (
-                            <a
-                              href={n.resourceUrl}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="flex items-center text-blue-600 text-sm gap-1 underline"
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <Droppable droppableId="notes">
+            {(prov) => (
+              <div
+                ref={prov.innerRef}
+                {...prov.droppableProps}
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+              >
+                {paginatedNotes.length === 0 && (
+                  <p className="text-center col-span-full text-gray-500">
+                    No notes found.
+                  </p>
+                )}
+                {paginatedNotes.map((n, i) => (
+                  <Draggable key={n._id} draggableId={n._id} index={i}>
+                    {(p) => (
+                      <div
+                        ref={p.innerRef}
+                        {...p.draggableProps}
+                        {...p.dragHandleProps}
+                        className={`bg-white p-4 rounded-xl shadow-md border-l-4 ${statusColors[n.status]}`}
+                      >
+                        <h2 className="font-bold text-lg flex items-center gap-2 mb-1">
+                          <FaLightbulb className="text-yellow-500" /> {n.title}
+                        </h2>
+                        <p className="text-gray-700 text-sm mb-1">{n.content}</p>
+                        {n.subject && (
+                          <p className="text-indigo-600 text-sm mb-2">
+                            📚 {n.subject}
+                          </p>
+                        )}
+                        <div className="flex flex-wrap gap-2 mb-2">
+                          {n.tags?.map((t, idx) => (
+                            <span
+                              key={idx}
+                              className="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full text-xs"
                             >
-                              <FaLink /> Visit
-                            </a>
-                          )}
-                          <div className="flex gap-4 mt-4">
-                            <button
-                              onClick={() => handleEdit(n)}
-                              className="text-yellow-600 hover:text-yellow-800"
-                            >
-                              <FaEdit />
-                            </button>
-                            <button
-                              onClick={() => {
-                                setNoteToDelete(n._id);
-                                setShowDeleteModal(true);
-                              }}
-                              className="text-red-600 hover:text-red-800"
-                            >
-                              <FaTrash />
-                            </button>
-                          </div>
+                              {t}
+                            </span>
+                          ))}
                         </div>
-                      )}
-                    </Draggable>
-                  ))}
-                  {prov.placeholder}
-                </div>
-              )}
-            </Droppable>
-          </DragDropContext>
-        )}
+                        {n.resourceUrl && (
+                          <a
+                            href={n.resourceUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="flex items-center text-blue-600 text-sm gap-1 underline"
+                          >
+                            <FaLink /> Visit
+                          </a>
+                        )}
+                        <div className="flex gap-4 mt-4">
+                          <button
+                            onClick={() => handleEdit(n)}
+                            className="text-yellow-600 hover:text-yellow-800"
+                            title="Edit Note"
+                          >
+                            <FaEdit />
+                          </button>
+                          <button
+                            onClick={() => {
+                              setNoteToDelete(n._id);
+                              setShowDeleteModal(true);
+                            }}
+                            className="text-red-600 hover:text-red-800"
+                            title="Delete Note"
+                          >
+                            <FaTrash />
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </Draggable>
+                ))}
+                {prov.placeholder}
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
 
+        {/* Pagination */}
         <div className="mt-6 flex justify-center gap-2">
           {Array.from({
             length: Math.ceil(filteredNotes.length / NOTES_PER_PAGE),
@@ -289,6 +304,7 @@ const Notes = () => {
         </div>
       </div>
 
+      {/* Add Note Button */}
       <button
         onClick={() => {
           resetForm();
@@ -296,6 +312,7 @@ const Notes = () => {
           setShowModal(true);
         }}
         className="fixed bottom-6 right-6 bg-indigo-600 text-white px-5 py-3 rounded-full shadow-lg hover:bg-indigo-700 transition-all"
+        title="Add New Note"
       >
         <FaPlus className="inline mr-2" /> Add Note
       </button>
