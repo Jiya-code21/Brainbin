@@ -59,23 +59,21 @@ function Login() {
       {/* 🔄 Stylish spinner CSS inside <style> */}
       <style>
         {`
-         .loader-btn {
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  border: 4px solid rgba(255, 255, 255, 0.15);
-  border-top-color: white;
-  border-left-color: white;
-  backdrop-filter: blur(3px);
-  animation: spin 0.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-  box-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
-}
-
-@keyframes spin {
-  0%   { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
+          .loader-btn {
+            display: inline-block;
+            width: 22px;
+            height: 22px;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            border-top-color: white;
+            border-left-color: white;
+            animation: spin 0.6s ease-in-out infinite;
+          }
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            50% { transform: rotate(180deg); }
+            100% { transform: rotate(360deg); }
+          }
         `}
       </style>
 
@@ -171,3 +169,4 @@ function Login() {
 }
 
 export default Login;
+
