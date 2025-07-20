@@ -38,6 +38,29 @@ const Notes = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [noteToDelete, setNoteToDelete] = useState(null);
 
+  const totalPages = Math.ceil(filteredNotes.length / NOTES_PER_PAGE); 
+const getVisiblePages = () => {
+  if (totalPages <= 5) return [...Array(totalPages)].map((_, i) => i + 1);
+
+  const pages = [];
+  pages.push(1);
+
+  if (currentPage > 3) pages.push("leftGap"); 
+
+  const start = Math.max(2, currentPage - 1);
+  const end = Math.min(totalPages - 1, currentPage + 1);
+
+  for (let p = start; p <= end; p++) {
+    pages.push(p);
+  }
+
+  if (currentPage < totalPages - 2) pages.push("rightGap"); 
+
+  pages.push(totalPages); 
+  return pages;
+};
+
+
   const [noteData, setNoteData] = useState({
     title: "",
     content: "",
@@ -321,24 +344,64 @@ const Notes = () => {
           </DragDropContext>
         )}
 
-        {/* Pagination */}
-        <div className="mt-6 flex justify-center gap-2">
-          {Array.from({
-            length: Math.ceil(filteredNotes.length / NOTES_PER_PAGE),
-          }).map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setCurrentPage(i + 1)}
-              className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                currentPage === i + 1
-                  ? "bg-indigo-600 text-white"
-                  : "bg-white text-indigo-600 border border-indigo-600"
-              }`}
-            >
-              {i + 1}
-            </button>
-          ))}
-        </div>
+     {/* Updated Pagination — matches image style */}
+<div className="mt-6 flex justify-center items-center gap-2 select-none">
+  {/* First Page Button ( «« ) */}
+  <button
+    onClick={() => setCurrentPage(1)}
+    disabled={currentPage === 1}
+    className="w-8 h-8 rounded-full flex items-center justify-center border border-gray-300 text-indigo-600 hover:bg-gray-100 disabled:opacity-40"
+  >
+    ««
+  </button>
+
+  {/* Previous Page Button ( « ) */}
+  <button
+    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+    disabled={currentPage === 1}
+    className="w-8 h-8 rounded-full flex items-center justify-center border border-gray-300 text-indigo-600 hover:bg-gray-100 disabled:opacity-40"
+  >
+    «
+  </button>
+
+  {/* Numbered pages and dots */}
+  {getVisiblePages().map((item, idx) =>
+    item === "leftGap" || item === "rightGap" ? (
+      <span key={idx} className="w-8 text-center text-gray-500">…</span> // dots
+    ) : (
+      <button
+        key={item}
+        onClick={() => setCurrentPage(item)}
+        className={`w-8 h-8 rounded-full flex items-center justify-center transition ${
+          currentPage === item
+            ? "bg-indigo-600 text-white"
+            : "bg-white text-indigo-600 border border-indigo-600 hover:bg-gray-100"
+        }`}
+      >
+        {item}
+      </button>
+    )
+  )}
+
+  {/* Next Page Button ( » ) */}
+  <button
+    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+    disabled={currentPage === totalPages}
+    className="w-8 h-8 rounded-full flex items-center justify-center border border-gray-300 text-indigo-600 hover:bg-gray-100 disabled:opacity-40"
+  >
+    »
+  </button>
+
+  {/* Last Page Button ( »» ) */}
+  <button
+    onClick={() => setCurrentPage(totalPages)}
+    disabled={currentPage === totalPages}
+    className="w-8 h-8 rounded-full flex items-center justify-center border border-gray-300 text-indigo-600 hover:bg-gray-100 disabled:opacity-40"
+  >
+    »»
+  </button>
+</div>
+
       </div>
 
       {/* Add/Edit Note Modal */}
