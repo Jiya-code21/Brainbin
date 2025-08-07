@@ -47,14 +47,6 @@ const Notes = () => {
     resourceUrl: "",
   });
 
-  // Feedback feature state added
-  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
-  const [feedbackData, setFeedbackData] = useState({
-    name: "",
-    email: "",
-    message: "",
-  });
-
   useEffect(() => {
     fetchNotes();
 
@@ -222,6 +214,18 @@ const Notes = () => {
           <h1 className="text-xl font-bold mb-4 flex items-center gap-2">
             <FaBook /> Notes Dashboard
           </h1>
+
+          {/* Add Note button */}
+          <button
+            onClick={() => {
+              resetForm();
+              setEditNoteId(null);
+              setShowModal(true);
+            }}
+            className="mb-4 flex items-center gap-2 bg-indigo-500 hover:bg-indigo-600 px-3 py-2 rounded"
+          >
+            <FaPlus /> Add Note
+          </button>
 
           <div className="space-y-2 mb-4">
             {["To Do", "In Progress", "Done"].map((tab) => (
@@ -398,14 +402,6 @@ const Notes = () => {
             </button>
           ))}
         </div>
-
-        {/* Feedback Button */}
-        <button
-          onClick={() => setShowFeedbackModal(true)}
-          className="fixed bottom-5 right-5 bg-indigo-600 text-white px-4 py-2 rounded shadow-lg hover:bg-indigo-700"
-        >
-          Give Feedback
-        </button>
       </div>
 
       {/* Add/Edit Note Modal */}
@@ -525,67 +521,9 @@ const Notes = () => {
           </div>
         </div>
       )}
-
-      {/* Feedback Modal */}
-      {showFeedbackModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-lg w-full max-w-md relative">
-            <button
-              onClick={() => setShowFeedbackModal(false)}
-              className="absolute top-3 right-4 text-gray-500 hover:text-gray-700"
-            >
-              ✖
-            </button>
-            <h2 className="text-lg font-semibold mb-4">Feedback</h2>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                console.log("Feedback submitted:", feedbackData);
-                alert("Thank you for your feedback!");
-                setShowFeedbackModal(false);
-                setFeedbackData({ name: "", email: "", message: "" });
-              }}
-              className="space-y-3"
-            >
-              <input
-                type="text"
-                placeholder="Name (optional)"
-                value={feedbackData.name}
-                onChange={(e) =>
-                  setFeedbackData({ ...feedbackData, name: e.target.value })
-                }
-                className="w-full border px-3 py-2 rounded"
-              />
-              <input
-                type="email"
-                placeholder="Email (optional)"
-                value={feedbackData.email}
-                onChange={(e) =>
-                  setFeedbackData({ ...feedbackData, email: e.target.value })
-                }
-                className="w-full border px-3 py-2 rounded"
-              />
-              <textarea
-                placeholder="Your feedback"
-                required
-                value={feedbackData.message}
-                onChange={(e) =>
-                  setFeedbackData({ ...feedbackData, message: e.target.value })
-                }
-                className="w-full border px-3 py-2 rounded"
-              />
-              <button
-                type="submit"
-                className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 w-full"
-              >
-                Submit
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
 
 export default Notes;
+
