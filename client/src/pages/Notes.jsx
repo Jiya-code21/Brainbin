@@ -77,7 +77,7 @@ const Notes = () => {
 
   const fetchNotes = async () => {
     try {
-      const res = await axios.get(`${backendUrl}/api/note/my-notes`, {
+      const res = await axios.get(${backendUrl}/api/note/my-notes, {
         withCredentials: true,
       });
       setNotes(res.data.notes);
@@ -98,7 +98,7 @@ const Notes = () => {
 
       if (editNoteId) {
         const res = await axios.put(
-          `${backendUrl}/api/note/update/${editNoteId}`,
+          ${backendUrl}/api/note/update/${editNoteId},
           payload,
           {
             withCredentials: true,
@@ -108,7 +108,7 @@ const Notes = () => {
           prev.map((n) => (n._id === editNoteId ? res.data.note : n))
         );
       } else {
-        const res = await axios.post(`${backendUrl}/api/note/create`, payload, {
+        const res = await axios.post(${backendUrl}/api/note/create, payload, {
           withCredentials: true,
         });
         setNotes((prev) => [res.data.note, ...prev]);
@@ -144,7 +144,7 @@ const Notes = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`${backendUrl}/api/note/delete/${id}`, {
+      await axios.delete(${backendUrl}/api/note/delete/${id}, {
         withCredentials: true,
       });
       setNotes((prev) => prev.filter((n) => n._id !== id));
@@ -157,7 +157,7 @@ const Notes = () => {
   const toggleStar = async (id) => {
     try {
       const res = await axios.patch(
-        `${backendUrl}/api/note/star/${id}`,
+        ${backendUrl}/api/note/star/${id},
         {},
         { withCredentials: true }
       );
@@ -214,18 +214,6 @@ const Notes = () => {
           <h1 className="text-xl font-bold mb-4 flex items-center gap-2">
             <FaBook /> Notes Dashboard
           </h1>
-
-          {/* Add Note button */}
-          <button
-            onClick={() => {
-              resetForm();
-              setEditNoteId(null);
-              setShowModal(true);
-            }}
-            className="mb-4 flex items-center gap-2 bg-indigo-500 hover:bg-indigo-600 px-3 py-2 rounded"
-          >
-            <FaPlus /> Add Note
-          </button>
 
           <div className="space-y-2 mb-4">
             {["To Do", "In Progress", "Done"].map((tab) => (
@@ -526,4 +514,3 @@ const Notes = () => {
 };
 
 export default Notes;
-
