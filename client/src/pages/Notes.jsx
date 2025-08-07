@@ -51,7 +51,7 @@ const Notes = () => {
     fetchNotes();
 
     const style = document.createElement("style");
-    style.innerHTML = 
+    style.innerHTML = `
       @keyframes spinnerRotate {
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
@@ -67,7 +67,7 @@ const Notes = () => {
         border-radius: 50%;
         animation: spinnerRotate 1s linear infinite;
       }
-    ;
+    `;
     document.head.appendChild(style);
 
     return () => {
@@ -77,7 +77,7 @@ const Notes = () => {
 
   const fetchNotes = async () => {
     try {
-      const res = await axios.get(${backendUrl}/api/note/my-notes, {
+      const res = await axios.get(`${backendUrl}/api/note/my-notes`, {
         withCredentials: true,
       });
       setNotes(res.data.notes);
@@ -98,7 +98,7 @@ const Notes = () => {
 
       if (editNoteId) {
         const res = await axios.put(
-          ${backendUrl}/api/note/update/${editNoteId},
+          `${backendUrl}/api/note/update/${editNoteId}`,
           payload,
           {
             withCredentials: true,
@@ -108,7 +108,7 @@ const Notes = () => {
           prev.map((n) => (n._id === editNoteId ? res.data.note : n))
         );
       } else {
-        const res = await axios.post(${backendUrl}/api/note/create, payload, {
+        const res = await axios.post(`${backendUrl}/api/note/create`, payload, {
           withCredentials: true,
         });
         setNotes((prev) => [res.data.note, ...prev]);
@@ -144,7 +144,7 @@ const Notes = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(${backendUrl}/api/note/delete/${id}, {
+      await axios.delete(`${backendUrl}/api/note/delete/${id}`, {
         withCredentials: true,
       });
       setNotes((prev) => prev.filter((n) => n._id !== id));
@@ -153,11 +153,11 @@ const Notes = () => {
     }
   };
 
-  // ⭐ Added: Toggle Star functionality
+  // ⭐ Toggle Star functionality
   const toggleStar = async (id) => {
     try {
       const res = await axios.patch(
-        ${backendUrl}/api/note/star/${id},
+        `${backendUrl}/api/note/star/${id}`,
         {},
         { withCredentials: true }
       );
@@ -223,11 +223,11 @@ const Notes = () => {
                   setActiveTab(tab);
                   setCurrentPage(1);
                 }}
-                className={block w-full text-left px-3 py-2 rounded ${
+                className={`block w-full text-left px-3 py-2 rounded ${
                   activeTab === tab
                     ? "bg-white text-indigo-600 font-bold"
                     : "hover:bg-white hover:text-indigo-600"
-                }}
+                }`}
               >
                 {tab === "To Do" && "📝 To Do"}
                 {tab === "In Progress" && "⏳ In Progress"}
@@ -241,11 +241,11 @@ const Notes = () => {
                 setActiveTab("starred");
                 setCurrentPage(1);
               }}
-              className={block w-full text-left px-3 py-2 rounded ${
+              className={`block w-full text-left px-3 py-2 rounded ${
                 activeTab === "starred"
                   ? "bg-white text-indigo-600 font-bold"
                   : "hover:bg-white hover:text-indigo-600"
-              }}
+              }`}
             >
               ⭐ Starred
             </button>
@@ -255,11 +255,11 @@ const Notes = () => {
                 setActiveTab("all");
                 setCurrentPage(1);
               }}
-              className={block w-full text-left px-3 py-2 rounded ${
+              className={`block w-full text-left px-3 py-2 rounded ${
                 activeTab === "all"
                   ? "bg-white text-indigo-600 font-bold"
                   : "hover:bg-white hover:text-indigo-600"
-              }}
+              }`}
             >
               📋 All Notes
             </button>
@@ -300,9 +300,9 @@ const Notes = () => {
                           ref={p.innerRef}
                           {...p.draggableProps}
                           {...p.dragHandleProps}
-                          className={bg-white p-4 rounded-xl shadow-md border-l-4 ${
+                          className={`bg-white p-4 rounded-xl shadow-md border-l-4 ${
                             statusColors[n.status] || "border-gray-300"
-                          }}
+                          }`}
                         >
                           <h2 className="font-bold text-lg flex items-center gap-2 mb-1">
                             <FaLightbulb className="text-yellow-500" /> {n.title}
@@ -338,7 +338,7 @@ const Notes = () => {
                           <div className="flex justify-between items-center mt-4">
                             <button
                               onClick={() => toggleStar(n._id)}
-                              className={text-yellow-500 hover:text-yellow-600 text-lg}
+                              className="text-yellow-500 hover:text-yellow-600 text-lg"
                               title={n.isStarred ? "Unstar" : "Star this note"}
                             >
                               {n.isStarred ? "⭐" : "☆"}
@@ -380,11 +380,11 @@ const Notes = () => {
             <button
               key={i}
               onClick={() => setCurrentPage(i + 1)}
-              className={w-8 h-8 rounded-full flex items-center justify-center ${
+              className={`w-8 h-8 rounded-full flex items-center justify-center ${
                 currentPage === i + 1
                   ? "bg-indigo-600 text-white"
                   : "bg-white text-indigo-600 border border-indigo-600"
-              }}
+              }`}
             >
               {i + 1}
             </button>
@@ -514,3 +514,4 @@ const Notes = () => {
 };
 
 export default Notes;
+
