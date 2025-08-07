@@ -510,6 +510,3 @@ const toggleStar = async (id, isAlreadyStarred) => {
 };
 
 export default Notes;
-avatar
-Ask In Chat
-Ask In Chat
