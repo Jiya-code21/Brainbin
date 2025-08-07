@@ -10,7 +10,7 @@ import {
   FaLink,
 } from "react-icons/fa";
 import { AppContent } from "../context/AppContext";
- 
+
 const Spinner = () => (
   <div className="w-full h-screen flex justify-center items-center bg-white">
     <div className="multi-color-spinner"></div>
@@ -78,7 +78,7 @@ const Notes = () => {
 
   const fetchNotes = async () => {
     try {
-      const res = await axios.get(${backendUrl}/api/note/my-notes, {
+      const res = await axios.get(`${backendUrl}/api/note/my-notes`, {
         withCredentials: true,
       });
       setNotes(res.data.notes);
@@ -98,14 +98,18 @@ const Notes = () => {
       };
 
       if (editNoteId) {
-        const res = await axios.put(${backendUrl}/api/note/update/${editNoteId}, payload, {
-          withCredentials: true,
-        });
+        const res = await axios.put(
+          `${backendUrl}/api/note/update/${editNoteId}`,
+          payload,
+          {
+            withCredentials: true,
+          }
+        );
         setNotes((prev) =>
           prev.map((n) => (n._id === editNoteId ? res.data.note : n))
         );
       } else {
-        const res = await axios.post(${backendUrl}/api/note/create, payload, {
+        const res = await axios.post(`${backendUrl}/api/note/create`, payload, {
           withCredentials: true,
         });
         setNotes((prev) => [res.data.note, ...prev]);
@@ -141,7 +145,7 @@ const Notes = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(${backendUrl}/api/note/delete/${id}, {
+      await axios.delete(`${backendUrl}/api/note/delete/${id}`, {
         withCredentials: true,
       });
       setNotes((prev) => prev.filter((n) => n._id !== id));
