@@ -19,6 +19,16 @@ const Spinner = () => (
 
 const NOTES_PER_PAGE = 6;
 
+// Predefined colors array (aap apni marzi se colors badal sakte ho)
+const colorOptions = [
+  "#f8fafc", // very light (almost white)
+  "#fbcfe8", // pink-300
+  "#c4b5fd", // purple-300
+  "#facc15", // yellow-400
+  "#fb923c", // orange-400
+  "#4ade80", // green-400
+];
+
 const Notes = () => {
   const { backendUrl } = useContext(AppContent);
 
@@ -39,13 +49,13 @@ const Notes = () => {
     status: "To Do",
     tags: "",
     resourceUrl: "",
-    color: "#93c5fd", // Default light blue color
+    color: colorOptions[0], // Default first color
   });
 
   useEffect(() => {
     fetchNotes();
 
-    // Add spinner CSS animation styles dynamically
+    // Spinner CSS styles
     const style = document.createElement("style");
     style.innerHTML = `
       @keyframes spinnerRotate {
@@ -126,7 +136,7 @@ const Notes = () => {
       status: "To Do",
       tags: "",
       resourceUrl: "",
-      color: "#93c5fd", // Reset to default color
+      color: colorOptions[0],
     });
   };
 
@@ -134,7 +144,7 @@ const Notes = () => {
     setNoteData({
       ...note,
       tags: note.tags.join(", "),
-      color: note.color || "#93c5fd", // fallback to default color if undefined
+      color: note.color || colorOptions[0],
     });
     setEditNoteId(note._id);
     setShowModal(true);
@@ -157,14 +167,6 @@ const Notes = () => {
     const [moved] = reordered.splice(result.source.index, 1);
     reordered.splice(result.destination.index, 0, moved);
     setNotes(reordered);
-  };
-
-  const handleOrganize = () => {
-    const sorted = [...notes].sort((a, b) => {
-      if (a.subject !== b.subject) return a.subject.localeCompare(b.subject);
-      return a.status.localeCompare(b.status);
-    });
-    setNotes(sorted);
   };
 
   const getSubjectCounts = () => {
@@ -427,19 +429,29 @@ const Notes = () => {
                 }
                 className="w-full border px-3 py-2 rounded"
               />
-              {/* New Color Picker Input */}
-              <div className="mt-2">
+
+              {/* Color picker circles */}
+              <div>
                 <label className="block mb-1 font-medium">Pick a Card Color:</label>
-                <input
-                  type="color"
-                  value={noteData.color}
-                  onChange={(e) =>
-                    setNoteData({ ...noteData, color: e.target.value })
-                  }
-                  className="w-full h-10 rounded cursor-pointer border"
-                  title="Select card border color"
-                />
+                <div className="flex gap-3">
+                  {colorOptions.map((color) => (
+                    <button
+                      key={color}
+                      type="button"
+                      onClick={() => setNoteData({ ...noteData, color })}
+                      className={`w-8 h-8 rounded-full border-2 transition-colors
+                        ${
+                          noteData.color === color
+                            ? "border-black"
+                            : "border-transparent"
+                        }`}
+                      style={{ backgroundColor: color }}
+                      aria-label={`Select color ${color}`}
+                    />
+                  ))}
+                </div>
               </div>
+
               <button
                 type="submit"
                 className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 w-full"
