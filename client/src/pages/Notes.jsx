@@ -77,7 +77,7 @@ const Notes = () => {
 
   const fetchNotes = async () => {
     try {
-      const res = await axios.get(${backendUrl}/api/note/my-notes, {
+      const res = await axios.get(`${backendUrl}/api/note/my-notes`, {
         withCredentials: true,
       });
       setNotes(res.data.notes);
@@ -98,7 +98,7 @@ const Notes = () => {
 
       if (editNoteId) {
         const res = await axios.put(
-          ${backendUrl}/api/note/update/${editNoteId},
+          `${backendUrl}/api/note/update/${editNoteId}`,
           payload,
           {
             withCredentials: true,
@@ -108,7 +108,7 @@ const Notes = () => {
           prev.map((n) => (n._id === editNoteId ? res.data.note : n))
         );
       } else {
-        const res = await axios.post(${backendUrl}/api/note/create, payload, {
+        const res = await axios.post(`${backendUrl}/api/note/create`, payload, {
           withCredentials: true,
         });
         setNotes((prev) => [res.data.note, ...prev]);
@@ -144,7 +144,7 @@ const Notes = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(${backendUrl}/api/note/delete/${id}, {
+      await axios.delete(`${backendUrl}/api/note/delete/${id}`, {
         withCredentials: true,
       });
       setNotes((prev) => prev.filter((n) => n._id !== id));
@@ -153,22 +153,23 @@ const Notes = () => {
     }
   };
 
-  // ⭐ Toggle Star functionality
-  const toggleStar = async (id) => {
-    try {
-      const res = await axios.patch(
-        ${backendUrl}/api/note/star/${id},
-        {},
-        { withCredentials: true }
-      );
-      const updated = res.data.note;
-      setNotes((prev) =>
-        prev.map((n) => (n._id === id ? updated : n))
-      );
-    } catch (err) {
-      console.error("Toggle star error:", err);
-    }
-  };
+  // ⭐ Added: Toggle Star functionality
+const toggleStar = async (id, isAlreadyStarred) => {
+  if (isAlreadyStarred) return; // prevent un-starring
+
+  try {
+    const res = await axios.patch(
+      `${backendUrl}/api/note/star/${id}`,
+      {},
+      { withCredentials: true }
+    );
+    const updated = res.data.note;
+    setNotes((prev) => prev.map((n) => (n._id === id ? updated : n)));
+  } catch (err) {
+    console.error("Toggle star error:", err);
+  }
+};
+
 
   const handleDragEnd = (result) => {
     if (!result.destination) return;
@@ -236,19 +237,14 @@ const Notes = () => {
             ))}
 
             {/* ⭐ Starred tab */}
-            <button
-              onClick={() => {
-                setActiveTab("starred");
-                setCurrentPage(1);
-              }}
-              className={`block w-full text-left px-3 py-2 rounded ${
-                activeTab === "starred"
-                  ? "bg-white text-indigo-600 font-bold"
-                  : "hover:bg-white hover:text-indigo-600"
-              }`}
-            >
-              ⭐ Starred
-            </button>
+           <button
+  onClick={() => toggleStar(n._id, n.isStarred)}
+  className="text-yellow-500 hover:text-yellow-600 text-lg"
+  title={n.isStarred ? "Already Starred" : "Star this note"}
+>
+  {n.isStarred ? "⭐" : "☆"}
+</button>
+
 
             <button
               onClick={() => {
@@ -338,7 +334,7 @@ const Notes = () => {
                           <div className="flex justify-between items-center mt-4">
                             <button
                               onClick={() => toggleStar(n._id)}
-                              className="text-yellow-500 hover:text-yellow-600 text-lg"
+                              className={`text-yellow-500 hover:text-yellow-600 text-lg`}
                               title={n.isStarred ? "Unstar" : "Star this note"}
                             >
                               {n.isStarred ? "⭐" : "☆"}
@@ -514,3 +510,6 @@ const Notes = () => {
 };
 
 export default Notes;
+avatar
+Ask In Chat
+Ask In Chat
