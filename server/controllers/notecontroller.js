@@ -18,9 +18,9 @@ export const createNote = async (req, res) => {
 
     await note.save();
 
-    res.json({ success: true, message: "Note created", note });
+    res.status(201).json({ success: true, message: "Note created", note });
   } catch (error) {
-    res.json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -30,9 +30,9 @@ export const getUserNotes = async (req, res) => {
 
   try {
     const notes = await noteModel.find({ user: userId }).sort({ createdAt: -1 });
-    res.json({ success: true, notes });
+    res.status(200).json({ success: true, notes });
   } catch (error) {
-    res.json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -48,15 +48,15 @@ export const updateNote = async (req, res) => {
     );
 
     if (!note) {
-      return res.json({
+      return res.status(404).json({
         success: false,
         message: "Note not found or unauthorized",
       });
     }
 
-    res.json({ success: true, message: "Note updated", note });
+    res.status(200).json({ success: true, message: "Note updated", note });
   } catch (error) {
-    res.json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -69,14 +69,42 @@ export const deleteNote = async (req, res) => {
     });
 
     if (!note) {
-      return res.json({
+      return res.status(404).json({
         success: false,
         message: "Note not found or unauthorized",
       });
     }
 
-    res.json({ success: true, message: "Note deleted" });
+    res.status(200).json({ success: true, message: "Note deleted" });
   } catch (error) {
-    res.json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// ⭐ Toggle Star / Unstar Note
+export const toggleStarNote = async (req, res) => {
+  const userId = req.userId;
+  const noteId = req.params.id;
+
+  try {
+    const note = await noteModel.findOne({ _id: noteId, user: userId });
+
+    if (!note) {
+      return res.status(404).json({
+        success: false,
+        message: "Note not found or unauthorized",
+      });
+    }
+
+    note.isStarred = !note.isStarred;
+    await note.save();
+
+    res.status(200).json({
+      success: true,
+      message: note.isStarred ? "Note starred" : "Note unstarred",
+      note,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 };
