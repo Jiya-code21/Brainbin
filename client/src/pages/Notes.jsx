@@ -10,24 +10,20 @@ import {
   FaLink,
 } from "react-icons/fa";
 import { AppContent } from "../context/AppContext";
-
+ 
 const Spinner = () => (
   <div className="w-full h-screen flex justify-center items-center bg-white">
     <div className="multi-color-spinner"></div>
   </div>
 );
 
-const NOTES_PER_PAGE = 6;
+const statusColors = {
+  "To Do": "border-red-400",
+  "In Progress": "border-yellow-400",
+  Done: "border-green-400",
+};
 
-// Predefined colors array (aap apni marzi se colors badal sakte ho)
-const colorOptions = [
-  "#f8fafc", // very light (almost white)
-  "#fbcfe8", // pink-300
-  "#c4b5fd", // purple-300
-  "#facc15", // yellow-400
-  "#fb923c", // orange-400
-  "#4ade80", // green-400
-];
+const NOTES_PER_PAGE = 6;
 
 const Notes = () => {
   const { backendUrl } = useContext(AppContent);
@@ -49,13 +45,12 @@ const Notes = () => {
     status: "To Do",
     tags: "",
     resourceUrl: "",
-    color: colorOptions[0], // Default first color
   });
 
   useEffect(() => {
     fetchNotes();
 
-    // Spinner CSS styles
+    // Add spinner CSS animation styles dynamically
     const style = document.createElement("style");
     style.innerHTML = `
       @keyframes spinnerRotate {
@@ -83,7 +78,7 @@ const Notes = () => {
 
   const fetchNotes = async () => {
     try {
-      const res = await axios.get(`${backendUrl}/api/note/my-notes`, {
+      const res = await axios.get(${backendUrl}/api/note/my-notes, {
         withCredentials: true,
       });
       setNotes(res.data.notes);
@@ -103,18 +98,14 @@ const Notes = () => {
       };
 
       if (editNoteId) {
-        const res = await axios.put(
-          `${backendUrl}/api/note/update/${editNoteId}`,
-          payload,
-          {
-            withCredentials: true,
-          }
-        );
+        const res = await axios.put(${backendUrl}/api/note/update/${editNoteId}, payload, {
+          withCredentials: true,
+        });
         setNotes((prev) =>
           prev.map((n) => (n._id === editNoteId ? res.data.note : n))
         );
       } else {
-        const res = await axios.post(`${backendUrl}/api/note/create`, payload, {
+        const res = await axios.post(${backendUrl}/api/note/create, payload, {
           withCredentials: true,
         });
         setNotes((prev) => [res.data.note, ...prev]);
@@ -136,7 +127,6 @@ const Notes = () => {
       status: "To Do",
       tags: "",
       resourceUrl: "",
-      color: colorOptions[0],
     });
   };
 
@@ -144,7 +134,6 @@ const Notes = () => {
     setNoteData({
       ...note,
       tags: note.tags.join(", "),
-      color: note.color || colorOptions[0],
     });
     setEditNoteId(note._id);
     setShowModal(true);
@@ -152,7 +141,7 @@ const Notes = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`${backendUrl}/api/note/delete/${id}`, {
+      await axios.delete(${backendUrl}/api/note/delete/${id}, {
         withCredentials: true,
       });
       setNotes((prev) => prev.filter((n) => n._id !== id));
@@ -167,6 +156,14 @@ const Notes = () => {
     const [moved] = reordered.splice(result.source.index, 1);
     reordered.splice(result.destination.index, 0, moved);
     setNotes(reordered);
+  };
+
+  const handleOrganize = () => {
+    const sorted = [...notes].sort((a, b) => {
+      if (a.subject !== b.subject) return a.subject.localeCompare(b.subject);
+      return a.status.localeCompare(b.status);
+    });
+    setNotes(sorted);
   };
 
   const getSubjectCounts = () => {
@@ -263,8 +260,9 @@ const Notes = () => {
                           ref={p.innerRef}
                           {...p.draggableProps}
                           {...p.dragHandleProps}
-                          className={`bg-white p-4 rounded-xl shadow-md border-l-4`}
-                          style={{ borderColor: n.color || "#60a5fa" }}
+                          className={`bg-white p-4 rounded-xl shadow-md border-l-4 ${
+                            statusColors[n.status] || "border-gray-300"
+                          }`}
                         >
                           <h2 className="font-bold text-lg flex items-center gap-2 mb-1">
                             <FaLightbulb className="text-yellow-500" /> {n.title}
@@ -429,29 +427,6 @@ const Notes = () => {
                 }
                 className="w-full border px-3 py-2 rounded"
               />
-
-              {/* Color picker circles */}
-              <div>
-                <label className="block mb-1 font-medium">Pick a Card Color:</label>
-                <div className="flex gap-3">
-                  {colorOptions.map((color) => (
-                    <button
-                      key={color}
-                      type="button"
-                      onClick={() => setNoteData({ ...noteData, color })}
-                      className={`w-8 h-8 rounded-full border-2 transition-colors
-                        ${
-                          noteData.color === color
-                            ? "border-black"
-                            : "border-transparent"
-                        }`}
-                      style={{ backgroundColor: color }}
-                      aria-label={`Select color ${color}`}
-                    />
-                  ))}
-                </div>
-              </div>
-
               <button
                 type="submit"
                 className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 w-full"
