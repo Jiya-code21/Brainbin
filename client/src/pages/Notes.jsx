@@ -10,18 +10,12 @@ import {
   FaLink,
 } from "react-icons/fa";
 import { AppContent } from "../context/AppContext";
- 
+
 const Spinner = () => (
   <div className="w-full h-screen flex justify-center items-center bg-white">
     <div className="multi-color-spinner"></div>
   </div>
 );
-
-const statusColors = {
-  "To Do": "border-red-400",
-  "In Progress": "border-yellow-400",
-  Done: "border-green-400",
-};
 
 const NOTES_PER_PAGE = 6;
 
@@ -45,6 +39,7 @@ const Notes = () => {
     status: "To Do",
     tags: "",
     resourceUrl: "",
+    color: "#93c5fd", // Default light blue color
   });
 
   useEffect(() => {
@@ -98,9 +93,13 @@ const Notes = () => {
       };
 
       if (editNoteId) {
-        const res = await axios.put(`${backendUrl}/api/note/update/${editNoteId}`, payload, {
-          withCredentials: true,
-        });
+        const res = await axios.put(
+          `${backendUrl}/api/note/update/${editNoteId}`,
+          payload,
+          {
+            withCredentials: true,
+          }
+        );
         setNotes((prev) =>
           prev.map((n) => (n._id === editNoteId ? res.data.note : n))
         );
@@ -127,6 +126,7 @@ const Notes = () => {
       status: "To Do",
       tags: "",
       resourceUrl: "",
+      color: "#93c5fd", // Reset to default color
     });
   };
 
@@ -134,6 +134,7 @@ const Notes = () => {
     setNoteData({
       ...note,
       tags: note.tags.join(", "),
+      color: note.color || "#93c5fd", // fallback to default color if undefined
     });
     setEditNoteId(note._id);
     setShowModal(true);
@@ -260,9 +261,8 @@ const Notes = () => {
                           ref={p.innerRef}
                           {...p.draggableProps}
                           {...p.dragHandleProps}
-                          className={`bg-white p-4 rounded-xl shadow-md border-l-4 ${
-                            statusColors[n.status] || "border-gray-300"
-                          }`}
+                          className={`bg-white p-4 rounded-xl shadow-md border-l-4`}
+                          style={{ borderColor: n.color || "#60a5fa" }}
                         >
                           <h2 className="font-bold text-lg flex items-center gap-2 mb-1">
                             <FaLightbulb className="text-yellow-500" /> {n.title}
@@ -427,6 +427,19 @@ const Notes = () => {
                 }
                 className="w-full border px-3 py-2 rounded"
               />
+              {/* New Color Picker Input */}
+              <div className="mt-2">
+                <label className="block mb-1 font-medium">Pick a Card Color:</label>
+                <input
+                  type="color"
+                  value={noteData.color}
+                  onChange={(e) =>
+                    setNoteData({ ...noteData, color: e.target.value })
+                  }
+                  className="w-full h-10 rounded cursor-pointer border"
+                  title="Select card border color"
+                />
+              </div>
               <button
                 type="submit"
                 className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 w-full"
