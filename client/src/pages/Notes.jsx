@@ -154,21 +154,22 @@ const Notes = () => {
   };
 
   // ⭐ Added: Toggle Star functionality
-  const toggleStar = async (id) => {
-    try {
-      const res = await axios.patch(
-        `${backendUrl}/api/note/star/${id}`,
-        {},
-        { withCredentials: true }
-      );
-      const updated = res.data.note;
-      setNotes((prev) =>
-        prev.map((n) => (n._id === id ? updated : n))
-      );
-    } catch (err) {
-      console.error("Toggle star error:", err);
-    }
-  };
+const toggleStar = async (id, isAlreadyStarred) => {
+  if (isAlreadyStarred) return; // prevent un-starring
+
+  try {
+    const res = await axios.patch(
+      `${backendUrl}/api/note/star/${id}`,
+      {},
+      { withCredentials: true }
+    );
+    const updated = res.data.note;
+    setNotes((prev) => prev.map((n) => (n._id === id ? updated : n)));
+  } catch (err) {
+    console.error("Toggle star error:", err);
+  }
+};
+
 
   const handleDragEnd = (result) => {
     if (!result.destination) return;
@@ -236,19 +237,14 @@ const Notes = () => {
             ))}
 
             {/* ⭐ Starred tab */}
-            <button
-              onClick={() => {
-                setActiveTab("starred");
-                setCurrentPage(1);
-              }}
-              className={`block w-full text-left px-3 py-2 rounded ${
-                activeTab === "starred"
-                  ? "bg-white text-indigo-600 font-bold"
-                  : "hover:bg-white hover:text-indigo-600"
-              }`}
-            >
-              ⭐ Starred
-            </button>
+           <button
+  onClick={() => toggleStar(n._id, n.isStarred)}
+  className="text-yellow-500 hover:text-yellow-600 text-lg"
+  title={n.isStarred ? "Already Starred" : "Star this note"}
+>
+  {n.isStarred ? "⭐" : "☆"}
+</button>
+
 
             <button
               onClick={() => {
