@@ -1,14 +1,7 @@
 import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
-import {
-  FaBook,
-  FaPlus,
-  FaEdit,
-  FaTrash,
-  FaLightbulb,
-  FaLink,
-} from "react-icons/fa";
+import { FaBook, FaPlus, FaEdit, FaTrash, FaLightbulb, FaLink } from "react-icons/fa";
 import { AppContent } from "../context/AppContext";
 
 const Spinner = () => (
@@ -34,7 +27,6 @@ const Notes = () => {
   const [activeTab, setActiveTab] = useState("all");
   const [showModal, setShowModal] = useState(false);
   const [editNoteId, setEditNoteId] = useState(null);
-
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [noteToDelete, setNoteToDelete] = useState(null);
 
@@ -100,9 +92,7 @@ const Notes = () => {
         const res = await axios.put(
           `${backendUrl}/api/note/update/${editNoteId}`,
           payload,
-          {
-            withCredentials: true,
-          }
+          { withCredentials: true }
         );
         setNotes((prev) =>
           prev.map((n) => (n._id === editNoteId ? res.data.note : n))
@@ -153,7 +143,6 @@ const Notes = () => {
     }
   };
 
-  // ⭐ Toggle Star functionality
   const toggleStar = async (id) => {
     try {
       const res = await axios.patch(
@@ -162,9 +151,7 @@ const Notes = () => {
         { withCredentials: true }
       );
       const updated = res.data.note;
-      setNotes((prev) =>
-        prev.map((n) => (n._id === id ? updated : n))
-      );
+      setNotes((prev) => prev.map((n) => (n._id === id ? updated : n)));
     } catch (err) {
       console.error("Toggle star error:", err);
     }
@@ -235,7 +222,6 @@ const Notes = () => {
               </button>
             ))}
 
-            {/* ⭐ Starred tab */}
             <button
               onClick={() => {
                 setActiveTab("starred");
@@ -282,6 +268,21 @@ const Notes = () => {
 
       {/* Main Section */}
       <div className="flex-1 bg-[#f1f5f9] p-6">
+
+        {/* ✅ Add Note Button */}
+        <div className="flex justify-end mb-4">
+          <button
+            onClick={() => {
+              setShowModal(true);
+              resetForm();
+              setEditNoteId(null);
+            }}
+            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+          >
+            <FaPlus /> Add Note
+          </button>
+        </div>
+
         {loading ? (
           <Spinner />
         ) : (
@@ -333,8 +334,6 @@ const Notes = () => {
                               <FaLink /> Visit
                             </a>
                           )}
-
-                          {/* ⭐ Star button + edit/delete */}
                           <div className="flex justify-between items-center mt-4">
                             <button
                               onClick={() => toggleStar(n._id)}
@@ -392,7 +391,7 @@ const Notes = () => {
         </div>
       </div>
 
-      {/* Add/Edit Note Modal */}
+      {/* Add/Edit Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm flex justify-center items-center z-50">
           <div className="bg-white w-full max-w-md rounded-lg p-6 relative">
@@ -478,7 +477,7 @@ const Notes = () => {
         </div>
       )}
 
-      {/* Delete Confirmation Modal */}
+      {/* Delete Modal */}
       {showDeleteModal && (
         <div className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm flex justify-center items-center z-50">
           <div className="bg-white w-full max-w-sm rounded-lg p-6 relative text-center">
