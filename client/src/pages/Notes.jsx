@@ -50,7 +50,6 @@ const Notes = () => {
   useEffect(() => {
     fetchNotes();
 
-    // Add spinner CSS animation styles dynamically
     const style = document.createElement("style");
     style.innerHTML = `
       @keyframes spinnerRotate {
@@ -154,6 +153,23 @@ const Notes = () => {
     }
   };
 
+  // ⭐ Added: Toggle Star functionality
+  const toggleStar = async (id) => {
+    try {
+      const res = await axios.patch(
+        `${backendUrl}/api/note/star/${id}`,
+        {},
+        { withCredentials: true }
+      );
+      const updated = res.data.note;
+      setNotes((prev) =>
+        prev.map((n) => (n._id === id ? updated : n))
+      );
+    } catch (err) {
+      console.error("Toggle star error:", err);
+    }
+  };
+
   const handleDragEnd = (result) => {
     if (!result.destination) return;
     const reordered = Array.from(notes);
@@ -179,7 +195,11 @@ const Notes = () => {
   };
 
   const filteredNotes =
-    activeTab === "all" ? notes : notes.filter((n) => n.status === activeTab);
+    activeTab === "all"
+      ? notes
+      : activeTab === "starred"
+      ? notes.filter((n) => n.isStarred)
+      : notes.filter((n) => n.status === activeTab);
 
   const paginatedNotes = filteredNotes.slice(
     (currentPage - 1) * NOTES_PER_PAGE,
@@ -214,6 +234,22 @@ const Notes = () => {
                 {tab === "Done" && "✅ Done"}
               </button>
             ))}
+
+            {/* ⭐ Starred tab */}
+            <button
+              onClick={() => {
+                setActiveTab("starred");
+                setCurrentPage(1);
+              }}
+              className={`block w-full text-left px-3 py-2 rounded ${
+                activeTab === "starred"
+                  ? "bg-white text-indigo-600 font-bold"
+                  : "hover:bg-white hover:text-indigo-600"
+              }`}
+            >
+              ⭐ Starred
+            </button>
+
             <button
               onClick={() => {
                 setActiveTab("all");
@@ -297,22 +333,33 @@ const Notes = () => {
                               <FaLink /> Visit
                             </a>
                           )}
-                          <div className="flex gap-4 mt-4">
+
+                          {/* ⭐ Star button + edit/delete */}
+                          <div className="flex justify-between items-center mt-4">
                             <button
-                              onClick={() => handleEdit(n)}
-                              className="text-yellow-600 hover:text-yellow-800"
+                              onClick={() => toggleStar(n._id)}
+                              className={`text-yellow-500 hover:text-yellow-600 text-lg`}
+                              title={n.isStarred ? "Unstar" : "Star this note"}
                             >
-                              <FaEdit />
+                              {n.isStarred ? "⭐" : "☆"}
                             </button>
-                            <button
-                              onClick={() => {
-                                setNoteToDelete(n._id);
-                                setShowDeleteModal(true);
-                              }}
-                              className="text-red-600 hover:text-red-800"
-                            >
-                              <FaTrash />
-                            </button>
+                            <div className="flex gap-4">
+                              <button
+                                onClick={() => handleEdit(n)}
+                                className="text-yellow-600 hover:text-yellow-800"
+                              >
+                                <FaEdit />
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setNoteToDelete(n._id);
+                                  setShowDeleteModal(true);
+                                }}
+                                className="text-red-600 hover:text-red-800"
+                              >
+                                <FaTrash />
+                              </button>
+                            </div>
                           </div>
                         </div>
                       )}
@@ -346,17 +393,6 @@ const Notes = () => {
       </div>
 
       {/* Add/Edit Note Modal */}
-      <button
-        onClick={() => {
-          resetForm();
-          setEditNoteId(null);
-          setShowModal(true);
-        }}
-        className="fixed bottom-6 right-6 bg-indigo-600 text-white px-5 py-3 rounded-full shadow-lg hover:bg-indigo-700 transition-all"
-      >
-        <FaPlus className="inline mr-2" /> Add Note
-      </button>
-
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm flex justify-center items-center z-50">
           <div className="bg-white w-full max-w-md rounded-lg p-6 relative">
