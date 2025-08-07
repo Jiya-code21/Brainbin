@@ -66,5 +66,5 @@ Your contributions and feedback are always appreciated!
 
 <h3 align="center">🙌 Thanks for stopping by!</h3>
 <p align="center">Loved BrainBin? Give it a ⭐ to show your support.</p>
-<p align="center">Keep noting. Keep building. 💡✨</p>
+<p align="center">Keep noting. Keep building. 💡✨</p> 
 
