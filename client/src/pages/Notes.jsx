@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState, useContext, useRef } from "react";
 import axios from "axios";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import {
@@ -8,8 +8,8 @@ import {
   FaTrash,
   FaLightbulb,
   FaLink,
-  FaMoon,
-  FaSun,
+  FaMicrophone,
+  FaMicrophoneSlash,
 } from "react-icons/fa";
 import { AppContent } from "../context/AppContext";
 
@@ -38,10 +38,13 @@ const Notes = () => {
   const [editNoteId, setEditNoteId] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [noteToDelete, setNoteToDelete] = useState(null);
-  // Dark Mode state (persisted)
   const [darkMode, setDarkMode] = useState(
     () => localStorage.getItem("darkMode") === "true"
   );
+
+  // Voice to text related state
+  const [listening, setListening] = useState(false);
+  const recognitionRef = useRef(null);
 
   const [noteData, setNoteData] = useState({
     title: "",
@@ -53,17 +56,13 @@ const Notes = () => {
   });
 
   useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
+    if (darkMode) document.documentElement.classList.add("dark");
+    else document.documentElement.classList.remove("dark");
     localStorage.setItem("darkMode", darkMode);
   }, [darkMode]);
 
   useEffect(() => {
     fetchNotes();
-
     const style = document.createElement("style");
     style.innerHTML = `
       @keyframes spinnerRotate {
@@ -83,12 +82,62 @@ const Notes = () => {
       }
     `;
     document.head.appendChild(style);
-
-    return () => {
-      document.head.removeChild(style);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => document.head.removeChild(style);
   }, []);
+
+  // Setup SpeechRecognition API
+  useEffect(() => {
+    const SpeechRecognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      recognitionRef.current = null;
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = "en-US";
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      setNoteData((prev) => ({
+        ...prev,
+        content: prev.content ? prev.content + " " + transcript : transcript,
+      }));
+    };
+
+    recognition.onerror = (event) => {
+      console.error("Speech recognition error", event.error);
+      setListening(false);
+    };
+
+    recognition.onend = () => {
+      setListening(false);
+    };
+
+    recognitionRef.current = recognition;
+  }, []);
+
+  const startListening = () => {
+    if (!recognitionRef.current) {
+      alert("Speech Recognition not supported in this browser.");
+      return;
+    }
+    try {
+      recognitionRef.current.start();
+      setListening(true);
+    } catch (e) {
+      console.error("Speech recognition start error", e);
+    }
+  };
+
+  const stopListening = () => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+      setListening(false);
+    }
+  };
 
   const fetchNotes = async () => {
     try {
@@ -108,11 +157,8 @@ const Notes = () => {
     try {
       const payload = {
         ...noteData,
-        tags: noteData.tags
-          ? noteData.tags.split(",").map((tag) => tag.trim())
-          : [],
+        tags: noteData.tags ? noteData.tags.split(",").map((t) => t.trim()) : [],
       };
-
       if (editNoteId) {
         const res = await axios.put(
           `${backendUrl}/api/note/update/${editNoteId}`,
@@ -128,10 +174,10 @@ const Notes = () => {
         });
         setNotes((prev) => [res.data.note, ...prev]);
       }
-
       setShowModal(false);
       setEditNoteId(null);
       resetForm();
+      stopListening();
     } catch (err) {
       console.error("Submit error:", err);
     }
@@ -242,19 +288,6 @@ const Notes = () => {
             <FaBook /> Notes Dashboard
           </h1>
 
-          {/* Dark Mode Toggle Icon only */}
-          <button
-            onClick={() => setDarkMode((s) => !s)}
-            className="mb-4 flex items-center justify-center p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-            title="Toggle Dark Mode"
-          >
-            {darkMode ? (
-              <FaSun className="text-yellow-400" size={24} />
-            ) : (
-              <FaMoon className="text-gray-900" size={24} />
-            )}
-          </button>
-
           {/* Status Filters */}
           <div className="space-y-2 mb-4">
             {["To Do", "In Progress", "Done"].map((tab) => (
@@ -330,8 +363,6 @@ const Notes = () => {
             ))}
           </ul>
         </div>
-
-        {/* Removed Add Note button from sidebar */}
       </div>
 
       {/* Main Section */}
@@ -355,7 +386,7 @@ const Notes = () => {
                             ref={p.innerRef}
                             {...p.draggableProps}
                             {...p.dragHandleProps}
-                            className={`p-4 rounded-xl shadow-md border-l-4 ${
+                            className={`relative p-4 rounded-xl shadow-md border-l-4 ${
                               statusColors[n.status] || "border-gray-300"
                             } ${
                               darkMode
@@ -363,6 +394,15 @@ const Notes = () => {
                                 : "bg-white text-gray-900"
                             }`}
                           >
+                            {/* Dark/Light toggle emoji button top-right */}
+                            <button
+                              onClick={() => setDarkMode((s) => !s)}
+                              title="Toggle Dark Mode"
+                              className="absolute top-2 right-2 text-xl"
+                            >
+                              {darkMode ? "☀️" : "🌙"}
+                            </button>
+
                             <h2 className="font-bold text-lg flex items-center gap-2 mb-1">
                               <FaLightbulb className="text-yellow-400" /> {n.title}
                             </h2>
@@ -496,6 +536,7 @@ const Notes = () => {
                 setShowModal(false);
                 resetForm();
                 setEditNoteId(null);
+                stopListening();
               }}
               className="absolute top-3 right-4 text-gray-500 hover:text-gray-700"
             >
@@ -519,19 +560,29 @@ const Notes = () => {
                     : "bg-white border-gray-300 text-gray-900"
                 }`}
               />
-              <textarea
-                placeholder="Content"
-                required
-                value={noteData.content}
-                onChange={(e) =>
-                  setNoteData({ ...noteData, content: e.target.value })
-                }
-                className={`w-full border px-3 py-2 rounded h-24 resize-y ${
-                  darkMode
-                    ? "bg-gray-700 border-gray-600 text-gray-100"
-                    : "bg-white border-gray-300 text-gray-900"
-                }`}
-              />
+              <div className="relative">
+                <textarea
+                  placeholder="Content"
+                  required
+                  value={noteData.content}
+                  onChange={(e) =>
+                    setNoteData({ ...noteData, content: e.target.value })
+                  }
+                  className={`w-full border px-3 py-2 rounded h-24 resize-y ${
+                    darkMode
+                      ? "bg-gray-700 border-gray-600 text-gray-100"
+                      : "bg-white border-gray-300 text-gray-900"
+                  }`}
+                />
+                <button
+                  type="button"
+                  onClick={() => (listening ? stopListening() : startListening())}
+                  title={listening ? "Stop Listening" : "Start Voice Input"}
+                  className="absolute top-1 right-1 p-2 rounded-full bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
+                >
+                  {listening ? <FaMicrophoneSlash /> : <FaMicrophone />}
+                </button>
+              </div>
               <input
                 type="text"
                 placeholder="Subject"
@@ -588,7 +639,7 @@ const Notes = () => {
               />
               <button
                 type="submit"
-                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white rounded py-2 transition-colors"
+                className="w-full py-2 rounded bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
               >
                 {editNoteId ? "Update Note" : "Add Note"}
               </button>
@@ -601,31 +652,32 @@ const Notes = () => {
       {showDeleteModal && (
         <div className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm flex justify-center items-center z-50">
           <div
-            className={`w-full max-w-sm rounded-lg p-6 relative ${
+            className={`w-full max-w-sm rounded-lg p-6 text-center ${
               darkMode ? "bg-gray-800 text-gray-100" : "bg-white text-gray-900"
             }`}
           >
-            <h2 className="text-lg font-semibold mb-4">Delete Note?</h2>
-            <p className="mb-6">
-              Are you sure you want to delete this note? This action cannot be
-              undone.
+            <p className="mb-4 text-lg font-semibold">
+              Are you sure you want to delete this note?
             </p>
-            <div className="flex justify-end gap-4">
-              <button
-                onClick={() => setShowDeleteModal(false)}
-                className="px-4 py-2 rounded border border-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-              >
-                Cancel
-              </button>
+            <div className="flex justify-center gap-6">
               <button
                 onClick={() => {
                   handleDelete(noteToDelete);
                   setShowDeleteModal(false);
                   setNoteToDelete(null);
                 }}
-                className="px-4 py-2 rounded bg-red-600 hover:bg-red-700 text-white transition-colors"
+                className="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700 transition-colors"
               >
                 Delete
+              </button>
+              <button
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setNoteToDelete(null);
+                }}
+                className="px-4 py-2 rounded border border-gray-500 hover:bg-gray-100"
+              >
+                Cancel
               </button>
             </div>
           </div>
