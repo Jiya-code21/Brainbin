@@ -38,7 +38,7 @@ const Notes = () => {
   const [editNoteId, setEditNoteId] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [noteToDelete, setNoteToDelete] = useState(null);
-  // 🌙 Dark Mode state (persisted)
+  // Dark Mode state (persisted)
   const [darkMode, setDarkMode] = useState(
     () => localStorage.getItem("darkMode") === "true"
   );
@@ -52,7 +52,6 @@ const Notes = () => {
     resourceUrl: "",
   });
 
-  // 🌙 Apply dark class to root element and persist setting
   useEffect(() => {
     if (darkMode) {
       document.documentElement.classList.add("dark");
@@ -225,7 +224,6 @@ const Notes = () => {
   );
 
   return (
-    // 🌙 Root wrapper toggles background/text based on darkMode
     <div
       className={`flex min-h-screen text-sm font-medium ${
         darkMode ? "bg-gray-900 text-gray-100" : "bg-[#f1f5f9] text-gray-900"
@@ -244,13 +242,17 @@ const Notes = () => {
             <FaBook /> Notes Dashboard
           </h1>
 
-          {/* 🌙 Dark Mode Toggle */}
+          {/* Dark Mode Toggle Icon only */}
           <button
             onClick={() => setDarkMode((s) => !s)}
-            className="mb-4 flex items-center gap-2 px-3 py-2 bg-white text-indigo-600 rounded hover:bg-gray-200 w-full"
+            className="mb-4 flex items-center justify-center p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+            title="Toggle Dark Mode"
           >
-            {darkMode ? <FaSun /> : <FaMoon />}{" "}
-            {darkMode ? "Light Mode" : "Dark Mode"}
+            {darkMode ? (
+              <FaSun className="text-yellow-400" size={24} />
+            ) : (
+              <FaMoon className="text-gray-900" size={24} />
+            )}
           </button>
 
           {/* Status Filters */}
@@ -329,139 +331,132 @@ const Notes = () => {
           </ul>
         </div>
 
-        {/* Add Note Button at bottom of sidebar (mobile friendly) */}
-        <div className="mt-6">
-          <button
-            onClick={() => {
-              setShowModal(true);
-              resetForm();
-              setEditNoteId(null);
-            }}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
-          >
-            <FaPlus /> Add Note
-          </button>
-        </div>
+        {/* Removed Add Note button from sidebar */}
       </div>
 
       {/* Main Section */}
-      <div className="flex-1 p-6">
-        {/* Top area: Add button (desktop) */}
-        <div className="flex justify-end mb-4 hidden md:flex">
-          <button
-            onClick={() => {
-              setShowModal(true);
-              resetForm();
-              setEditNoteId(null);
-            }}
-            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
-          >
-            <FaPlus /> Add Note
-          </button>
-        </div>
-
+      <div className="flex-1 p-6 relative">
         {loading ? (
           <Spinner />
         ) : (
-          <DragDropContext onDragEnd={handleDragEnd}>
-            <Droppable droppableId="notes">
-              {(prov) => (
-                <div
-                  ref={prov.innerRef}
-                  {...prov.droppableProps}
-                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-                >
-                  {paginatedNotes.map((n, i) => (
-                    <Draggable key={n._id} draggableId={String(n._id)} index={i}>
-                      {(p) => (
-                        <div
-                          ref={p.innerRef}
-                          {...p.draggableProps}
-                          {...p.dragHandleProps}
-                          className={`p-4 rounded-xl shadow-md border-l-4 ${
-                            statusColors[n.status] || "border-gray-300"
-                          } ${
-                            darkMode
-                              ? "bg-gray-800 text-gray-100"
-                              : "bg-white text-gray-900"
-                          }`}
-                        >
-                          <h2 className="font-bold text-lg flex items-center gap-2 mb-1">
-                            <FaLightbulb className="text-yellow-400" /> {n.title}
-                          </h2>
-                          <p className="text-sm mb-1">{n.content}</p>
-                          {n.subject && (
-                            <p
-                              className={`text-sm mb-2 ${
-                                darkMode ? "text-indigo-300" : "text-indigo-600"
-                              }`}
-                            >
-                              📘 {n.subject}
-                            </p>
-                          )}
-                          <div className="flex flex-wrap gap-2 mb-2">
-                            {n.tags?.map((t, idx) => (
-                              <span
-                                key={idx}
-                                className={`px-2 py-0.5 rounded-full text-xs ${
-                                  darkMode
-                                    ? "bg-indigo-700 text-indigo-100"
-                                    : "bg-indigo-100 text-indigo-700"
+          <>
+            <DragDropContext onDragEnd={handleDragEnd}>
+              <Droppable droppableId="notes">
+                {(prov) => (
+                  <div
+                    ref={prov.innerRef}
+                    {...prov.droppableProps}
+                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+                  >
+                    {paginatedNotes.map((n, i) => (
+                      <Draggable key={n._id} draggableId={String(n._id)} index={i}>
+                        {(p) => (
+                          <div
+                            ref={p.innerRef}
+                            {...p.draggableProps}
+                            {...p.dragHandleProps}
+                            className={`p-4 rounded-xl shadow-md border-l-4 ${
+                              statusColors[n.status] || "border-gray-300"
+                            } ${
+                              darkMode
+                                ? "bg-gray-800 text-gray-100"
+                                : "bg-white text-gray-900"
+                            }`}
+                          >
+                            <h2 className="font-bold text-lg flex items-center gap-2 mb-1">
+                              <FaLightbulb className="text-yellow-400" /> {n.title}
+                            </h2>
+                            <p className="text-sm mb-1">{n.content}</p>
+                            {n.subject && (
+                              <p
+                                className={`text-sm mb-2 ${
+                                  darkMode ? "text-indigo-300" : "text-indigo-600"
                                 }`}
                               >
-                                {t}
-                              </span>
-                            ))}
-                          </div>
-                          {n.resourceUrl && (
-                            <a
-                              href={n.resourceUrl}
-                              target="_blank"
-                              rel="noreferrer"
-                              className={`flex items-center text-sm gap-1 underline ${
-                                darkMode ? "text-blue-300" : "text-blue-600"
-                              }`}
-                            >
-                              <FaLink /> Visit
-                            </a>
-                          )}
-                          <div className="flex justify-between items-center mt-4">
-                            <button
-                              onClick={() => toggleStar(n._id)}
-                              className="text-lg"
-                              title={n.isStarred ? "Unstar" : "Star this note"}
-                            >
-                              <span className={darkMode ? "text-yellow-300" : "text-yellow-500"}>
-                                {n.isStarred ? "⭐" : "☆"}
-                              </span>
-                            </button>
-                            <div className="flex gap-4">
-                              <button
-                                onClick={() => handleEdit(n)}
-                                className={darkMode ? "text-yellow-300" : "text-yellow-600"}
+                                📘 {n.subject}
+                              </p>
+                            )}
+                            <div className="flex flex-wrap gap-2 mb-2">
+                              {n.tags?.map((t, idx) => (
+                                <span
+                                  key={idx}
+                                  className={`px-2 py-0.5 rounded-full text-xs ${
+                                    darkMode
+                                      ? "bg-indigo-700 text-indigo-100"
+                                      : "bg-indigo-100 text-indigo-700"
+                                  }`}
+                                >
+                                  {t}
+                                </span>
+                              ))}
+                            </div>
+                            {n.resourceUrl && (
+                              <a
+                                href={n.resourceUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className={`flex items-center text-sm gap-1 underline ${
+                                  darkMode ? "text-blue-300" : "text-blue-600"
+                                }`}
                               >
-                                <FaEdit />
-                              </button>
+                                <FaLink /> Visit
+                              </a>
+                            )}
+                            <div className="flex justify-between items-center mt-4">
                               <button
-                                onClick={() => {
-                                  setNoteToDelete(n._id);
-                                  setShowDeleteModal(true);
-                                }}
-                                className="text-red-600 hover:text-red-800"
+                                onClick={() => toggleStar(n._id)}
+                                className="text-lg"
+                                title={n.isStarred ? "Unstar" : "Star this note"}
                               >
-                                <FaTrash />
+                                <span
+                                  className={
+                                    darkMode ? "text-yellow-300" : "text-yellow-500"
+                                  }
+                                >
+                                  {n.isStarred ? "⭐" : "☆"}
+                                </span>
                               </button>
+                              <div className="flex gap-4">
+                                <button
+                                  onClick={() => handleEdit(n)}
+                                  className={darkMode ? "text-yellow-300" : "text-yellow-600"}
+                                >
+                                  <FaEdit />
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setNoteToDelete(n._id);
+                                    setShowDeleteModal(true);
+                                  }}
+                                  className="text-red-600 hover:text-red-800"
+                                >
+                                  <FaTrash />
+                                </button>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      )}
-                    </Draggable>
-                  ))}
-                  {prov.placeholder}
-                </div>
-              )}
-            </Droppable>
-          </DragDropContext>
+                        )}
+                      </Draggable>
+                    ))}
+                    {prov.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </DragDropContext>
+
+            {/* Floating Add Note button bottom-right */}
+            <button
+              onClick={() => {
+                setShowModal(true);
+                resetForm();
+                setEditNoteId(null);
+              }}
+              title="Add Note"
+              className="fixed bottom-8 right-8 z-50 flex items-center justify-center w-14 h-14 rounded-full bg-indigo-600 text-white shadow-lg hover:bg-indigo-700 transition-colors"
+            >
+              <FaPlus size={24} />
+            </button>
+          </>
         )}
 
         {/* Pagination */}
@@ -561,9 +556,9 @@ const Notes = () => {
                     : "bg-white border-gray-300 text-gray-900"
                 }`}
               >
-                <option value="To Do">📝 To Do</option>
-                <option value="In Progress">⏳ In Progress</option>
-                <option value="Done">✅ Done</option>
+                <option value="To Do">To Do</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Done">Done</option>
               </select>
               <input
                 type="text"
@@ -580,7 +575,7 @@ const Notes = () => {
               />
               <input
                 type="url"
-                placeholder="Resource Link (optional)"
+                placeholder="Resource URL"
                 value={noteData.resourceUrl}
                 onChange={(e) =>
                   setNoteData({ ...noteData, resourceUrl: e.target.value })
@@ -593,7 +588,7 @@ const Notes = () => {
               />
               <button
                 type="submit"
-                className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 w-full"
+                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white rounded py-2 transition-colors"
               >
                 {editNoteId ? "Update Note" : "Add Note"}
               </button>
@@ -602,36 +597,35 @@ const Notes = () => {
         </div>
       )}
 
-      {/* Delete Modal */}
+      {/* Delete Confirmation Modal */}
       {showDeleteModal && (
         <div className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm flex justify-center items-center z-50">
           <div
-            className={`w-full max-w-sm rounded-lg p-6 relative text-center ${
+            className={`w-full max-w-sm rounded-lg p-6 relative ${
               darkMode ? "bg-gray-800 text-gray-100" : "bg-white text-gray-900"
             }`}
           >
-            <h3 className="text-lg font-semibold mb-4">
-              Are you sure you want to delete this note?
-            </h3>
-            <div className="flex justify-center gap-4">
+            <h2 className="text-lg font-semibold mb-4">Delete Note?</h2>
+            <p className="mb-6">
+              Are you sure you want to delete this note? This action cannot be
+              undone.
+            </p>
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="px-4 py-2 rounded border border-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+              >
+                Cancel
+              </button>
               <button
                 onClick={() => {
                   handleDelete(noteToDelete);
                   setShowDeleteModal(false);
                   setNoteToDelete(null);
                 }}
-                className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                className="px-4 py-2 rounded bg-red-600 hover:bg-red-700 text-white transition-colors"
               >
-                Yes, Delete
-              </button>
-              <button
-                onClick={() => {
-                  setShowDeleteModal(false);
-                  setNoteToDelete(null);
-                }}
-                className="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400"
-              >
-                Cancel
+                Delete
               </button>
             </div>
           </div>
