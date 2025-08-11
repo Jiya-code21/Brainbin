@@ -289,13 +289,6 @@ const Notes = () => {
               📋 All Notes
             </button>
 
-            {/* Organize Button */}
-            <button
-              onClick={handleOrganize}
-              className="mt-3 block w-full text-left px-3 py-2 rounded hover:bg-white hover:text-indigo-600"
-            >
-              🔀 Organize
-            </button>
           </div>
 
           <h2 className="text-sm uppercase text-gray-200 mb-1">📚 Subjects</h2>
