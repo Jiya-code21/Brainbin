@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext, useRef } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import {
@@ -8,8 +8,8 @@ import {
   FaTrash,
   FaLightbulb,
   FaLink,
-  FaMicrophone,
-  FaMicrophoneSlash,
+  FaSun,
+  FaMoon,
 } from "react-icons/fa";
 import { AppContent } from "../context/AppContext";
 
@@ -38,13 +38,10 @@ const Notes = () => {
   const [editNoteId, setEditNoteId] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [noteToDelete, setNoteToDelete] = useState(null);
+
   const [darkMode, setDarkMode] = useState(
     () => localStorage.getItem("darkMode") === "true"
   );
-
-  // Voice to text related state
-  const [listening, setListening] = useState(false);
-  const recognitionRef = useRef(null);
 
   const [noteData, setNoteData] = useState({
     title: "",
@@ -63,6 +60,7 @@ const Notes = () => {
 
   useEffect(() => {
     fetchNotes();
+
     const style = document.createElement("style");
     style.innerHTML = `
       @keyframes spinnerRotate {
@@ -84,60 +82,6 @@ const Notes = () => {
     document.head.appendChild(style);
     return () => document.head.removeChild(style);
   }, []);
-
-  // Setup SpeechRecognition API
-  useEffect(() => {
-    const SpeechRecognition =
-      window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      recognitionRef.current = null;
-      return;
-    }
-
-    const recognition = new SpeechRecognition();
-    recognition.lang = "en-US";
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
-
-    recognition.onresult = (event) => {
-      const transcript = event.results[0][0].transcript;
-      setNoteData((prev) => ({
-        ...prev,
-        content: prev.content ? prev.content + " " + transcript : transcript,
-      }));
-    };
-
-    recognition.onerror = (event) => {
-      console.error("Speech recognition error", event.error);
-      setListening(false);
-    };
-
-    recognition.onend = () => {
-      setListening(false);
-    };
-
-    recognitionRef.current = recognition;
-  }, []);
-
-  const startListening = () => {
-    if (!recognitionRef.current) {
-      alert("Speech Recognition not supported in this browser.");
-      return;
-    }
-    try {
-      recognitionRef.current.start();
-      setListening(true);
-    } catch (e) {
-      console.error("Speech recognition start error", e);
-    }
-  };
-
-  const stopListening = () => {
-    if (recognitionRef.current) {
-      recognitionRef.current.stop();
-      setListening(false);
-    }
-  };
 
   const fetchNotes = async () => {
     try {
@@ -177,7 +121,6 @@ const Notes = () => {
       setShowModal(false);
       setEditNoteId(null);
       resetForm();
-      stopListening();
     } catch (err) {
       console.error("Submit error:", err);
     }
@@ -273,8 +216,17 @@ const Notes = () => {
     <div
       className={`flex min-h-screen text-sm font-medium ${
         darkMode ? "bg-gray-900 text-gray-100" : "bg-[#f1f5f9] text-gray-900"
-      }`}
+      } relative`}
     >
+      {/* Dark mode toggle button fixed top-right */}
+      <button
+        onClick={() => setDarkMode((d) => !d)}
+        title="Toggle Dark Mode"
+        className="fixed top-4 right-4 z-50 p-2 rounded-full bg-indigo-600 text-white hover:bg-indigo-700 transition-colors shadow-lg"
+      >
+        {darkMode ? <FaSun /> : <FaMoon />}
+      </button>
+
       {/* Sidebar */}
       <div
         className={`w-64 p-4 flex flex-col justify-between ${
@@ -366,7 +318,7 @@ const Notes = () => {
       </div>
 
       {/* Main Section */}
-      <div className="flex-1 p-6 relative">
+      <div className="flex-1 p-6">
         {loading ? (
           <Spinner />
         ) : (
@@ -394,15 +346,6 @@ const Notes = () => {
                                 : "bg-white text-gray-900"
                             }`}
                           >
-                            {/* Dark/Light toggle emoji button top-right */}
-                            <button
-                              onClick={() => setDarkMode((s) => !s)}
-                              title="Toggle Dark Mode"
-                              className="absolute top-2 right-2 text-xl"
-                            >
-                              {darkMode ? "☀️" : "🌙"}
-                            </button>
-
                             <h2 className="font-bold text-lg flex items-center gap-2 mb-1">
                               <FaLightbulb className="text-yellow-400" /> {n.title}
                             </h2>
@@ -536,7 +479,6 @@ const Notes = () => {
                 setShowModal(false);
                 resetForm();
                 setEditNoteId(null);
-                stopListening();
               }}
               className="absolute top-3 right-4 text-gray-500 hover:text-gray-700"
             >
@@ -560,29 +502,19 @@ const Notes = () => {
                     : "bg-white border-gray-300 text-gray-900"
                 }`}
               />
-              <div className="relative">
-                <textarea
-                  placeholder="Content"
-                  required
-                  value={noteData.content}
-                  onChange={(e) =>
-                    setNoteData({ ...noteData, content: e.target.value })
-                  }
-                  className={`w-full border px-3 py-2 rounded h-24 resize-y ${
-                    darkMode
-                      ? "bg-gray-700 border-gray-600 text-gray-100"
-                      : "bg-white border-gray-300 text-gray-900"
-                  }`}
-                />
-                <button
-                  type="button"
-                  onClick={() => (listening ? stopListening() : startListening())}
-                  title={listening ? "Stop Listening" : "Start Voice Input"}
-                  className="absolute top-1 right-1 p-2 rounded-full bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
-                >
-                  {listening ? <FaMicrophoneSlash /> : <FaMicrophone />}
-                </button>
-              </div>
+              <textarea
+                placeholder="Content"
+                required
+                value={noteData.content}
+                onChange={(e) =>
+                  setNoteData({ ...noteData, content: e.target.value })
+                }
+                className={`w-full border px-3 py-2 rounded h-24 resize-y ${
+                  darkMode
+                    ? "bg-gray-700 border-gray-600 text-gray-100"
+                    : "bg-white border-gray-300 text-gray-900"
+                }`}
+              />
               <input
                 type="text"
                 placeholder="Subject"
