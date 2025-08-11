@@ -1,11 +1,20 @@
 import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
-import { FaBook, FaPlus, FaEdit, FaTrash, FaLightbulb, FaLink } from "react-icons/fa";
+import {
+  FaBook,
+  FaPlus,
+  FaEdit,
+  FaTrash,
+  FaLightbulb,
+  FaLink,
+  FaMoon,
+  FaSun,
+} from "react-icons/fa";
 import { AppContent } from "../context/AppContext";
 
 const Spinner = () => (
-  <div className="w-full h-screen flex justify-center items-center bg-white">
+  <div className="w-full h-screen flex justify-center items-center bg-white dark:bg-gray-900">
     <div className="multi-color-spinner"></div>
   </div>
 );
@@ -29,6 +38,10 @@ const Notes = () => {
   const [editNoteId, setEditNoteId] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [noteToDelete, setNoteToDelete] = useState(null);
+  // 🌙 Dark Mode state (persisted)
+  const [darkMode, setDarkMode] = useState(
+    () => localStorage.getItem("darkMode") === "true"
+  );
 
   const [noteData, setNoteData] = useState({
     title: "",
@@ -38,6 +51,16 @@ const Notes = () => {
     tags: "",
     resourceUrl: "",
   });
+
+  // 🌙 Apply dark class to root element and persist setting
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+    localStorage.setItem("darkMode", darkMode);
+  }, [darkMode]);
 
   useEffect(() => {
     fetchNotes();
@@ -65,6 +88,7 @@ const Notes = () => {
     return () => {
       document.head.removeChild(style);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchNotes = async () => {
@@ -72,7 +96,7 @@ const Notes = () => {
       const res = await axios.get(`${backendUrl}/api/note/my-notes`, {
         withCredentials: true,
       });
-      setNotes(res.data.notes);
+      setNotes(res.data.notes || []);
     } catch (err) {
       console.error("Fetch error:", err);
     } finally {
@@ -85,7 +109,9 @@ const Notes = () => {
     try {
       const payload = {
         ...noteData,
-        tags: noteData.tags.split(",").map((tag) => tag.trim()),
+        tags: noteData.tags
+          ? noteData.tags.split(",").map((tag) => tag.trim())
+          : [],
       };
 
       if (editNoteId) {
@@ -125,8 +151,12 @@ const Notes = () => {
 
   const handleEdit = (note) => {
     setNoteData({
-      ...note,
-      tags: note.tags.join(", "),
+      title: note.title || "",
+      content: note.content || "",
+      subject: note.subject || "",
+      status: note.status || "To Do",
+      tags: Array.isArray(note.tags) ? note.tags.join(", ") : note.tags || "",
+      resourceUrl: note.resourceUrl || "",
     });
     setEditNoteId(note._id);
     setShowModal(true);
@@ -167,8 +197,9 @@ const Notes = () => {
 
   const handleOrganize = () => {
     const sorted = [...notes].sort((a, b) => {
-      if (a.subject !== b.subject) return a.subject.localeCompare(b.subject);
-      return a.status.localeCompare(b.status);
+      if ((a.subject || "") !== (b.subject || ""))
+        return (a.subject || "").localeCompare(b.subject || "");
+      return (a.status || "").localeCompare(b.status || "");
     });
     setNotes(sorted);
   };
@@ -194,14 +225,35 @@ const Notes = () => {
   );
 
   return (
-    <div className="flex min-h-screen text-sm font-medium">
+    // 🌙 Root wrapper toggles background/text based on darkMode
+    <div
+      className={`flex min-h-screen text-sm font-medium ${
+        darkMode ? "bg-gray-900 text-gray-100" : "bg-[#f1f5f9] text-gray-900"
+      }`}
+    >
       {/* Sidebar */}
-      <div className="w-64 bg-gradient-to-b from-purple-600 to-indigo-700 text-white p-4 flex flex-col justify-between">
+      <div
+        className={`w-64 p-4 flex flex-col justify-between ${
+          darkMode
+            ? "bg-gradient-to-b from-gray-800 to-gray-900 text-gray-100"
+            : "bg-gradient-to-b from-purple-600 to-indigo-700 text-white"
+        }`}
+      >
         <div>
           <h1 className="text-xl font-bold mb-4 flex items-center gap-2">
             <FaBook /> Notes Dashboard
           </h1>
 
+          {/* 🌙 Dark Mode Toggle */}
+          <button
+            onClick={() => setDarkMode((s) => !s)}
+            className="mb-4 flex items-center gap-2 px-3 py-2 bg-white text-indigo-600 rounded hover:bg-gray-200 w-full"
+          >
+            {darkMode ? <FaSun /> : <FaMoon />}{" "}
+            {darkMode ? "Light Mode" : "Dark Mode"}
+          </button>
+
+          {/* Status Filters */}
           <div className="space-y-2 mb-4">
             {["To Do", "In Progress", "Done"].map((tab) => (
               <button
@@ -249,6 +301,14 @@ const Notes = () => {
             >
               📋 All Notes
             </button>
+
+            {/* Organize Button */}
+            <button
+              onClick={handleOrganize}
+              className="mt-3 block w-full text-left px-3 py-2 rounded hover:bg-white hover:text-indigo-600"
+            >
+              🔀 Organize
+            </button>
           </div>
 
           <h2 className="text-sm uppercase text-gray-200 mb-1">📚 Subjects</h2>
@@ -256,7 +316,11 @@ const Notes = () => {
             {Object.entries(getSubjectCounts()).map(([sub, count], i) => (
               <li
                 key={i}
-                className="flex justify-between bg-white text-indigo-700 px-2 py-1 rounded"
+                className={`flex justify-between px-2 py-1 rounded ${
+                  darkMode
+                    ? "bg-gray-800 text-gray-100"
+                    : "bg-white text-indigo-700"
+                }`}
               >
                 <span>{sub}</span>
                 <span className="font-bold">{count}</span>
@@ -264,13 +328,26 @@ const Notes = () => {
             ))}
           </ul>
         </div>
+
+        {/* Add Note Button at bottom of sidebar (mobile friendly) */}
+        <div className="mt-6">
+          <button
+            onClick={() => {
+              setShowModal(true);
+              resetForm();
+              setEditNoteId(null);
+            }}
+            className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+          >
+            <FaPlus /> Add Note
+          </button>
+        </div>
       </div>
 
       {/* Main Section */}
-      <div className="flex-1 bg-[#f1f5f9] p-6">
-
-        {/* ✅ Add Note Button */}
-        <div className="flex justify-end mb-4">
+      <div className="flex-1 p-6">
+        {/* Top area: Add button (desktop) */}
+        <div className="flex justify-end mb-4 hidden md:flex">
           <button
             onClick={() => {
               setShowModal(true);
@@ -295,22 +372,30 @@ const Notes = () => {
                   className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
                 >
                   {paginatedNotes.map((n, i) => (
-                    <Draggable key={n._id} draggableId={n._id} index={i}>
+                    <Draggable key={n._id} draggableId={String(n._id)} index={i}>
                       {(p) => (
                         <div
                           ref={p.innerRef}
                           {...p.draggableProps}
                           {...p.dragHandleProps}
-                          className={`bg-white p-4 rounded-xl shadow-md border-l-4 ${
+                          className={`p-4 rounded-xl shadow-md border-l-4 ${
                             statusColors[n.status] || "border-gray-300"
+                          } ${
+                            darkMode
+                              ? "bg-gray-800 text-gray-100"
+                              : "bg-white text-gray-900"
                           }`}
                         >
                           <h2 className="font-bold text-lg flex items-center gap-2 mb-1">
-                            <FaLightbulb className="text-yellow-500" /> {n.title}
+                            <FaLightbulb className="text-yellow-400" /> {n.title}
                           </h2>
-                          <p className="text-gray-700 text-sm mb-1">{n.content}</p>
+                          <p className="text-sm mb-1">{n.content}</p>
                           {n.subject && (
-                            <p className="text-indigo-600 text-sm mb-2">
+                            <p
+                              className={`text-sm mb-2 ${
+                                darkMode ? "text-indigo-300" : "text-indigo-600"
+                              }`}
+                            >
                               📘 {n.subject}
                             </p>
                           )}
@@ -318,7 +403,11 @@ const Notes = () => {
                             {n.tags?.map((t, idx) => (
                               <span
                                 key={idx}
-                                className="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full text-xs"
+                                className={`px-2 py-0.5 rounded-full text-xs ${
+                                  darkMode
+                                    ? "bg-indigo-700 text-indigo-100"
+                                    : "bg-indigo-100 text-indigo-700"
+                                }`}
                               >
                                 {t}
                               </span>
@@ -329,7 +418,9 @@ const Notes = () => {
                               href={n.resourceUrl}
                               target="_blank"
                               rel="noreferrer"
-                              className="flex items-center text-blue-600 text-sm gap-1 underline"
+                              className={`flex items-center text-sm gap-1 underline ${
+                                darkMode ? "text-blue-300" : "text-blue-600"
+                              }`}
                             >
                               <FaLink /> Visit
                             </a>
@@ -337,15 +428,17 @@ const Notes = () => {
                           <div className="flex justify-between items-center mt-4">
                             <button
                               onClick={() => toggleStar(n._id)}
-                              className="text-yellow-500 hover:text-yellow-600 text-lg"
+                              className="text-lg"
                               title={n.isStarred ? "Unstar" : "Star this note"}
                             >
-                              {n.isStarred ? "⭐" : "☆"}
+                              <span className={darkMode ? "text-yellow-300" : "text-yellow-500"}>
+                                {n.isStarred ? "⭐" : "☆"}
+                              </span>
                             </button>
                             <div className="flex gap-4">
                               <button
                                 onClick={() => handleEdit(n)}
-                                className="text-yellow-600 hover:text-yellow-800"
+                                className={darkMode ? "text-yellow-300" : "text-yellow-600"}
                               >
                                 <FaEdit />
                               </button>
@@ -374,7 +467,7 @@ const Notes = () => {
         {/* Pagination */}
         <div className="mt-6 flex justify-center gap-2">
           {Array.from({
-            length: Math.ceil(filteredNotes.length / NOTES_PER_PAGE),
+            length: Math.max(1, Math.ceil(filteredNotes.length / NOTES_PER_PAGE)),
           }).map((_, i) => (
             <button
               key={i}
@@ -382,7 +475,11 @@ const Notes = () => {
               className={`w-8 h-8 rounded-full flex items-center justify-center ${
                 currentPage === i + 1
                   ? "bg-indigo-600 text-white"
-                  : "bg-white text-indigo-600 border border-indigo-600"
+                  : `${
+                      darkMode
+                        ? "bg-gray-800 text-gray-100 border border-gray-700"
+                        : "bg-white text-indigo-600 border border-indigo-600"
+                    }`
               }`}
             >
               {i + 1}
@@ -394,7 +491,11 @@ const Notes = () => {
       {/* Add/Edit Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm flex justify-center items-center z-50">
-          <div className="bg-white w-full max-w-md rounded-lg p-6 relative">
+          <div
+            className={`w-full max-w-md rounded-lg p-6 relative ${
+              darkMode ? "bg-gray-800 text-gray-100" : "bg-white text-gray-900"
+            }`}
+          >
             <button
               onClick={() => {
                 setShowModal(false);
@@ -417,7 +518,11 @@ const Notes = () => {
                 onChange={(e) =>
                   setNoteData({ ...noteData, title: e.target.value })
                 }
-                className="w-full border px-3 py-2 rounded"
+                className={`w-full border px-3 py-2 rounded ${
+                  darkMode
+                    ? "bg-gray-700 border-gray-600 text-gray-100"
+                    : "bg-white border-gray-300 text-gray-900"
+                }`}
               />
               <textarea
                 placeholder="Content"
@@ -426,7 +531,11 @@ const Notes = () => {
                 onChange={(e) =>
                   setNoteData({ ...noteData, content: e.target.value })
                 }
-                className="w-full border px-3 py-2 rounded"
+                className={`w-full border px-3 py-2 rounded h-24 resize-y ${
+                  darkMode
+                    ? "bg-gray-700 border-gray-600 text-gray-100"
+                    : "bg-white border-gray-300 text-gray-900"
+                }`}
               />
               <input
                 type="text"
@@ -435,14 +544,22 @@ const Notes = () => {
                 onChange={(e) =>
                   setNoteData({ ...noteData, subject: e.target.value })
                 }
-                className="w-full border px-3 py-2 rounded"
+                className={`w-full border px-3 py-2 rounded ${
+                  darkMode
+                    ? "bg-gray-700 border-gray-600 text-gray-100"
+                    : "bg-white border-gray-300 text-gray-900"
+                }`}
               />
               <select
                 value={noteData.status}
                 onChange={(e) =>
                   setNoteData({ ...noteData, status: e.target.value })
                 }
-                className="w-full border px-3 py-2 rounded"
+                className={`w-full border px-3 py-2 rounded ${
+                  darkMode
+                    ? "bg-gray-700 border-gray-600 text-gray-100"
+                    : "bg-white border-gray-300 text-gray-900"
+                }`}
               >
                 <option value="To Do">📝 To Do</option>
                 <option value="In Progress">⏳ In Progress</option>
@@ -455,7 +572,11 @@ const Notes = () => {
                 onChange={(e) =>
                   setNoteData({ ...noteData, tags: e.target.value })
                 }
-                className="w-full border px-3 py-2 rounded"
+                className={`w-full border px-3 py-2 rounded ${
+                  darkMode
+                    ? "bg-gray-700 border-gray-600 text-gray-100"
+                    : "bg-white border-gray-300 text-gray-900"
+                }`}
               />
               <input
                 type="url"
@@ -464,7 +585,11 @@ const Notes = () => {
                 onChange={(e) =>
                   setNoteData({ ...noteData, resourceUrl: e.target.value })
                 }
-                className="w-full border px-3 py-2 rounded"
+                className={`w-full border px-3 py-2 rounded ${
+                  darkMode
+                    ? "bg-gray-700 border-gray-600 text-gray-100"
+                    : "bg-white border-gray-300 text-gray-900"
+                }`}
               />
               <button
                 type="submit"
@@ -480,7 +605,11 @@ const Notes = () => {
       {/* Delete Modal */}
       {showDeleteModal && (
         <div className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm flex justify-center items-center z-50">
-          <div className="bg-white w-full max-w-sm rounded-lg p-6 relative text-center">
+          <div
+            className={`w-full max-w-sm rounded-lg p-6 relative text-center ${
+              darkMode ? "bg-gray-800 text-gray-100" : "bg-white text-gray-900"
+            }`}
+          >
             <h3 className="text-lg font-semibold mb-4">
               Are you sure you want to delete this note?
             </h3>
