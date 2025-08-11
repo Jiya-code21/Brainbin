@@ -219,13 +219,13 @@ const Notes = () => {
       } relative`}
     >
       {/* Dark mode toggle button fixed top-right */}
-      <button
-        onClick={() => setDarkMode((d) => !d)}
-        title="Toggle Dark Mode"
-        className="fixed top-4 right-4 z-50 p-2 rounded-full bg-indigo-600 text-white hover:bg-indigo-700 transition-colors shadow-lg"
-      >
-        {darkMode ? <FaSun /> : <FaMoon />}
-      </button>
+<button
+  onClick={() => setDarkMode((d) => !d)}
+  title="Toggle Dark Mode"
+  className="fixed top-4 right-4 z-50 w-14 h-14 p-3 rounded-full bg-indigo-600 text-white hover:bg-indigo-700 transition-colors shadow-lg flex items-center justify-center"
+>
+  {darkMode ? <FaSun size={24} /> : <FaMoon size={24} />}
+</button>
 
       {/* Sidebar */}
       <div
