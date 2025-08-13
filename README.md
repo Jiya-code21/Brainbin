@@ -64,7 +64,7 @@ Found a bug or have an idea to make BrainBin even better?
 Feel free to **fork** this repository, open an issue, or submit a pull request.  
 Your contributions and feedback are always appreciated!
 
-<h3 align="center">🙌 Thanks for stopping by!</h3>
+<h3 align="center">🙌 Thanks for stopping by</h3>
 <p align="center">Loved BrainBin? Give it a ⭐ to show your support.</p>
 <p align="center">Keep noting. Keep building. 💡✨</p> 
 
