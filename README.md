@@ -9,7 +9,7 @@ BrainBin is your personal idea vault — a lightning-fast notes app built for cl
 Whether it's your next big idea, class notes, or tasks to remember — BrainBin helps you organize everything without the mess.
 
 ❓ Why BrainBin?
-
+ 
 Tired of scattered thoughts and cluttered dashboards?  
 I built BrainBin to solve 3 common problems:
 - ❌ Overwhelming UIs
