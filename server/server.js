@@ -15,10 +15,20 @@ const allowedOrigins = [
   "https://brainbin-frontend.onrender.com",
 ];
 
-app.use(cors({
-  origin: allowedOrigins,
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error("Not allowed by CORS"));
+    },
+    credentials: true,
+  })
+);
+
+app.options("*", cors());
 
 app.use(express.json());
 app.use(cookieParser());
@@ -29,7 +39,6 @@ app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
 app.use("/api/note", noteRouter);
 
-// ✅ IMPORTANT CHANGE HERE
 app.listen(port, async () => {
   console.log(`Server running on port ${port}`);
   await connectDB();
